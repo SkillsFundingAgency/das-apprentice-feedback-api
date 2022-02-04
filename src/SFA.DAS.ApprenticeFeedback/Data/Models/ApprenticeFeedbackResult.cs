@@ -8,6 +8,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Models
         public Guid Id { get; set; }
         public Guid FeedbackId { get; set; }
         public DateTime DateTimeCompleted { get; set; }
-        public List<ProviderAttribute> ProviderAttributes { get; set; }
+        public ICollection<ProviderAttribute> ProviderRating { get; set; }
     }
 }
