@@ -1,11 +1,9 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SFA.DAS.ApprenticeFeedback.OuterApi
 {
-    public class CacheStandardsRequest
+    public class CacheStandardsCommand
     {
         [JsonProperty("standards")]
         public List<Standard> Standards { get; set; }
@@ -17,8 +15,9 @@ namespace SFA.DAS.ApprenticeFeedback.OuterApi
         public string StandardUId { get; set; }
         [JsonProperty("standardReference")]
         public string StandardReference { get; set; }
-        [JsonProperty("")]
+        [JsonProperty("standardName")]
         public string StandardName{ get; set; }
+        [JsonProperty("larsCode")]
         public int LarsCode { get; set; }
     }
 }

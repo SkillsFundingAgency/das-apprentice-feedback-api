@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using SFA.DAS.ApprenticeFeedback.OuterApi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
     public class StandardsController : Controller
     {
         [HttpPost]
-        public IActionResult CacheStandards()
+        public IActionResult CacheStandards(CacheStandardsCommand standards)
         {
             return View();
         }
