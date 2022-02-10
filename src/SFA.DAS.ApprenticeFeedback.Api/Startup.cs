@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -6,10 +7,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 using SFA.DAS.ApprenticeFeedback.Api.Authorization;
-using SFA.DAS.ApprenticeFeedback.Configuration;
-using SFA.DAS.ApprenticeFeedback.Extensions;
+using SFA.DAS.ApprenticeFeedback.Api.Configuration;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTarget;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
 
@@ -62,6 +64,12 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 
             services.AddApiAuthentication(azureAdConfiguration, Environment.IsDevelopment())
                 .AddApiAuthorization(Environment);
+
+            services.AddMediatR(typeof(CreateFeedbackTargetCommand).Assembly);
+            services.AddServices();
+
+            var appSettings = Configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+            services.AddDatabase(appSettings, Configuration["EnvironmentName"]);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

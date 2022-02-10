@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.ApprenticeFeedback.Configuration
+﻿namespace SFA.DAS.ApprenticeFeedback.Api.Configuration
 {
     public class ApplicationSettings
     {

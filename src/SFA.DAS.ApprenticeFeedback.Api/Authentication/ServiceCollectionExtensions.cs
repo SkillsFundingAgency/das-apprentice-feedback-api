@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.ApprenticeFeedback.Configuration;
+using SFA.DAS.ApprenticeFeedback.Api.Configuration;
 using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Authentication
