@@ -16,8 +16,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTarget
 
         public async Task<CreateFeedbackTargetCommandResponse> Handle(CreateFeedbackTargetCommand request, CancellationToken cancellationToken)
         {
-            // Validate command
-
             var result = await _apprenticeFeedbackService.CreateFeedbackTarget(request.FeedbackTarget);
 
             return new CreateFeedbackTargetCommandResponse
