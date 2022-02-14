@@ -6,6 +6,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Api.ApiRequests;
 using SFA.DAS.ApprenticeFeedback.Api.Controllers;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTarget;
 using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Threading;
@@ -32,7 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeFeedbackTargetController controller)
         {
-            mediator.Setup(m => m.Send(It.IsAny<IRequest>(), It.IsAny<CancellationToken>())).Throws(new Exception());
+            mediator.Setup(m => m.Send(It.IsAny<CreateFeedbackTargetCommand>(), It.IsAny<CancellationToken>())).Throws(new Exception());
 
             var result = await controller.Create(request);
 
