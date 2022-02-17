@@ -65,11 +65,14 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             services.AddApiAuthentication(azureAdConfiguration, Environment.IsDevelopment())
                 .AddApiAuthorization(Environment);
 
-            services.AddMediatR(typeof(CreateFeedbackTargetCommand).Assembly);
+            services.AddMediatR(typeof(CreateApprenticeFeedbackTargetCommand).Assembly);
             services.AddServices();
-
+            
             var appSettings = Configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
-            services.AddDatabase(appSettings, Configuration["EnvironmentName"]);
+
+            var environmentName = Environment.EnvironmentName == "IntegrationTests" ? "IntegrationTests" : Configuration["EnvironmentName"];
+            
+            services.AddDatabase(appSettings, environmentName);
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

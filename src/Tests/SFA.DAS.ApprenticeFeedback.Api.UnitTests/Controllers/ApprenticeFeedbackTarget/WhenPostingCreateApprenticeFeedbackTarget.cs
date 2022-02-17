@@ -18,7 +18,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
     {
         [Test, MoqAutoData]
         public async Task And_MediatorCommandSuccessful_Then_ReturnOk(
-            CreateFeedbackTargetRequest request,
+            CreateApprenticeFeedbackTargetRequest request,
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeFeedbackTargetController controller)
         {
@@ -29,7 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
 
         [Test, MoqAutoData]
         public async Task And_MediatorThrowsException_Then_ReturnBadRequest(
-            CreateFeedbackTargetRequest request,
+            CreateApprenticeFeedbackTargetRequest request,
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeFeedbackTargetController controller)
         {

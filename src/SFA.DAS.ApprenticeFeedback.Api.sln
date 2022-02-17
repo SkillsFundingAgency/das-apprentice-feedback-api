@@ -11,13 +11,15 @@ Project("{00D1A9C2-B5F0-4AF3-8072-F6C62B433612}") = "SFA.DAS.ApprenticeFeedback.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ApprenticeFeedback.Api.UnitTests", "Tests\SFA.DAS.ApprenticeFeedback.Api.UnitTests\SFA.DAS.ApprenticeFeedback.Api.UnitTests.csproj", "{2833F5AF-52AD-441B-A4D8-10C736B118B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ApprenticeFeedback.Domain", "SFA.DAS.ApprenticeFeedback.Domain\SFA.DAS.ApprenticeFeedback.Domain.csproj", "{B4EC15C8-5EAC-4C22-A8FA-B253CA7350B6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ApprenticeFeedback.Domain", "SFA.DAS.ApprenticeFeedback.Domain\SFA.DAS.ApprenticeFeedback.Domain.csproj", "{B4EC15C8-5EAC-4C22-A8FA-B253CA7350B6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ApprenticeFeedback.Application", "SFA.DAS.ApprenticeFeedback.Application\SFA.DAS.ApprenticeFeedback.Application.csproj", "{83C25C98-A4B3-4048-A262-2C21C880120D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ApprenticeFeedback.Application", "SFA.DAS.ApprenticeFeedback.Application\SFA.DAS.ApprenticeFeedback.Application.csproj", "{83C25C98-A4B3-4048-A262-2C21C880120D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ApprenticeFeedback.Application.UnitTests", "SFA.DAS.ApprenticeFeedback.Application.UnitTests\SFA.DAS.ApprenticeFeedback.Application.UnitTests.csproj", "{F9461794-BA7B-4BBD-B57B-19FD3517380F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ApprenticeFeedback.Application.UnitTests", "SFA.DAS.ApprenticeFeedback.Application.UnitTests\SFA.DAS.ApprenticeFeedback.Application.UnitTests.csproj", "{F9461794-BA7B-4BBD-B57B-19FD3517380F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ApprenticeFeedback.Data", "SFA.DAS.ApprenticeFeedback.Data\SFA.DAS.ApprenticeFeedback.Data.csproj", "{C03DAA3A-2889-4E7B-96CE-65FBA264A780}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ApprenticeFeedback.Data", "SFA.DAS.ApprenticeFeedback.Data\SFA.DAS.ApprenticeFeedback.Data.csproj", "{C03DAA3A-2889-4E7B-96CE-65FBA264A780}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ApprenticeFeedback.Api.IntegrationTests", "SFA.DAS.ApprenticeFeedback.Api.IntegrationTests\SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.csproj", "{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,6 +121,18 @@ Global
 		{C03DAA3A-2889-4E7B-96CE-65FBA264A780}.Release|x64.Build.0 = Release|Any CPU
 		{C03DAA3A-2889-4E7B-96CE-65FBA264A780}.Release|x86.ActiveCfg = Release|Any CPU
 		{C03DAA3A-2889-4E7B-96CE-65FBA264A780}.Release|x86.Build.0 = Release|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Debug|x64.Build.0 = Debug|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Debug|x86.Build.0 = Debug|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Release|x64.ActiveCfg = Release|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Release|x64.Build.0 = Release|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Release|x86.ActiveCfg = Release|Any CPU
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -126,6 +140,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{2833F5AF-52AD-441B-A4D8-10C736B118B0} = {F0113337-E298-4D11-AA06-23B69C2337E0}
 		{F9461794-BA7B-4BBD-B57B-19FD3517380F} = {F0113337-E298-4D11-AA06-23B69C2337E0}
+		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D} = {F0113337-E298-4D11-AA06-23B69C2337E0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A7F47414-703D-47FF-A992-51F2D169D6F3}

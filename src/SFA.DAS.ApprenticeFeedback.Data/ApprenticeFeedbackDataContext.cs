@@ -6,7 +6,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 {
     public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext
     {
-        public DbSet<FeedbackTarget> FeedbackTargets { get; set; }
+        public DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
 
         public ApprenticeFeedbackDataContext()
         {

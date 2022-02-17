@@ -1,8 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Api.ApiRequests;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTarget;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
@@ -12,35 +14,37 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
     public class ApprenticeFeedbackTargetController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly ILogger<ApprenticeFeedbackTargetController> _logger;
 
-        public ApprenticeFeedbackTargetController(IMediator mediator)
+        public ApprenticeFeedbackTargetController(IMediator mediator, ILogger<ApprenticeFeedbackTargetController> logger)
         {
             _mediator = mediator;
+            _logger = logger;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateFeedbackTargetRequest request)
+        public async Task<IActionResult> Create([FromBody] CreateApprenticeFeedbackTargetRequest request)
         {
             try
             {
-                var command = new CreateFeedbackTargetCommand
+                var command = new CreateApprenticeFeedbackTargetCommand
                 {
-                    FeedbackTarget = new FeedbackTarget
+                    FeedbackTarget = new ApprenticeFeedbackTarget
                     {
                         ApprenticeId = request.ApprenticeId,
                         ApprenticeshipId = request.ApprenticeshipId,
-                        Status = request.Status,
-                        FirstName = request.FirstName,
-                        EmailAddress = request.EmailAddress
+                        Status = request.Status
                     }
                 };
 
-                await _mediator.Send(command);
+                var result = await _mediator.Send(command);
 
-                return Ok();
+                return Ok(result);
             }
-            catch
+            catch (Exception e)
             {
+                _logger.LogError(e, $"Error attempting to create apprentice feedback target for ApprenticeId: {request.ApprenticeId}, ApprenticeshipId {request.ApprenticeshipId}");
+                
                 return BadRequest();
             }
         }
