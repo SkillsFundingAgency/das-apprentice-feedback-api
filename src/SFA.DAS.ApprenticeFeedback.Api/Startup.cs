@@ -46,6 +46,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
+            //services.AddControllers().AddJsonOptions(x =>
+            //    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {

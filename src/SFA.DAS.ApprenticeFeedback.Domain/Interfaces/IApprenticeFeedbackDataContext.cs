@@ -6,6 +6,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
     public interface IApprenticeFeedbackDataContext
     {
         DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
+        DbSet<Attribute> Attributes { get; set; }
         int SaveChanges();
     }
 }

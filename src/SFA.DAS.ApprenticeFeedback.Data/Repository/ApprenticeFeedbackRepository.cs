@@ -1,6 +1,8 @@
-﻿using SFA.DAS.ApprenticeFeedback.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Data.Repository
@@ -28,6 +30,11 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             }
 
             return feedbackTarget.Id;
+        }
+
+        public async Task<List<Domain.Entities.Attribute>> GetProviderAttributes()
+        {
+            return await _dbContext.Attributes.ToListAsync();
         }
     }
 }

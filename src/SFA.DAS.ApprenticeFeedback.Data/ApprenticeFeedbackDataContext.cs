@@ -8,6 +8,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
     {
         public DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
 
+        public DbSet<Attribute> Attributes { get; set; } 
+
         public ApprenticeFeedbackDataContext()
         {
         }
