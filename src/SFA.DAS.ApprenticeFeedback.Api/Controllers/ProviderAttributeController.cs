@@ -18,9 +18,10 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         }
 
         [HttpGet("/")]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> GetProviderAttributes()
         {
             var result = await _mediator.Send(new GetAttributesQuery());
+
             return Ok(result.Attributes);
         }
     }
