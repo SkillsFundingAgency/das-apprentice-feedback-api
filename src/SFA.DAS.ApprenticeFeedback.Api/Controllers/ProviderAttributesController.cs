@@ -8,16 +8,17 @@ using System.Threading.Tasks;
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
 {
     [ApiController]
-    public class ProviderAttributeController : Controller
+    [Route("api/[controller]/")]
+    public class ProviderAttributesController : Controller
     {
         private readonly IMediator _mediator;
 
-        public ProviderAttributeController(IMediator mediator)
+        public ProviderAttributesController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
-        [HttpGet("/")]
+        [HttpGet]
         public async Task<IActionResult> GetProviderAttributes()
         {
             var result = await _mediator.Send(new GetAttributesQuery());

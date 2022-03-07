@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.30114.105
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ApprenticeFeedback.Api", "SFA.DAS.ApprenticeFeedback.Api\SFA.DAS.ApprenticeFeedback.Api.csproj", "{27C22FCD-EE3B-4385-B88B-B8D25ABA61C6}"
 EndProject
@@ -19,7 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ApprenticeFeedback.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ApprenticeFeedback.Data", "SFA.DAS.ApprenticeFeedback.Data\SFA.DAS.ApprenticeFeedback.Data.csproj", "{C03DAA3A-2889-4E7B-96CE-65FBA264A780}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ApprenticeFeedback.Api.IntegrationTests", "SFA.DAS.ApprenticeFeedback.Api.IntegrationTests\SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.csproj", "{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SFA.DAS.ApprenticeFeedback.Api.IntegrationTests", "SFA.DAS.ApprenticeFeedback.Api.IntegrationTests\SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.csproj", "{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SFA.DAS.ApprenticeFeedback.Domain.UnitTests", "SFA.DAS.ApprenticeFeedback.Domain.UnitTests\SFA.DAS.ApprenticeFeedback.Domain.UnitTests.csproj", "{0BBA046A-B242-438C-BF96-A5D55BE1E198}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -133,6 +135,18 @@ Global
 		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Release|x64.Build.0 = Release|Any CPU
 		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Release|x86.ActiveCfg = Release|Any CPU
 		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D}.Release|x86.Build.0 = Release|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Debug|x64.Build.0 = Debug|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Debug|x86.Build.0 = Debug|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Release|x64.ActiveCfg = Release|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Release|x64.Build.0 = Release|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Release|x86.ActiveCfg = Release|Any CPU
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -141,6 +155,7 @@ Global
 		{2833F5AF-52AD-441B-A4D8-10C736B118B0} = {F0113337-E298-4D11-AA06-23B69C2337E0}
 		{F9461794-BA7B-4BBD-B57B-19FD3517380F} = {F0113337-E298-4D11-AA06-23B69C2337E0}
 		{CAE03C5C-6AFE-4E46-8CB3-59383FE6587D} = {F0113337-E298-4D11-AA06-23B69C2337E0}
+		{0BBA046A-B242-438C-BF96-A5D55BE1E198} = {F0113337-E298-4D11-AA06-23B69C2337E0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A7F47414-703D-47FF-A992-51F2D169D6F3}
