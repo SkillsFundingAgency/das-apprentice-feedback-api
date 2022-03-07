@@ -14,6 +14,7 @@ using SFA.DAS.ApprenticeFeedback.Api.Configuration;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTarget;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
+using System.Text.Json.Serialization;
 
 namespace SFA.DAS.ApprenticeFeedback.Api
 {
@@ -46,8 +47,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.AddControllers().AddJsonOptions(x =>
-            //    x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
+            services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
