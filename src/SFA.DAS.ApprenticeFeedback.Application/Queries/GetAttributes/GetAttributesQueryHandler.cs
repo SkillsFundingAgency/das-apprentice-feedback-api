@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAttributes
 {
-    public class GetAttributesQueryHandler : IRequestHandler<GetAttributesQuery, GetAttributesResponse>
+    public class GetAttributesQueryHandler : IRequestHandler<GetAttributesQuery, GetAttributesResult>
     {
         private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
 
@@ -17,15 +17,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAttributes
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
         }
-        public async Task<GetAttributesResponse> Handle(GetAttributesQuery request, CancellationToken cancellationToken)
+        public async Task<GetAttributesResult> Handle(GetAttributesQuery request, CancellationToken cancellationToken)
         {
             var entities = await _apprenticeFeedbackRepository.GetProviderAttributes();
 
             var attributes = entities.Select(entity => (Domain.Models.Attribute)entity).ToList();
 
-            return new GetAttributesResponse
+            return new GetAttributesResult
             {
-                Attributes = attributes
+                ProviderAttributes = attributes
             };
         }
     }

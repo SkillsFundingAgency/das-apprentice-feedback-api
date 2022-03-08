@@ -12,8 +12,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         {
             var result = (Domain.Models.Attribute)source;
 
-            result.AttributeId.Should().Be(source.AttributeId);
-            result.AttributeName.Should().Be(source.AttributeName);
+            result.Id.Should().Be(source.AttributeId);
+            result.Name.Should().Be(source.AttributeName);
         }
     }
 }

@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAttributes
 {
-    public class GetAttributesQuery : IRequest<GetAttributesResponse>
+    public class GetAttributesQuery : IRequest<GetAttributesResult>
     {
     }
 }

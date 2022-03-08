@@ -6,8 +6,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
     public class Attribute
     {
-        public int AttributeId { get; set; }
-        public string AttributeName { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
 
         public static implicit operator Attribute(Entities.Attribute source)
         {
@@ -18,8 +18,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 
             return new Attribute
             {
-                AttributeId = source.AttributeId,
-                AttributeName = source.AttributeName,
+                Id = source.AttributeId,
+                Name = source.AttributeName,
             };
         }
     }
