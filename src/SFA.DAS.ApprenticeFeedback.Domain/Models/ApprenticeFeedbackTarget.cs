@@ -36,5 +36,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 EndDate =source.EndDate
             };
         }
+
+        public void ResetFeedbackTarget()
+        {
+            this.StartDate = null;
+            this.EndDate = null;
+            this.Status = FeedbackTargetStatus.NotYetActive;
+        }
     }
 }

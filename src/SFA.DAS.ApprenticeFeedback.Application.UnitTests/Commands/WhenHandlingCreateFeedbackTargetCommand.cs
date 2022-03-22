@@ -11,18 +11,21 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.ApprenticeFeedbackTarget;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 {
     public class WhenHandlingCreateFeedbackTargetCommand
     {
         [Test, MoqAutoData]
-        public async Task And_CommandIsValid_Then_CallService(
+        public async Task And_CommandIsValid_Then_CreatesFeedback_If_It_Doesnt_Exist(
            CreateApprenticeFeedbackTargetCommand command, 
            [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
            CreateApprenticeFeedbackTargetCommandHandler handler,
            Guid response)
         {
+            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTarget(command.ApprenticeId, command.ApprenticeshipId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
+
             mockApprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackTarget(
                 It.Is<ApprenticeFeedbackTarget>(s => 
                 s.ApprenticeId == command.ApprenticeId &&
@@ -32,6 +35,25 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             var result = await handler.Handle(command, CancellationToken.None);
 
             result.FeedbackId.Should().Be(response);
+        }
+
+        [Test, MoqAutoData]
+        public async Task And_CommandIsValid_Then_UpdatesFeedback_If_It_Exists(
+           CreateApprenticeFeedbackTargetCommand command,
+           [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
+           ApprenticeFeedbackTarget apprenticeFeedbackTarget,
+           CreateApprenticeFeedbackTargetCommandHandler handler)
+        {
+            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTarget(command.ApprenticeId, command.CommitmentApprenticeshipId)).ReturnsAsync(apprenticeFeedbackTarget);
+
+            mockApprenticeFeedbackRepository.Setup(s => s.UpdateApprenticeFeedbackTarget(It.Is<ApprenticeFeedbackTarget>(s =>
+            s.StartDate == null && s.EndDate == null &&
+            s.Status == (int)FeedbackTargetStatus.NotYetActive &&
+            s.Id == apprenticeFeedbackTarget.Id))).ReturnsAsync(apprenticeFeedbackTarget);
+
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            result.FeedbackId.Should().Be(apprenticeFeedbackTarget.Id);
         }
     }
 }

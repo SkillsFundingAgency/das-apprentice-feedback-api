@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,16 +17,28 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
 
         public async Task<CreateApprenticeFeedbackTargetCommandResponse> Handle(CreateApprenticeFeedbackTargetCommand request, CancellationToken cancellationToken)
         {
-            var result = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackTarget(new Domain.Models.ApprenticeFeedbackTarget
+            var apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTarget(request.ApprenticeId, request.CommitmentApprenticeshipId);
+            Guid? feedbackId;
+            if (apprenticeFeedbackTarget == null)
             {
-                ApprenticeId = request.ApprenticeId,
-                ApprenticeshipId = request.CommitmentApprenticeshipId,
-                Status = Domain.Models.ApprenticeFeedbackTarget.FeedbackTargetStatus.NotYetActive,
-            });
+                feedbackId = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackTarget(new Domain.Models.ApprenticeFeedbackTarget
+                {
+                    ApprenticeId = request.ApprenticeId,
+                    ApprenticeshipId = request.CommitmentApprenticeshipId,
+                    Status = Domain.Models.ApprenticeFeedbackTarget.FeedbackTargetStatus.NotYetActive,
+                });
+            }
+            else
+            {
+                Domain.Models.ApprenticeFeedbackTarget updatedTarget = apprenticeFeedbackTarget;
+                updatedTarget.ResetFeedbackTarget();
+                apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.UpdateApprenticeFeedbackTarget(updatedTarget);
+                feedbackId = apprenticeFeedbackTarget.Id;
+            }
 
             return new CreateApprenticeFeedbackTargetCommandResponse
             {
-                FeedbackId = result
+                FeedbackId = feedbackId
             };
         }
     }

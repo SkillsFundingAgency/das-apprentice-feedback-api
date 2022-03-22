@@ -40,6 +40,24 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests
             _dbContext.Verify(s => s.SaveChanges(), Times.Once);
         }
 
+        [Test, MoqAutoData]
+        public async Task Then_The_ApprenticeFeedbackTarget_Is_Updated(ApprenticeFeedbackTarget apprenticeFeedbackTarget, ApprenticeFeedbackTarget updatedApprenticeFeedbackTarget)
+        {
+            //arrange
+            updatedApprenticeFeedbackTarget.Id = apprenticeFeedbackTarget.Id;
+            updatedApprenticeFeedbackTarget.ApprenticeId = apprenticeFeedbackTarget.ApprenticeId;
+            updatedApprenticeFeedbackTarget.ApprenticeshipId = apprenticeFeedbackTarget.ApprenticeshipId;
+
+            _dbContext.Setup(s => s.ApprenticeFeedbackTargets).ReturnsDbSet(new List<ApprenticeFeedbackTarget>() { apprenticeFeedbackTarget });
+
+            //act
+            var result = await _repository.UpdateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
+
+            //assert
+            result.Should().BeEquivalentTo(apprenticeFeedbackTarget);
+            _dbContext.Verify(s => s.SaveChanges(), Times.Once);
+        }
+
         [Test,MoqAutoData]
         public async Task Then_If_There_Is_A_Constraint_Exception_It_Is_Handled(ApprenticeFeedbackTarget afTarget)
         {

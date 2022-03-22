@@ -10,7 +10,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
     public class ApprenticeFeedbackRepository : IApprenticeFeedbackRepository
     {
         private readonly IApprenticeFeedbackDataContext _dbContext;
-        
+
         public ApprenticeFeedbackRepository(IApprenticeFeedbackDataContext dbContext)
         {
             _dbContext = dbContext;
@@ -30,6 +30,35 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
 
             return feedbackTarget.Id;
         }
+
+        public async Task<ApprenticeFeedbackTarget> UpdateApprenticeFeedbackTarget(ApprenticeFeedbackTarget updatedEntity)
+        {
+            try
+            {
+                var feedbackTarget = await _dbContext.ApprenticeFeedbackTargets.FirstOrDefaultAsync(s => s.Id == updatedEntity.Id);
+                if (feedbackTarget == null)
+                {
+                    return null;
+                }
+
+                //ApprenticeId and ApprenticeshipId should not change.
+                feedbackTarget.StartDate = updatedEntity.StartDate;
+                feedbackTarget.EndDate = updatedEntity.EndDate;
+                feedbackTarget.Status = updatedEntity.Status;
+
+                _dbContext.SaveChanges();
+                return feedbackTarget;
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentsApprenticeshipid)
+        => await _dbContext.ApprenticeFeedbackTargets.
+            FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentsApprenticeshipid);
+
 
         public async Task<List<Domain.Entities.Attribute>> GetProviderAttributes()
         {
