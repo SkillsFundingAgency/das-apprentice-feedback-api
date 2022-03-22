@@ -10,7 +10,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
 {
     public static class AddDatabaseRegistrations
     {
-        public static void AddDatabase(this IServiceCollection services, ApplicationSettings config, string environmentName)
+        public static void AddDatabaseRegistration(this IServiceCollection services, ApplicationSettings config, string environmentName)
         {
             if (environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -20,8 +20,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             {
                 services.AddDbContext<ApprenticeFeedbackDataContext>(options => options.UseSqlServer("Server=localhost;Database=SFA.DAS.ApprenticeFeedback.IntegrationTests.Database;Trusted_Connection=True;MultipleActiveResultSets=true").EnableSensitiveDataLogging(), ServiceLifetime.Transient);
             }
-            else 
-            { 
+            else
+            {
                 services.AddSingleton(new AzureServiceTokenProvider());
                 services.AddDbContext<ApprenticeFeedbackDataContext>(ServiceLifetime.Transient);
             }

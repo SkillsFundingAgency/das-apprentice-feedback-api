@@ -1,11 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.ApprenticeFeedback.Application.Services;
+﻿using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Data.Repository;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
 {
@@ -13,9 +11,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
     {
         public static void AddServices(this IServiceCollection services)
         {
-            services.AddTransient<IApprenticeFeedbackRepository, ApprenticeFeedbackRepository>();
-
-            services.AddTransient<IApprenticeFeedbackService, ApprenticeFeedbackService>();
+            services.AddMediatR(typeof(CreateApprenticeFeedbackTargetCommand).Assembly);
+            services.AddScoped<IApprenticeFeedbackDataContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
+            services.AddScoped<IApprenticeFeedbackRepository, ApprenticeFeedbackRepository>();
         }
     }
 }
