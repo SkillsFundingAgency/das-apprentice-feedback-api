@@ -7,14 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="DatabaseMock\README.md" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Include="DatabaseMock\README.md" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="AutoFixture.AutoMoq" Version="4.17.0" />
     <PackageReference Include="AutoFixture.NUnit3" Version="4.17.0" />
     <PackageReference Include="FluentAssertions" Version="6.5.1" />
