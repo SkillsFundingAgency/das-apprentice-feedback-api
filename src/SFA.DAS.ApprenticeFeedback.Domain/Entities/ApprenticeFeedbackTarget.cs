@@ -9,8 +9,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public Guid ApprenticeId { get; set; }
         public long ApprenticeshipId { get; set; }
         public int Status { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
         public ICollection<FeedbackEmailTransaction> EmailTransactions { get; set; }
 
         public static implicit operator ApprenticeFeedbackTarget(Models.ApprenticeFeedbackTarget source)

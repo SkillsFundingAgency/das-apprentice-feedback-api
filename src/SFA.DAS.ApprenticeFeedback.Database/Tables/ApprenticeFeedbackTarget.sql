@@ -4,8 +4,8 @@
 	[ApprenticeId] UNIQUEIDENTIFIER NOT NULL, 
     [ApprenticeshipId] BIGINT NOT NULL, 
     [Status] INT NOT NULL,
-	[StartDate] DateTime2 NULL,
-	[EndDate] DateTime2 NULL
+	[StartDate] DateTime2 DEFAULT NULL,
+	[EndDate] DateTime2 DEFAULT NULL
 
 )
 
@@ -17,3 +17,5 @@ CREATE UNIQUE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_ApprenticeIdAppren
 		[ApprenticeId],
 		[ApprenticeshipId]
 	);
+
+GO

@@ -21,7 +21,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             try
             {
                 await _dbContext.ApprenticeFeedbackTargets.AddAsync(feedbackTarget);
-
                 _dbContext.SaveChanges();
             }
             catch

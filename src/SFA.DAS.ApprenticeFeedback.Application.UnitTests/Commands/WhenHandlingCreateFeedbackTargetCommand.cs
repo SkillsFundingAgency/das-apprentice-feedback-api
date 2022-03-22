@@ -3,8 +3,8 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Collections.Generic;
@@ -23,8 +23,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
            CreateApprenticeFeedbackTargetCommandHandler handler,
            Guid response)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackTarget(It.IsAny<ApprenticeFeedbackTarget>()))
-                .ReturnsAsync(response);
+            mockApprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackTarget(
+                It.Is<ApprenticeFeedbackTarget>(s => 
+                s.ApprenticeId == command.ApprenticeId &&
+                s.ApprenticeshipId == command.CommitmentApprenticeshipId
+                ))).ReturnsAsync(response);
 
             var result = await handler.Handle(command, CancellationToken.None);
 

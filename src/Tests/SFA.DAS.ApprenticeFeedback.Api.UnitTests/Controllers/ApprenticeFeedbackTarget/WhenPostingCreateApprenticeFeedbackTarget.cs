@@ -18,7 +18,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
         [Test, MoqAutoData]
         public async Task And_MediatorCommandSuccessful_Then_ReturnOk(
             CreateApprenticeFeedbackTargetCommand request,
-            [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeFeedbackTargetController controller)
         {
             var result = await controller.Create(request);

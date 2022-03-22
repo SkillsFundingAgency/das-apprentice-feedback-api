@@ -8,8 +8,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public Guid ApprenticeId { get; set; }
         public long ApprenticeshipId { get; set; }
         public FeedbackTargetStatus Status { get; set; }
-        public DateTime StartDate { get; set; }
-        public DateTime EndDate { get; set; }
+        public DateTime? StartDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         public enum FeedbackTargetStatus
         {

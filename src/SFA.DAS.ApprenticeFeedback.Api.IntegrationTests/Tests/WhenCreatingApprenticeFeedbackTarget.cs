@@ -25,7 +25,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Tests
             var command = new CreateApprenticeFeedbackTargetCommand
             {
                 ApprenticeId = Guid.NewGuid(),
-                ApprenticeshipId = 1
+                CommitmentApprenticeshipId = 1,
+                ApprenticeshipId = 2
             };
 
             var response = await _fixture.SendAsync(command);
@@ -34,7 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Tests
 
             created.Should().NotBeNull();
             created.ApprenticeId.Should().Be(command.ApprenticeId);
-            created.ApprenticeshipId.Should().Be(command.ApprenticeshipId);
+            created.ApprenticeshipId.Should().Be(command.CommitmentApprenticeshipId);
         }
     }
 }
