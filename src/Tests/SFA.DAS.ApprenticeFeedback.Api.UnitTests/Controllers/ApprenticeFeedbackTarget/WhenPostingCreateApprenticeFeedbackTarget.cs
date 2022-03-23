@@ -24,7 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
         {
             var result = await controller.Create(request);
 
-            result.Should().BeOfType<OkResult>();
+            result.Should().BeOfType<OkObjectResult>();
         }
 
         [Test, MoqAutoData]
@@ -33,7 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeFeedbackTargetController controller)
         {
-            mediator.Setup(m => m.Send(It.IsAny<CreateFeedbackTargetCommand>(), It.IsAny<CancellationToken>())).Throws(new Exception());
+            mediator.Setup(m => m.Send(It.IsAny<CreateApprenticeFeedbackTargetCommand>(), It.IsAny<CancellationToken>())).Throws(new Exception());
 
             var result = await controller.Create(request);
 
