@@ -24,7 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
            CreateApprenticeFeedbackTargetCommandHandler handler,
            Guid response)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTarget(command.ApprenticeId, command.ApprenticeshipId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
+            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTarget(command.ApprenticeId, command.CommitmentApprenticeshipId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
 
             mockApprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackTarget(
                 It.Is<ApprenticeFeedbackTarget>(s => 
