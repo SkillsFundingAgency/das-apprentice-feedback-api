@@ -1,5 +1,6 @@
 ﻿using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Services
@@ -13,9 +14,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Services
             _repository = repository;
         }
 
-        public async Task<bool> CreateFeedbackTarget(FeedbackTarget feedbackTarget)
+        public async Task<Guid?> CreateApprenticeFeedbackTarget(ApprenticeFeedbackTarget feedbackTarget)
         {
-            return await _repository.CreateFeedbackTarget(feedbackTarget);
+            return await _repository.CreateApprenticeFeedbackTarget(feedbackTarget);
         }
     }
 }

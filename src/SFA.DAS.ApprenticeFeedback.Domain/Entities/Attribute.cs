@@ -6,7 +6,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 {
     public class Attribute
     {
-        public Guid Id { get; set; }
-        public string Name { get; set; }
+        public int AttributeId { get; set; }
+        public string AttributeName { get; set; }
     }
 }

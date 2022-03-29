@@ -16,6 +16,10 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             {
                 services.AddDbContext<ApprenticeFeedbackDataContext>(options => options.UseSqlServer(config.DbConnectionString).EnableSensitiveDataLogging(), ServiceLifetime.Transient);
             }
+            else if (environmentName.Equals("IntegrationTests", StringComparison.CurrentCultureIgnoreCase))
+            {
+                services.AddDbContext<ApprenticeFeedbackDataContext>(options => options.UseSqlServer("Server=localhost;Database=SFA.DAS.ApprenticeFeedback.IntegrationTests.Database;Trusted_Connection=True;MultipleActiveResultSets=true").EnableSensitiveDataLogging(), ServiceLifetime.Transient);
+            }
             else 
             { 
                 services.AddSingleton(new AzureServiceTokenProvider());

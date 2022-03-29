@@ -18,16 +18,17 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
     {
         [Test, MoqAutoData]
         public async Task And_CommandIsValid_Then_CallService(
-           CreateFeedbackTargetCommand command, 
+           CreateApprenticeFeedbackTargetCommand command, 
            [Frozen] Mock<IApprenticeFeedbackService> mockApprenticeFeedbackService,
-           CreateFeedbackTargetCommandHandler handler)
+           CreateApprenticeFeedbackTargetCommandHandler handler,
+           Guid response)
         {
-            mockApprenticeFeedbackService.Setup(s => s.CreateFeedbackTarget(It.IsAny<FeedbackTarget>()))
-                .ReturnsAsync(true);
+            mockApprenticeFeedbackService.Setup(s => s.CreateApprenticeFeedbackTarget(It.IsAny<ApprenticeFeedbackTarget>()))
+                .ReturnsAsync(response);
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            result.IsCreated.Should().BeTrue();
+            result.FeedbackId.Should().Be(response);
         }
     }
 }

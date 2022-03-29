@@ -18,22 +18,22 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
     {
         [Test, MoqAutoData]
         public async Task And_MediatorCommandSuccessful_Then_ReturnOk(
-            CreateFeedbackTargetRequest request,
+            CreateApprenticeFeedbackTargetRequest request,
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeFeedbackTargetController controller)
         {
             var result = await controller.Create(request);
 
-            result.Should().BeOfType<OkResult>();
+            result.Should().BeOfType<OkObjectResult>();
         }
 
         [Test, MoqAutoData]
         public async Task And_MediatorThrowsException_Then_ReturnBadRequest(
-            CreateFeedbackTargetRequest request,
+            CreateApprenticeFeedbackTargetRequest request,
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeFeedbackTargetController controller)
         {
-            mediator.Setup(m => m.Send(It.IsAny<CreateFeedbackTargetCommand>(), It.IsAny<CancellationToken>())).Throws(new Exception());
+            mediator.Setup(m => m.Send(It.IsAny<CreateApprenticeFeedbackTargetCommand>(), It.IsAny<CancellationToken>())).Throws(new Exception());
 
             var result = await controller.Create(request);
 
