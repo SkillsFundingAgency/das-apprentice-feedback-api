@@ -12,8 +12,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Configuration
         {
             builder.ToTable("Attribute");
             builder.HasKey(x => x.AttributeId);
-            builder.Property(x => x.AttributeId).HasColumnName("AttributeId").HasColumnType("int").IsRequired();
-            builder.Property(x => x.AttributeName).HasColumnName("AttributeName").HasColumnType("varchar").HasMaxLength(255).IsRequired();
         }
     }
 }

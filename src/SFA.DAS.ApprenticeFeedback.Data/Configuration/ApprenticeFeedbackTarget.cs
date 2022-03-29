@@ -7,7 +7,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<Domain.Entities.ApprenticeFeedbackTarget> builder)
         {
-            builder.ToTable("ApprenticeFeedbackTarget");
+            builder.ToTable("ApprenticeFeedbackTarget")
+            .HasKey(x => x.Id);
         }
     }
 }
