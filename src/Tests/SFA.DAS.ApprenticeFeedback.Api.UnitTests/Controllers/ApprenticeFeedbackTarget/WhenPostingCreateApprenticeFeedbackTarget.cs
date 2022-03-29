@@ -4,9 +4,8 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.ApprenticeFeedback.Api.ApiRequests;
 using SFA.DAS.ApprenticeFeedback.Api.Controllers;
-using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
 using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Threading;
@@ -18,8 +17,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
     {
         [Test, MoqAutoData]
         public async Task And_MediatorCommandSuccessful_Then_ReturnOk(
-            CreateApprenticeFeedbackTargetRequest request,
-            [Frozen] Mock<IMediator> mediator,
+            CreateApprenticeFeedbackTargetCommand request,
             [Greedy] ApprenticeFeedbackTargetController controller)
         {
             var result = await controller.Create(request);
@@ -29,7 +27,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
 
         [Test, MoqAutoData]
         public async Task And_MediatorThrowsException_Then_ReturnBadRequest(
-            CreateApprenticeFeedbackTargetRequest request,
+            CreateApprenticeFeedbackTargetCommand request,
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ApprenticeFeedbackTargetController controller)
         {

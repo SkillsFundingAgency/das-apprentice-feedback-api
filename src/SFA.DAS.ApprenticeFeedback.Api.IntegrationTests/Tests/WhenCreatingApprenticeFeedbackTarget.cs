@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
-using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using System;
 using System.Linq;
@@ -24,20 +24,18 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Tests
         {
             var command = new CreateApprenticeFeedbackTargetCommand
             {
-                FeedbackTarget = new ApprenticeFeedbackTarget
-                {
-                    ApprenticeId = Guid.NewGuid(),
-                    ApprenticeshipId = 1
-                }
+                ApprenticeId = Guid.NewGuid(),
+                CommitmentApprenticeshipId = 1,
+                ApprenticeshipId = 2
             };
 
             var response = await _fixture.SendAsync(command);
-           
+
             var created = await _fixture.ExecuteDbContextAsync(db => db.ApprenticeFeedbackTargets.Where(c => c.Id == response.FeedbackId).SingleOrDefaultAsync());
 
             created.Should().NotBeNull();
-            created.ApprenticeId.Should().Be(command.FeedbackTarget.ApprenticeId);
-            created.ApprenticeshipId.Should().Be(command.FeedbackTarget.ApprenticeshipId);
+            created.ApprenticeId.Should().Be(command.ApprenticeId);
+            created.ApprenticeshipId.Should().Be(command.CommitmentApprenticeshipId);
         }
     }
 }

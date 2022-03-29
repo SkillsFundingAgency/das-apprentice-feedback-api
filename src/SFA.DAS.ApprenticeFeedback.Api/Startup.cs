@@ -11,7 +11,7 @@ using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 using SFA.DAS.ApprenticeFeedback.Api.Authorization;
 using SFA.DAS.ApprenticeFeedback.Api.Configuration;
-using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
 
@@ -39,7 +39,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 #if DEBUG
             config.AddJsonFile($"appsettings.Development.json", optional: true);
 #endif
-         
+
             Configuration = config.Build();
             Environment = environment;
         }
@@ -54,25 +54,19 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(s => s.GetRequiredService<IOptions<ApplicationSettings>>().Value);
+            var appSettings = Configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
 
             services.Configure<AzureActiveDirectoryApiConfiguration>(Configuration.GetSection("AzureAd"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value);
-
-            var azureAdConfiguration = Configuration
-                .GetSection("AzureAd")
-                .Get<AzureActiveDirectoryApiConfiguration>();
+            var azureAdConfiguration = Configuration.GetSection("AzureAd").Get<AzureActiveDirectoryApiConfiguration>();
 
             services.AddApiAuthentication(azureAdConfiguration, Environment.IsDevelopment())
                 .AddApiAuthorization(Environment);
 
-            services.AddMediatR(typeof(CreateApprenticeFeedbackTargetCommand).Assembly);
-            services.AddServices();
-            
-            var appSettings = Configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
-
             var environmentName = Environment.EnvironmentName == "IntegrationTests" ? "IntegrationTests" : Configuration["EnvironmentName"];
-            
-            services.AddDatabase(appSettings, environmentName);
+            services.AddDatabaseRegistration(appSettings, environmentName);
+                
+            services.AddServices();            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

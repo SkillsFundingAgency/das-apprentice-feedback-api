@@ -9,5 +9,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
     {
         Task<Guid?> CreateApprenticeFeedbackTarget(ApprenticeFeedbackTarget feedbackTarget);
         Task<List<Entities.Attribute>> GetProviderAttributes();
+        Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentApprenticeshipId);
+        Task<ApprenticeFeedbackTarget> UpdateApprenticeFeedbackTarget(ApprenticeFeedbackTarget apprenticeFeedbackTarget);
     }
 }

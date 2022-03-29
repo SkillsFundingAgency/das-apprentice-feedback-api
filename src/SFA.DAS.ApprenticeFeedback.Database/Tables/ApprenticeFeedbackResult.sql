@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[ApprenticeFeedbackResult]
 (
 	[Id] UNIQUEIDENTIFIER PRIMARY KEY, 
-    [ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER FOREIGN KEY REFERENCES [dbo].[ApprenticeFeedbackTargets](Id),
+    [ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER FOREIGN KEY REFERENCES [dbo].[ApprenticeFeedbackTarget](Id),
     [Ukprn] BIGINT,
     [StandardReference] NVARCHAR(6),
     [LarsCode] BIGINT,
