@@ -26,9 +26,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ProviderAttribute
 
             result.Should().NotBeNull();
 
-            var model = result.Value as GetAttributesResult;
+            var model = result.Value;
 
-            model.Should().BeEquivalentTo(response);
+            model.Should().BeEquivalentTo(response.ProviderAttributes);
         }
     }
 }
