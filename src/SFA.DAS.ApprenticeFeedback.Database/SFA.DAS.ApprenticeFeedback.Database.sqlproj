@@ -76,4 +76,7 @@
   <ItemGroup>
     <None Include="Scripts\AddDefaultProviderAttributes.sql" />
   </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\Script.PostDeployment1.sql" />
+  </ItemGroup>
 </Project>
