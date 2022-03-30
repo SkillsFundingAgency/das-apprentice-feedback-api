@@ -21,7 +21,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         {
             var result = await _mediator.Send(new GetAttributesQuery());
 
-            return Ok(result);
+            return Ok(result.ProviderAttributes);
         }
     }
 }
