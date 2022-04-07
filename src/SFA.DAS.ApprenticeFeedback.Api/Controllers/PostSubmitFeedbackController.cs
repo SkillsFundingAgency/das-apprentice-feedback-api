@@ -1,6 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
 {
@@ -17,6 +20,19 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             _logger = logger;
         }
 
-        //post method
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] PostSubmitFeedbackCommand request)
+        {
+            try
+            {
+                var result = await _mediator.Send(request);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error saving apprentice feedback to database.");
+                return BadRequest();
+            }
+        }
     }
 }
