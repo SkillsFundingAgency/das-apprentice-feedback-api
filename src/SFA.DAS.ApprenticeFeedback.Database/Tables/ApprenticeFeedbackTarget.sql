@@ -5,7 +5,8 @@
     [ApprenticeshipId] BIGINT NOT NULL, 
     [Status] INT NOT NULL,
 	[StartDate] DateTime2 DEFAULT NULL,
-	[EndDate] DateTime2 DEFAULT NULL
+	[EndDate] DateTime2 DEFAULT NULL,
+	[Ukprn] BIGINT NULL
 
 )
 
