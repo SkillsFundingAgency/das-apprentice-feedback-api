@@ -10,7 +10,10 @@ namespace SFA.DAS.ApprenticeFeedback.Data
     {
         public DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
 
-        public DbSet<Attribute> Attributes { get; set; } 
+        public DbSet<Attribute> Attributes { get; set; }
+        //public DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
+        public DbSet<Domain.Entities.ApprenticeFeedback> ApprenticeFeedbacks { get; set; }
+        public DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
         {

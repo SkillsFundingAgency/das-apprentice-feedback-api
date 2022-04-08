@@ -9,19 +9,20 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]/")]
-    public class PostSubmitFeedbackController : ControllerBase
+    // call post method from the target controller, that should return an id, then implement the command that will post the rest of the data that is not set in the target to populate the other table
+    public class ApprenticeFeedbackController : ControllerBase
     {
         public readonly IMediator _mediator;
-        public readonly ILogger<PostSubmitFeedbackController> _logger;
+        public readonly ILogger<ApprenticeFeedbackController> _logger;
 
-        public PostSubmitFeedbackController(IMediator mediator, ILogger<PostSubmitFeedbackController> logger)
+        public ApprenticeFeedbackController(IMediator mediator, ILogger<ApprenticeFeedbackController> logger)
         {
             _mediator = mediator;   
             _logger = logger;
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] PostSubmitFeedbackCommand request)
+        public async Task<IActionResult> Post([FromBody] CreateApprenticeFeedbackCommand request)
         {
             try
             {

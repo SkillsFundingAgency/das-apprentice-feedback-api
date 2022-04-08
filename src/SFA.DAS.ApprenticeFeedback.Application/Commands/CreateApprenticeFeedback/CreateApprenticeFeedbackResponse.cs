@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
 {
-    public class PostSubmitFeedbackResponse
+    public class CreateApprenticeFeedbackResponse
     {
         public Guid? ApprenticeId { get; set; }
     }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
+﻿namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
     public class FeedbackAttribute
     {

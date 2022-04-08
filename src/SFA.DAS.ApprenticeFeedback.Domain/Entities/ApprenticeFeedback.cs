@@ -1,11 +1,12 @@
-﻿using System;
+﻿using SFA.DAS.ApprenticeFeedback.Domain.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
-using static SFA.DAS.ApprenticeFeedback.Domain.Models.PostSubmitFeedback;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.ApprenticeFeedback;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 {
-    public class PostSubmitFeedback
+    public class ApprenticeFeedback
     {
         public Guid ApprenticeId { get; set; }
         public long Ukprn { get; set; }
@@ -16,11 +17,11 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string StandardUId { get; set; }
         public string StandardReference { get; set; }
 
-        public static implicit operator PostSubmitFeedback(Models.PostSubmitFeedback source)
+        public static implicit operator ApprenticeFeedback(Models.ApprenticeFeedback source)
         {
-            return new PostSubmitFeedback
+            return new ApprenticeFeedback
             {
-                ApprenticeId = source.ApprenticeId,// ?? Guid.NewGuid(),
+                ApprenticeId = source.ApprenticeId, //?? Guid.NewGuid(),
                 Ukprn = source.Ukprn,
                 Rating = source.Rating,
                 ProviderName = source.ProviderName,

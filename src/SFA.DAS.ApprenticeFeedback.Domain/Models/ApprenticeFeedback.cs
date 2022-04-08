@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
-    public class PostSubmitFeedback
+    public class ApprenticeFeedback
     {
         public Guid ApprenticeId { get; set; }
         public long Ukprn { get; set; }
@@ -23,14 +23,14 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             Excellent = 4
         }
 
-        public static implicit operator PostSubmitFeedback(Entities.PostSubmitFeedback source)
+        public static implicit operator ApprenticeFeedback(Entities.ApprenticeFeedback source)
         {
             if (source == null)
             {
                 return null;
             }
 
-            return new PostSubmitFeedback
+            return new ApprenticeFeedback
             {
                 ApprenticeId = source.ApprenticeId,
                 Ukprn = source.Ukprn,
@@ -42,6 +42,5 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             };
         }
 
-        //reset method needed?
     }
 }
