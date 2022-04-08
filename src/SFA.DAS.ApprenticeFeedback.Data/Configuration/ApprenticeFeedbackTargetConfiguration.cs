@@ -12,7 +12,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Configuration
             .HasKey(x => x.Id);
 
             builder.HasMany(m => m.ApprenticeFeedbackResults)
-                .WithOne(n => n.ApprenticeFeedbackTarget);
+                .WithOne(n => n.ApprenticeFeedbackTarget); 
         }
     }
 }

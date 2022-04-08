@@ -44,7 +44,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 ProviderName = source.ProviderName,
                 StandardUId = source.StandardUId,
                 StandardName = source.StandardName,
-                LastFeedbackCompletedDate = source.ApprenticeFeedbackResults?.OrderByDescending(a => a.DateTimeCompleted).First().DateTimeCompleted,
+                LastFeedbackCompletedDate = source.ApprenticeFeedbackResults?.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault()?.DateTimeCompleted
             };
         }
 
