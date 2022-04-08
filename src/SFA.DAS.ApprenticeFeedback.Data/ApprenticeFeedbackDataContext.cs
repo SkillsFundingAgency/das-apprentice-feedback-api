@@ -1,8 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using AttributeConfiguration = SFA.DAS.ApprenticeFeedback.Data.Configuration.Attribute;
-using ApprenticeFeedbackTargetConfiguration = SFA.DAS.ApprenticeFeedback.Data.Configuration.ApprenticeFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Data.Configuration;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -24,6 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackTargetConfiguration());
             modelBuilder.ApplyConfiguration(new Configuration.ApprenticeFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new Configuration.ProviderAttributeConfiguration());
+            modelBuilder.ApplyConfiguration(new ApprenticeFeedbackResultConfiguration());
             base.OnModelCreating(modelBuilder);
         }
 
