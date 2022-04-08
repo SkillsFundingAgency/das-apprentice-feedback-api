@@ -19,7 +19,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAttributes
         }
         public async Task<GetAttributesResult> Handle(GetAttributesQuery request, CancellationToken cancellationToken)
         {
-            var entities = await _apprenticeFeedbackRepository.GetProviderAttributes();
+            var entities = await _apprenticeFeedbackRepository.GetAttributes();
 
             var attributes = entities.Select(entity => (Domain.Models.Attribute)entity).ToList();
 

@@ -2,7 +2,6 @@
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using System;
 using System.Collections.Generic;
-using static SFA.DAS.ApprenticeFeedback.Domain.Models.ApprenticeFeedback;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
 {
@@ -16,7 +15,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
         public int LarsCode { get; set; }
         public string StandardUId { get; set; }
         public string StandardReference { get; set; }
+    }
 
-
+    public enum OverallRating
+    {
+        VeryPoor = 1,
+        Poor = 2,
+        Good = 3,
+        Excellent = 4
     }
 }

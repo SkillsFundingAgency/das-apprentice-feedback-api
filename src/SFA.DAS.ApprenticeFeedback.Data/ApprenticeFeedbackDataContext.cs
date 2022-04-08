@@ -11,9 +11,9 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
 
         public DbSet<Attribute> Attributes { get; set; }
-        //public DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
-        public DbSet<Domain.Entities.ApprenticeFeedback> ApprenticeFeedbacks { get; set; }
-        public DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get => throw new System.NotImplementedException(); set => throw new System.NotImplementedException(); }
+
+        public DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
+        public DbSet<ProviderAttribute> ProviderAttributes { get; set; }
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
         {
@@ -22,6 +22,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         {
             modelBuilder.ApplyConfiguration(new AttributeConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackTargetConfiguration());
+            modelBuilder.ApplyConfiguration(new Configuration.ApprenticeFeedbackResultConfiguration());
+            modelBuilder.ApplyConfiguration(new Configuration.ProviderAttributeConfiguration());
             base.OnModelCreating(modelBuilder);
         }
 
