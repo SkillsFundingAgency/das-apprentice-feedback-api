@@ -24,6 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new Configuration.ApprenticeFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new Configuration.ProviderAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackResultConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
             base.OnModelCreating(modelBuilder);
         }
 

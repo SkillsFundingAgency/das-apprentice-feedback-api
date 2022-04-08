@@ -1,9 +1,6 @@
 ﻿using MediatR;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -19,13 +16,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
         }
         public async Task<GetApprenticeFeedbackTargetsResult> Handle(GetApprenticeFeedbackTargetsQuery request, CancellationToken cancellationToken)
         {
-            var entities = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTarget(request.ApprenticeId);
-
-            var attributes = entities.Select(entity => (Domain.Models.Attribute)entity).ToList();
+            var apprenticeFeedbackTargets = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargets(request.ApprenticeId);
 
             return new GetApprenticeFeedbackTargetsResult
             {
-                ProviderAttributes = attributes
+                ApprenticeFeedbackTargets = apprenticeFeedbackTargets.Select(s => (Domain.Models.ApprenticeFeedbackTarget)s).ToList()
             };
         }
     }

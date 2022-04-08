@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
@@ -14,6 +15,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public string ProviderName { get; set; }
         public string StandardUId { get; set; }
         public string StandardName { get; set; }
+        public DateTime? LastFeedbackCompletedDate { get; set; }
 
         public enum FeedbackTargetStatus
         {
@@ -41,7 +43,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 Ukprn = source.Ukprn,
                 ProviderName = source.ProviderName,
                 StandardUId = source.StandardUId,
-                StandardName = source.StandardName
+                StandardName = source.StandardName,
+                LastFeedbackCompletedDate = source.ApprenticeFeedbackResults?.OrderByDescending(a => a.DateTimeCompleted).First().DateTimeCompleted,
             };
         }
 

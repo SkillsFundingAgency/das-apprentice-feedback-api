@@ -56,10 +56,10 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
         }
 
         public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargets(Guid apprenticeId)
-        => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.EmployerFeedbackResult).Where(aft => aft.ApprenticeId == apprenticeId).ToListAsync();
+        => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).Where(aft => aft.ApprenticeId == apprenticeId).ToListAsync();
 
         public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentsApprenticeshipid)
-        => await _dbContext.ApprenticeFeedbackTargets.
+        => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).
             FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentsApprenticeshipid);
 
         public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeFeedbackTargetId)

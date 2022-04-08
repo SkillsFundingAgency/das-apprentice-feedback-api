@@ -22,12 +22,12 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(Guid apprenticeId)
+        public async Task<IActionResult> GetAllForApprentice(Guid apprenticeId)
         {
             try
             {
                 var result = await _mediator.Send(new GetApprenticeFeedbackTargetsQuery { ApprenticeId = apprenticeId });
-                return Ok(result);
+                return Ok(result.ApprenticeFeedbackTargets);
             }
             catch (Exception e)
             {
