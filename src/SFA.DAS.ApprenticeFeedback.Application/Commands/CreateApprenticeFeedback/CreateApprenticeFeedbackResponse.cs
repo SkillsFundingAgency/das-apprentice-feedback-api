@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
+namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback
 {
     public class CreateApprenticeFeedbackResponse
     {

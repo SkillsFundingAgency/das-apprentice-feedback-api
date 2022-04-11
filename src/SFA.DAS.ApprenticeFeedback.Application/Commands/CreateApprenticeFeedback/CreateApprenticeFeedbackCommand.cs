@@ -3,7 +3,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using System;
 using System.Collections.Generic;
 
-namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
+namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback
 {
     public class CreateApprenticeFeedbackCommand : IRequest<CreateApprenticeFeedbackResponse>
     {

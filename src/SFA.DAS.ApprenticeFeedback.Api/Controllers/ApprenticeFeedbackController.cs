@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
 using System;
 using System.Threading.Tasks;
 

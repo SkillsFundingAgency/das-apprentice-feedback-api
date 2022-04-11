@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 
-namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
+namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback
 {
     public class CreateApprenticeFeedbackHandler : IRequestHandler<CreateApprenticeFeedbackCommand, CreateApprenticeFeedbackResponse>
     {
