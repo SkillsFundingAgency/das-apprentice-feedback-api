@@ -27,8 +27,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
             //if i can't find apprentice target record then need to throw an exception as wont be valid feedback
             if (apprenticeFeedbackTarget == null)
             {
-                //throw new Exception("Apprentice Feedback Target not found.");
-                //create a new target record since we dont have one and return the id - look in other controller for reference
+                throw new Exception("Apprentice Feedback Target not found.");
             }
 
             //validate the attributes supplied -check that the id exists in attribute table if not throw exception
@@ -38,21 +37,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
             if(!allValidAttributes)
             {
                 // throw
+                throw new Exception("Attributes provided are not consistent with those in the database.");
             }
 
-            //foreach(var a in request.FeedbackAttributes)
-            //{
-            //    var exists = validAttributes.Where(s => s.AttributeId == a.Id).FirstOrDefault();
-
-            //    if(exists == null)
-            //    {
-            //        // throw exception it's invalid
-            //    }
-
-            //}
-
             
-            // Need to craete Apprentice Feedback Result
+            // Need to create Apprentice Feedback Result
             // Need to create ProviderAttribute entries.
 
             var feedback = new Domain.Entities.ApprenticeFeedbackResult

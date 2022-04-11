@@ -9,7 +9,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]/")]
-    // call post method from the target controller, that should return an id, then implement the command that will post the rest of the data that is not set in the target to populate the other table
     public class ApprenticeFeedbackController : ControllerBase
     {
         public readonly IMediator _mediator;
