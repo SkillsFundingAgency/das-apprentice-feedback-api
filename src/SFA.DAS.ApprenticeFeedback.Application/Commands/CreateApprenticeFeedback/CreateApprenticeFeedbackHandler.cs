@@ -3,6 +3,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Linq;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
 {
@@ -16,40 +17,61 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.PostSubmitFeedback
         }
 
 
-        public Task<CreateApprenticeFeedbackResponse> Handle(CreateApprenticeFeedbackCommand request, CancellationToken cancellationToken)
+        public async Task<CreateApprenticeFeedbackResponse> Handle(CreateApprenticeFeedbackCommand request, CancellationToken cancellationToken)
         {
 
             // Needs to retrieve apprentice feedback target based on apprentice id which should be in request
-            var target = _apprenticeFeedbackRepository.GetApprenticeFeedbackTargetById(request.ApprenticeId);
+            // May not return a single record. ( currently we assume it returns one )
+            var apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargetById(request.ApprenticeId);
 
             //if i can't find apprentice target record then need to throw an exception as wont be valid feedback
-            if (target == null)
+            if (apprenticeFeedbackTarget == null)
             {
                 //throw new Exception("Apprentice Feedback Target not found.");
                 //create a new target record since we dont have one and return the id - look in other controller for reference
             }
 
             //validate the attributes supplied -check that the id exists in attribute table if not throw exception
-            var exists = _apprenticeFeedbackRepository.ValidateApprenticeId(request.ApprenticeId);
+            var validAttributes = await _apprenticeFeedbackRepository.GetAttributes();
 
-            if (exists == null)
+            var allValidAttributes = request.FeedbackAttributes.Select(s => s.Id).All(t => validAttributes.Select(t => t.AttributeId).Contains(t));
+            if(!allValidAttributes)
             {
-                throw new Exception("Apprentice Id does not exist.");
+                // throw
             }
 
-            //need to create apprenticefeedbackresult record, which will also contain list of provider attributes
+            //foreach(var a in request.FeedbackAttributes)
+            //{
+            //    var exists = validAttributes.Where(s => s.AttributeId == a.Id).FirstOrDefault();
 
-            var feedback = new Domain.Entities.ApprenticeFeedback //ApprenticeFeedbackResult? doesnt have the properties needed
+            //    if(exists == null)
+            //    {
+            //        // throw exception it's invalid
+            //    }
+
+            //}
+
+            
+            // Need to craete Apprentice Feedback Result
+            // Need to create ProviderAttribute entries.
+
+            var feedback = new Domain.Entities.ApprenticeFeedbackResult
             {
-                ApprenticeId = request.ApprenticeId,
+                ApprenticeFeedbackTargetFeedbackId = apprenticeFeedbackTarget.Id,
                 Ukprn = request.Ukprn,
-                Rating = request.OverallRating,
-                ProviderName = request.ProviderName,
                 LarsCode = request.LarsCode,
                 StandardUId = request.StandardUId,
-                StandardReference = request.StandardReference
+                StandardReference = request.StandardReference,
+                DateTimeCompleted = DateTime.UtcNow,
+                ProviderRating = request.OverallRating.ToString(),
+                //ProviderName = request.ProviderName,
+                ProviderAttributes = request.FeedbackAttributes.
+                    Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList()
             };
-            _apprenticeFeedbackRepository.SaveApprenticeFeedback(feedback);
+            
+            var updatedFeedback = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackResult(feedback);
+
+            return new CreateApprenticeFeedbackResponse();
         }
     }
 }

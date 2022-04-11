@@ -66,18 +66,17 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId);
 
 
-        public async Task<List<Domain.Entities.Attribute>> GetProviderAttributes()
+        public async Task<IEnumerable<Domain.Entities.Attribute>> GetAttributes()
         {
             return await _dbContext.Attributes.ToListAsync();
         }
 
-        public async Task<ApprenticeFeedbackTarget> ValidateApprenticeId(Guid apprenticeId)
-        => await _dbContext.ApprenticeFeedbackTargets.Where(aft => aft.ApprenticeId == apprenticeId).FirstOrDefaultAsync();
-
-        public async Task<ApprenticeFeedbackTarget> SaveApprenticeFeedback(Domain.Entities.ApprenticeFeedback feedback)
+        public async Task<ApprenticeFeedbackResult> CreateApprenticeFeedbackResult(ApprenticeFeedbackResult feedbackResult)
         {
-            await _dbContext.ApprenticeFeedbackResults.AddAsync(feedback);
+            await _dbContext.ApprenticeFeedbackResults.AddAsync(feedbackResult);
             _dbContext.SaveChanges();
+
+            return feedbackResult;
         }
 
     }

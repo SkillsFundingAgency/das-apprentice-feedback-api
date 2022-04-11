@@ -20,7 +20,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             GetAttributesQueryHandler handler,
             List<Domain.Entities.Attribute> response)
         {
-            mockRepository.Setup( s => s.GetProviderAttributes()).ReturnsAsync(response);
+            mockRepository.Setup( s => s.GetAttributes()).ReturnsAsync(response);
 
             var result = await handler.Handle(query, CancellationToken.None);
 
