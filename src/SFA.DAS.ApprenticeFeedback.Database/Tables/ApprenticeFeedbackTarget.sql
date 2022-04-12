@@ -6,7 +6,10 @@
     [Status] INT NOT NULL,
 	[StartDate] DateTime2 DEFAULT NULL,
 	[EndDate] DateTime2 DEFAULT NULL,
-	[Ukprn] BIGINT NULL
+	[Ukprn] BIGINT NULL,
+	[ProviderName] NVARCHAR(10),
+	[StandardUId] NVARCHAR(12),
+	[StandardName] NVARCHAR(100)
 
 )
 

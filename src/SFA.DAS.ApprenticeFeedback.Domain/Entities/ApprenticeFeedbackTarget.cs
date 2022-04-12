@@ -11,18 +11,25 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public int Status { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
-        public ICollection<FeedbackEmailTransaction> EmailTransactions { get; set; }
+        public long? Ukprn { get; set; }
+        public string ProviderName { get; set; }
+        public string StandardUId { get; set; }
+        public string StandardName { get; set; }
 
         public static implicit operator ApprenticeFeedbackTarget(Models.ApprenticeFeedbackTarget source)
         {
             return new ApprenticeFeedbackTarget
             {
-                Id = source.Id ?? Guid.NewGuid(),
+                Id = source.Id, //?? Guid.NewGuid(),
                 ApprenticeId = source.ApprenticeId,
                 ApprenticeshipId = source.ApprenticeshipId,
                 Status = (int)source.Status,
                 StartDate = source.StartDate,
-                EndDate = source.EndDate
+                EndDate = source.EndDate,
+                Ukprn = source.Ukprn,
+                ProviderName = source.ProviderName,
+                StandardUId = source.StandardUId,
+                StandardName = source.StandardName
             };
         }
     }

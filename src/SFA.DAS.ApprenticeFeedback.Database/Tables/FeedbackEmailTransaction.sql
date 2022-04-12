@@ -6,6 +6,9 @@
     [EmailAddress] NCHAR(256),
     [FirstName] NCHAR(256),
     [EmailTemplateId] UNIQUEIDENTIFIER,
-    [CreateOn] DATETIME NOT NULL,
+    [StandardName] NVARCHAR(100),
+    [ProviderName] NVARCHAR(12),
+    [CreatedOn] DATETIME NOT NULL,
+    [SendAfter] DATETIME,
     [SentDate] DATETIME,
 )

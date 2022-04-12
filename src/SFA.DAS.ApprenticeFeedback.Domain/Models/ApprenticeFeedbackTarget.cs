@@ -4,12 +4,16 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
     public class ApprenticeFeedbackTarget
     {
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
         public Guid ApprenticeId { get; set; }
         public long ApprenticeshipId { get; set; }
         public FeedbackTargetStatus Status { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
+        public long? Ukprn { get; set; }
+        public string ProviderName { get; set; }
+        public string StandardUId { get; set; }
+        public string StandardName { get; set; }
 
         public enum FeedbackTargetStatus
         {
@@ -33,7 +37,11 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 ApprenticeshipId = source.ApprenticeshipId,
                 Status = (FeedbackTargetStatus)source.Status,
                 StartDate = source.StartDate,
-                EndDate =source.EndDate
+                EndDate =source.EndDate,
+                Ukprn = source.Ukprn,
+                ProviderName = source.ProviderName,
+                StandardUId = source.StandardUId,
+                StandardName = source.StandardName
             };
         }
 

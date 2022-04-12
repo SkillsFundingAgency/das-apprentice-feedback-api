@@ -1,4 +1,5 @@
-﻿namespace SFA.DAS.ApprenticeFeedback.Domain.Models
+﻿
+namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
     public class FeedbackAttribute
     {

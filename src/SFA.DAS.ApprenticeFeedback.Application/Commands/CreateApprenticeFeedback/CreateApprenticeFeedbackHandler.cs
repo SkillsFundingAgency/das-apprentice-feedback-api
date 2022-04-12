@@ -47,15 +47,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             var feedback = new Domain.Entities.ApprenticeFeedbackResult
             {
                 ApprenticeFeedbackTargetFeedbackId = apprenticeFeedbackTarget.Id,
-                Ukprn = request.Ukprn,
-                LarsCode = request.LarsCode,
                 StandardUId = request.StandardUId,
-                StandardReference = request.StandardReference,
                 DateTimeCompleted = DateTime.UtcNow,
                 ProviderRating = request.OverallRating.ToString(),
-                //ProviderName = request.ProviderName,
-                ProviderAttributes = request.FeedbackAttributes.
-                    Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList()
             };
             
             var updatedFeedback = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackResult(feedback);

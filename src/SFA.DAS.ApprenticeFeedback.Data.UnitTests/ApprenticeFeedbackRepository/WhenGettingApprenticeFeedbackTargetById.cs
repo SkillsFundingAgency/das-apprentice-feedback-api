@@ -25,11 +25,11 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
         }
 
         [Test, MoqAutoData]
-        public async Task Then_ApprenticeFeedbackTargetIsSuccessfullyReturned(Guid mockId, Guid mockApprenticeId, long mockApprenticeshipId, ICollection<FeedbackEmailTransaction> mockEmailTransactions, int mockStatus, ApprenticeFeedbackTarget mockApprenticeFeedbackTarget)
+        public async Task Then_ApprenticeFeedbackTargetIsSuccessfullyReturned(Guid mockId, Guid mockApprenticeId, long mockApprenticeshipId, int mockStatus, long mockUkprn, string mockProviderName, string mockStandardUId, string mockStandardName, ApprenticeFeedbackTarget mockApprenticeFeedbackTarget)
         {
 
             _dbContext.Setup(s => s.ApprenticeFeedbackTargets).ReturnsDbSet(new List<Domain.Entities.ApprenticeFeedbackTarget>()
-            { new ApprenticeFeedbackTarget { ApprenticeId = mockApprenticeId, ApprenticeshipId = mockApprenticeshipId, Id = mockId, Status = 0, StartDate = DateTime.Today, EndDate = DateTime.Today, EmailTransactions= mockEmailTransactions}});
+            { new ApprenticeFeedbackTarget { ApprenticeId = mockApprenticeId, ApprenticeshipId = mockApprenticeshipId, Id = mockId, Status = 0, StartDate = DateTime.Today, EndDate = DateTime.Today, Ukprn = mockUkprn, ProviderName = mockProviderName, StandardUId = mockStandardUId, StandardName = mockStandardName}});
 
             mockApprenticeFeedbackTarget.ApprenticeId = mockApprenticeId;
             mockApprenticeFeedbackTarget.ApprenticeshipId = mockApprenticeshipId;
@@ -37,7 +37,10 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
             mockApprenticeFeedbackTarget.Status = 0;
             mockApprenticeFeedbackTarget.StartDate = DateTime.Today;
             mockApprenticeFeedbackTarget.EndDate = DateTime.Today;
-            mockApprenticeFeedbackTarget.EmailTransactions = mockEmailTransactions;
+            mockApprenticeFeedbackTarget.Ukprn = mockUkprn;
+            mockApprenticeFeedbackTarget.ProviderName = mockProviderName;
+            mockApprenticeFeedbackTarget.StandardUId = mockStandardUId;
+            mockApprenticeFeedbackTarget.StandardName = mockStandardName;
 
             var result = await _repository.GetApprenticeFeedbackTargetById(mockApprenticeId);
 
