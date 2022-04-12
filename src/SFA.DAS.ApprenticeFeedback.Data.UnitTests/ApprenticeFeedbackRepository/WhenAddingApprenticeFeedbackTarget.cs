@@ -16,14 +16,14 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests
     public class WhenAddingApprenticeFeedbackTarget
     {
         private Mock<IApprenticeFeedbackDataContext> _dbContext;
-        private ApprenticeFeedbackRepository _repository;
+        private Repository.ApprenticeFeedbackRepository _repository;
         
         [SetUp]
         public void Arrange()
         {
             _dbContext = new Mock<IApprenticeFeedbackDataContext>();
             _dbContext.Setup(s => s.ApprenticeFeedbackTargets).ReturnsDbSet(new List<ApprenticeFeedbackTarget>());
-            _repository = new ApprenticeFeedbackRepository(_dbContext.Object);
+            _repository = new Repository.ApprenticeFeedbackRepository(_dbContext.Object);
         }
 
         [Test, MoqAutoData]
