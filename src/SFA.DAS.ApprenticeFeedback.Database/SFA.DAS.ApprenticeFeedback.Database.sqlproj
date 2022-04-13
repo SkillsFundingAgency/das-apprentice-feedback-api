@@ -63,7 +63,7 @@
   <ItemGroup>
     <Build Include="Tables\ApprenticeFeedbackResult.sql" />
     <Build Include="Tables\Attribute.sql" />
-    <Build Include="Tables\FeedbackEmailTransaction.sql" />
+    <Build Include="Tables\FeedbackTransaction.sql" />
     <Build Include="Tables\ProviderAttribute.sql" />
     <Build Include="Tables\ApprenticeFeedbackTarget.sql" />
   </ItemGroup>

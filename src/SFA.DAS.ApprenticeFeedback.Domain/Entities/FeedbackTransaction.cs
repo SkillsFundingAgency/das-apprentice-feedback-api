@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 {
-    public class FeedbackEmailTransaction
+    public class FeedbackTransaction
     {
         public Guid Id { get; set; }
         public Guid ApprenticeFeedbackTargetId { get; set; }

@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[FeedbackEmailTransaction]
+﻿CREATE TABLE [dbo].[FeedbackTransaction]
 (
 	-- Update Id to a sequence
 	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY, 

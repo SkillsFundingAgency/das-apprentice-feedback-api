@@ -35,7 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests
             var result = await _repository.CreateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
 
             //assert
-            result.Value.Should().Be(apprenticeFeedbackTarget.Id);
+            result.Value.Should().Be(apprenticeFeedbackTarget.Id.ToString());
             _dbContext.Verify(s => s.ApprenticeFeedbackTargets.AddAsync(apprenticeFeedbackTarget, It.IsAny<CancellationToken>()), Times.Once);
             _dbContext.Verify(s => s.SaveChanges(), Times.Once);
         }
