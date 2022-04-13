@@ -4,7 +4,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
     public class ApprenticeFeedbackTarget
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public Guid ApprenticeId { get; set; }
         public long ApprenticeshipId { get; set; }
         public FeedbackTargetStatus Status { get; set; }

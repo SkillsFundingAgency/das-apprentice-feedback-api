@@ -5,7 +5,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 {
     public class ApprenticeFeedbackTarget
     {
-        public Guid Id { get; set; }
+        public Guid? Id { get; set; }
         public Guid ApprenticeId { get; set; }
         public long ApprenticeshipId { get; set; }
         public int Status { get; set; }
@@ -15,12 +15,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string ProviderName { get; set; }
         public string StandardUId { get; set; }
         public string StandardName { get; set; }
+        public ICollection<FeedbackEmailTransaction> EmailTransactions { get; set; }
 
         public static implicit operator ApprenticeFeedbackTarget(Models.ApprenticeFeedbackTarget source)
         {
             return new ApprenticeFeedbackTarget
             {
-                Id = source.Id, //?? Guid.NewGuid(),
+                Id = source.Id ?? Guid.NewGuid(),
                 ApprenticeId = source.ApprenticeId,
                 ApprenticeshipId = source.ApprenticeshipId,
                 Status = (int)source.Status,

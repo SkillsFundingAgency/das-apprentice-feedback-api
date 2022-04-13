@@ -1,9 +1,9 @@
 ﻿CREATE TABLE [dbo].[ApprenticeFeedbackTarget]
 (
-    [Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
 	[ApprenticeId] UNIQUEIDENTIFIER NOT NULL, 
-    [ApprenticeshipId] BIGINT NOT NULL, 
-    [Status] INT NOT NULL,
+	[ApprenticeshipId] BIGINT NOT NULL, 
+	[Status] INT NOT NULL,
 	[StartDate] DateTime2 DEFAULT NULL,
 	[EndDate] DateTime2 DEFAULT NULL,
 	[Ukprn] BIGINT NULL,

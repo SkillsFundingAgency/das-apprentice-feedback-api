@@ -25,7 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
         }
 
         [Test, MoqAutoData]
-        public async Task Then_ApprenticeFeedbackTargetIsSuccessfullyReturned(Guid mockId, Guid mockApprenticeId, long mockApprenticeshipId, int mockStatus, long mockUkprn, string mockProviderName, string mockStandardUId, string mockStandardName, ApprenticeFeedbackTarget mockApprenticeFeedbackTarget)
+        public async Task Then_ApprenticeFeedbackTargetIsSuccessfullyReturned(Guid mockId, Guid mockApprenticeId, long mockApprenticeshipId, int mockStatus, long mockUkprn, string mockProviderName, string mockStandardUId, string mockStandardName, ICollection<FeedbackEmailTransaction> mockEmailTransactions, ApprenticeFeedbackTarget mockApprenticeFeedbackTarget)
         {
 
             _dbContext.Setup(s => s.ApprenticeFeedbackTargets).ReturnsDbSet(new List<Domain.Entities.ApprenticeFeedbackTarget>()
@@ -41,6 +41,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
             mockApprenticeFeedbackTarget.ProviderName = mockProviderName;
             mockApprenticeFeedbackTarget.StandardUId = mockStandardUId;
             mockApprenticeFeedbackTarget.StandardName = mockStandardName;
+            mockApprenticeFeedbackTarget.EmailTransactions = mockEmailTransactions;
 
             var result = await _repository.GetApprenticeFeedbackTargetById(mockApprenticeId);
 
