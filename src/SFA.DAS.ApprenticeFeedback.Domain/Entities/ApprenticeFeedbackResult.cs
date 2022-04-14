@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 {
@@ -11,7 +10,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string StandardUId { get; set; }
         public DateTime? DateTimeCompleted { get; set; }
         public string ProviderRating { get; set; }
-        //public int AllowContact { get; set; }
+        public bool AllowContact { get; set; }
         public ICollection<ProviderAttribute> ProviderAttributes { get; set; }
     }
 }

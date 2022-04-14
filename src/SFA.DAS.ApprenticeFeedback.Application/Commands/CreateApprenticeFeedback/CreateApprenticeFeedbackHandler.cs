@@ -51,8 +51,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                 DateTimeCompleted = DateTime.UtcNow,
                 ProviderRating = request.OverallRating.ToString(),
                 ProviderAttributes = request.FeedbackAttributes.
-                    Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList()
-                 //also need to set AllowContact
+                    Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList(),
+                AllowContact = request.AllowContact
             };
             
             var updatedFeedback = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackResult(feedback);
