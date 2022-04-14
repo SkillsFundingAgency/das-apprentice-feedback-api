@@ -21,7 +21,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("{apprenticeId}")]
         public async Task<IActionResult> GetAllForApprentice(Guid apprenticeId)
         {
             try
