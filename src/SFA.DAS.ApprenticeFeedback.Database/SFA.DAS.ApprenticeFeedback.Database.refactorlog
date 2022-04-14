@@ -28,4 +28,11 @@
     <Property Name="ParentElementType" Value="SqlTable" />
     <Property Name="NewName" Value="Ukprn" />
   </Operation>
+  <Operation Name="Rename Refactor" Key="6a429c40-cd4e-4c1d-8f1b-2d52681d9a7e" ChangeDateTime="04/13/2022 14:41:25">
+    <Property Name="ElementName" Value="[dbo].[ApprenticeFeedbackResult].[Id]" />
+    <Property Name="ElementType" Value="SqlSimpleColumn" />
+    <Property Name="ParentElementName" Value="[dbo].[ApprenticeFeedbackResult]" />
+    <Property Name="ParentElementType" Value="SqlTable" />
+    <Property Name="NewName" Value="ApprenticeFeedbackResultId" />
+  </Operation>
 </Operations>
