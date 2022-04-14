@@ -67,7 +67,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
 
         public async Task<IEnumerable<Domain.Entities.Attribute>> GetAttributes()
         {
-            return await _dbContext.Attributes.ToListAsync();
+            return await _dbContext.Attributes.AsNoTracking().ToListAsync();
         }
 
         public async Task<ApprenticeFeedbackResult> CreateApprenticeFeedbackResult(ApprenticeFeedbackResult feedbackResult)

@@ -15,6 +15,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public int LarsCode { get; set; }
         public string StandardUId { get; set; }
         public string StandardReference { get; set; }
+        public bool AllowContact { get; set; }
     }
 
     public enum OverallRating

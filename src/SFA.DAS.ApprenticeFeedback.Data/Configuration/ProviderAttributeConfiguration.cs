@@ -1,9 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace SFA.DAS.ApprenticeFeedback.Data.Configuration
 {
@@ -12,7 +9,11 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Configuration
         public void Configure(EntityTypeBuilder<ProviderAttribute> builder)
         {
             builder.ToTable("ProviderAttribute");
-            builder.HasKey(x => x.ApprenticeFeedbackResultId);
+            builder.HasKey(x => new { x.ApprenticeFeedbackResultId, x.AttributeId });
+
+            builder.HasOne(a => a.Attribute)
+                .WithMany(b => b.ProviderAttributes)
+                .HasForeignKey(c => c.AttributeId);
         }
     }
 }

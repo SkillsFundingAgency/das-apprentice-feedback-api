@@ -3,7 +3,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 {
-    public interface IApprenticeFeedbackDataContext
+    public interface IApprenticeFeedbackDataContext 
     {
         DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
         DbSet<Attribute> Attributes { get; set; }
