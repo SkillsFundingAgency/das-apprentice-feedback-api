@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[ApprenticeFeedbackResult]
 (
-	[ApprenticeFeedbackResultId] UNIQUEIDENTIFIER PRIMARY KEY, 
+	[Id] UNIQUEIDENTIFIER PRIMARY KEY, 
 	[ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER FOREIGN KEY REFERENCES [dbo].[ApprenticeFeedbackTarget](Id),
 	[StandardUId] NVARCHAR(12),
 	[DateTimeCompleted] DATETIME2, 

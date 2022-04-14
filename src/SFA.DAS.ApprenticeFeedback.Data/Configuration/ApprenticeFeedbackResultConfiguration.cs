@@ -9,10 +9,11 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Configuration
         public void Configure(EntityTypeBuilder<ApprenticeFeedbackResult> builder)
         {
             builder.ToTable("ApprenticeFeedbackResult");
-            builder.HasKey(x => x.ApprenticeFeedbackResultId);
+            builder.HasKey(x => x.Id);
 
             builder.HasMany(s => s.ProviderAttributes)
-                .WithOne(s => s.ApprenticeFeedbackResult);
+                .WithOne(s => s.ApprenticeFeedbackResult)
+                .HasForeignKey(s => s.ApprenticeFeedbackResultId);
    }
     }
 }
