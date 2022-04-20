@@ -11,22 +11,21 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
     public class CreateApprenticeFeedbackHandler : IRequestHandler<CreateApprenticeFeedbackCommand, CreateApprenticeFeedbackResponse>
     {
         public readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
-        public readonly ILogger _logger;
-        public readonly IDateTimeHelper _time;
+        public readonly ILogger<CreateApprenticeFeedbackHandler> _logger;
+        public readonly IDateTimeHelper _timeHelper;
 
-        public CreateApprenticeFeedbackHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository, ILogger logger, IDateTimeHelper time)
+        public CreateApprenticeFeedbackHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository, IDateTimeHelper timeHelper, ILogger<CreateApprenticeFeedbackHandler> logger)
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
-            _time = time;
+            _timeHelper = timeHelper;
             _logger = logger;
         }
-
 
         public async Task<CreateApprenticeFeedbackResponse> Handle(CreateApprenticeFeedbackCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Fetch ApprenticeFeedbackTarget record by Id. Id used: {request.ApprenticeFeedbackTargetId}");
             var apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargetById(request.ApprenticeFeedbackTargetId);
-            
+
             if (apprenticeFeedbackTarget == null)
             {
                 _logger.LogError($"No ApprenticeFeedbackTarget record found. ApprenticeFeedbackTargetId: {request.ApprenticeFeedbackTargetId}");
@@ -36,7 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             var validAttributes = await _apprenticeFeedbackRepository.GetAttributes();
 
             var allValidAttributes = request.FeedbackAttributes.Select(s => s.Id).All(t => validAttributes.Select(t => t.AttributeId).Contains(t));
-            if(!allValidAttributes)
+            if (!allValidAttributes)
             {
                 _logger.LogError($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {request.FeedbackAttributes.ToList()}");
                 throw new InvalidOperationException($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {request.FeedbackAttributes.ToList()}");
@@ -46,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             {
                 ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id,
                 StandardUId = request.StandardUId,
-                DateTimeCompleted = _time.Now,
+                DateTimeCompleted = _timeHelper.Now,
                 ProviderRating = request.OverallRating.ToString(),
                 ProviderAttributes = request.FeedbackAttributes.
                     Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList(),
