@@ -15,7 +15,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
         {
             _dbContext = dbContext;
         }
-        //create apprentice feedback method that tales in a apprentice feedback object and saves to db
 
         public async Task<Guid?> CreateApprenticeFeedbackTarget(ApprenticeFeedbackTarget feedbackTarget)
         {
@@ -42,7 +41,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
                     return null;
                 }
 
-                //ApprenticeId and ApprenticeshipId should not change.
                 feedbackTarget.StartDate = updatedEntity.StartDate;
                 feedbackTarget.EndDate = updatedEntity.EndDate;
                 feedbackTarget.Status = updatedEntity.Status;
@@ -60,14 +58,14 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
         => await _dbContext.ApprenticeFeedbackTargets.
             FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentsApprenticeshipid);
 
-        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeId)
+        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid aftId)
         => await _dbContext.ApprenticeFeedbackTargets.
-            FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId);
+                            SingleOrDefaultAsync(aft => aft.Id == aftId);
 
 
         public async Task<IEnumerable<Domain.Entities.Attribute>> GetAttributes()
         {
-            return await _dbContext.Attributes.AsNoTracking().ToListAsync();
+            return await _dbContext.Attributes.ToListAsync();
         }
 
         public async Task<ApprenticeFeedbackResult> CreateApprenticeFeedbackResult(ApprenticeFeedbackResult feedbackResult)

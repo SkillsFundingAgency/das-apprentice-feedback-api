@@ -4,7 +4,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
 {
     public class CreateApprenticeFeedbackResponse
     {
-        public Guid? ApprenticeId { get; set; }
+        public Guid ApprenticeFeedbackResultId { get; set; }
     }
 }
 

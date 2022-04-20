@@ -1,3 +1,4 @@
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,7 @@ using SFA.DAS.ApprenticeFeedback.Api.Authorization;
 using SFA.DAS.ApprenticeFeedback.Api.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
+using System.Reflection;
 
 namespace SFA.DAS.ApprenticeFeedback.Api
 {
@@ -63,7 +65,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 
             var environmentName = Environment.EnvironmentName == "IntegrationTests" ? "IntegrationTests" : Configuration["EnvironmentName"];
             services.AddDatabaseRegistration(appSettings, environmentName);
-                
+
             services.AddServices();            
         }
 

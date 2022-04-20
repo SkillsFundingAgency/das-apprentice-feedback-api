@@ -5,9 +5,7 @@ using SFA.DAS.ApprenticeFeedback.Data.UnitTests.DatabaseMock;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
-using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
@@ -15,7 +13,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
     public class WhenGettingApprenticeFeedbackTargetById
     {
         private Mock<IApprenticeFeedbackDataContext> _dbContext;
-        private Repository.ApprenticeFeedbackRepository _repository;
+        private IApprenticeFeedbackRepository _repository;
+
 
         [SetUp]
         public void Arrange()
@@ -25,27 +24,14 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
         }
 
         [Test, MoqAutoData]
-        public async Task Then_ApprenticeFeedbackTargetIsSuccessfullyReturned(Guid mockId, Guid mockApprenticeId, long mockApprenticeshipId, int mockStatus, long mockUkprn, string mockProviderName, string mockStandardUId, string mockStandardName, ICollection<FeedbackTransaction> mockEmailTransactions, ApprenticeFeedbackTarget mockApprenticeFeedbackTarget)
+        public async Task Then_ApprenticeFeedbackTargetIsSuccessfullyReturned(ApprenticeFeedbackTarget apprenticeFeedbackTarget)
         {
+            var dbSet = new List<ApprenticeFeedbackTarget>() { apprenticeFeedbackTarget };
+            _dbContext.Setup(s => s.ApprenticeFeedbackTargets).ReturnsDbSet(dbSet);
 
-            _dbContext.Setup(s => s.ApprenticeFeedbackTargets).ReturnsDbSet(new List<Domain.Entities.ApprenticeFeedbackTarget>()
-            { new ApprenticeFeedbackTarget { ApprenticeId = mockApprenticeId, ApprenticeshipId = mockApprenticeshipId, Id = mockId, Status = 0, StartDate = DateTime.Today, EndDate = DateTime.Today, Ukprn = mockUkprn, ProviderName = mockProviderName, StandardUId = mockStandardUId, StandardName = mockStandardName}});
+            var result = await _repository.GetApprenticeFeedbackTargetById(apprenticeFeedbackTarget.Id);
 
-            mockApprenticeFeedbackTarget.ApprenticeId = mockApprenticeId;
-            mockApprenticeFeedbackTarget.ApprenticeshipId = mockApprenticeshipId;
-            mockApprenticeFeedbackTarget.Id = mockId;
-            mockApprenticeFeedbackTarget.Status = 0;
-            mockApprenticeFeedbackTarget.StartDate = DateTime.Today;
-            mockApprenticeFeedbackTarget.EndDate = DateTime.Today;
-            mockApprenticeFeedbackTarget.Ukprn = mockUkprn;
-            mockApprenticeFeedbackTarget.ProviderName = mockProviderName;
-            mockApprenticeFeedbackTarget.StandardUId = mockStandardUId;
-            mockApprenticeFeedbackTarget.StandardName = mockStandardName;
-            mockApprenticeFeedbackTarget.EmailTransactions = mockEmailTransactions;
-
-            var result = await _repository.GetApprenticeFeedbackTargetById(mockApprenticeId);
-
-            result.Should().BeEquivalentTo(mockApprenticeFeedbackTarget);
+            result.Should().BeEquivalentTo(apprenticeFeedbackTarget);
         }
     }
 }

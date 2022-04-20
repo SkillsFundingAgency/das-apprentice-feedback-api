@@ -13,7 +13,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 {
     public class WhenRequestingFeedbackAttributes
     {
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task ThenAttributesAreReturned(
             GetAttributesQuery query,
             [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,

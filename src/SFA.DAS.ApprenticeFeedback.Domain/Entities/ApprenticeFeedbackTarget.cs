@@ -5,7 +5,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 {
     public class ApprenticeFeedbackTarget
     {
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
         public Guid ApprenticeId { get; set; }
         public long ApprenticeshipId { get; set; }
         public int Status { get; set; }

@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.ApprenticeFeedback.Data.Repository;
 using SFA.DAS.ApprenticeFeedback.Data.UnitTests.DatabaseMock;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
@@ -35,7 +34,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests
             var result = await _repository.CreateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
 
             //assert
-            result.Value.Should().Be(apprenticeFeedbackTarget.Id.ToString());
+            result.Value.Should().Be(apprenticeFeedbackTarget.Id);
             _dbContext.Verify(s => s.ApprenticeFeedbackTargets.AddAsync(apprenticeFeedbackTarget, It.IsAny<CancellationToken>()), Times.Once);
             _dbContext.Verify(s => s.SaveChanges(), Times.Once);
         }

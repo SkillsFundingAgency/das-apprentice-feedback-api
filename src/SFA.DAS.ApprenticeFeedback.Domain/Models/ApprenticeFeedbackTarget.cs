@@ -37,7 +37,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 ApprenticeshipId = source.ApprenticeshipId,
                 Status = (FeedbackTargetStatus)source.Status,
                 StartDate = source.StartDate,
-                EndDate =source.EndDate,
+                EndDate = source.EndDate,
                 Ukprn = source.Ukprn,
                 ProviderName = source.ProviderName,
                 StandardUId = source.StandardUId,

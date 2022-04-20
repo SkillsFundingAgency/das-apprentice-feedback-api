@@ -17,20 +17,20 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 {
     public class WhenHandlingCreateApprenticeFeedbackCommand
     {
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task And_GetFeedbackTargetIsNull_Then_ThrowException
             (CreateApprenticeFeedbackCommand command,
             [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
             CreateApprenticeFeedbackHandler handler)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeId)).Throws(new Exception());
+            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId)).ReturnsAsync((Domain.Entities.ApprenticeFeedbackTarget)null);
 
             Func<Task> result = async () => await handler.Handle(command, CancellationToken.None);
 
-            await result.Should().ThrowAsync<Exception>();
+            await result.Should().ThrowAsync<Exception>().WithMessage($"Apprentice Feedback Target not found. ApprenticeFeedbackTargetId: {command.ApprenticeFeedbackTargetId}");
         }
 
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task And_GetFeedbackTargetIsValid_And_GetAttributesIsNotValid_Then_ThrowException
             (CreateApprenticeFeedbackCommand command,
             [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
@@ -38,11 +38,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget)
         {
             mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeId)).ReturnsAsync(apprenticeFeedbackTarget);
-            mockApprenticeFeedbackRepository.Setup(s => s.GetAttributes());
 
             Func<Task> result = async () => await handler.Handle(command, CancellationToken.None);
 
-            await result.Should().ThrowAsync<Exception>();
+            await result.Should().ThrowAsync<Exception>().WithMessage($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {command.FeedbackAttributes.ToList()}");
             
         }
 
@@ -53,17 +52,19 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget,
             ApprenticeFeedbackResult apprenticeFeedbackResult,
             CreateApprenticeFeedbackHandler handler,
-            IEnumerable<Domain.Entities.Attribute> attributes)
+            IEnumerable<Domain.Entities.Attribute> attributes,
+            CreateApprenticeFeedbackResponse response)
         {
-            command.FeedbackAttributes = attributes.Select(a => new Domain.Models.FeedbackAttribute { Id = a.AttributeId, Name = a.AttributeName, Status = FeedbackAttributeStatus.Agree }).ToList();
+            command.FeedbackAttributes = attributes.Select(a => new FeedbackAttribute { Id = a.AttributeId, Name = a.AttributeName, Status = FeedbackAttributeStatus.Agree }).ToList();
             apprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeId)).ReturnsAsync(apprenticeFeedbackTarget);
             apprenticeFeedbackRepository.Setup(s => s.GetAttributes()).ReturnsAsync(attributes);
-            apprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackResult(apprenticeFeedbackResult));
+            apprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackResult(It.Is<ApprenticeFeedbackResult>(c => c.StandardUId == command.StandardUId))).ReturnsAsync(apprenticeFeedbackResult);
 
             var result = await handler.Handle(command, CancellationToken.None);
 
 
-            result.Should().BeOfType<CreateApprenticeFeedbackResponse>();
+            result.Should().BeOfType<CreateApprenticeFeedbackResponse>().Which.ApprenticeFeedbackResultId.Should().Be(apprenticeFeedbackResult.Id);
+            apprenticeFeedbackRepository.Verify(s => s.CreateApprenticeFeedbackResult(It.IsAny<ApprenticeFeedbackResult>()), Times.Once());
 
         }
     }
