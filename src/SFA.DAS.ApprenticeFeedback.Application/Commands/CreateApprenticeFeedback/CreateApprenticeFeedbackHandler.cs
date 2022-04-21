@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback
 {
@@ -35,6 +34,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
 
             var validAttributes = await _apprenticeFeedbackRepository.GetAttributes();
 
+            var validAttributesNames = validAttributes.Select(attribute => attribute.AttributeName).ToList();
+
+            var providedAttributesNames = request.FeedbackAttributes.Select(attribute => attribute.Name).ToList();
+
             string attributesProvided = string.Empty;
 
             foreach (var attribute in request.FeedbackAttributes)
@@ -42,18 +45,33 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                 if (string.IsNullOrEmpty(attributesProvided))
                 {
                     attributesProvided = attribute.Name;
-                } else
+                }
+                else
                 {
                     attributesProvided = $"{attributesProvided}, {attribute.Name}";
+                }
+            }
+
+            var invalidAttributeNames = providedAttributesNames.Except(validAttributesNames).ToList();
+
+            string invalid = string.Empty;
+            foreach (var attributeName in invalidAttributeNames)
+            {
+                if (string.IsNullOrEmpty(invalid))
+                {
+                    invalid = attributeName;
+                }
+                else
+                {
+                    invalid = $"{invalid}, {attributeName}";
                 }
             }
 
             var allValidAttributes = request.FeedbackAttributes.Select(s => s.Id).All(t => validAttributes.Select(t => t.AttributeId).Contains(t));
             if (!allValidAttributes)
             {
-                _logger.LogError($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}");
-                Console.WriteLine(attributesProvided);
-                throw new InvalidOperationException($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}");
+                _logger.LogError($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}, the following attributes are invalid: {invalid}");
+                throw new InvalidOperationException($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}, the following attributes are invalid: {invalid}");
             }
 
             var feedback = new Domain.Entities.ApprenticeFeedbackResult
