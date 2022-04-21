@@ -8,7 +8,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
 {
     public class WhenMappingFromApprenticeFeedbackEntityToModel
     {
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public void ThenTheFieldsAreCorrectlyMapped(ApprenticeFeedbackTarget source)
         {
             var result = (Domain.Models.ApprenticeFeedbackTarget)source;

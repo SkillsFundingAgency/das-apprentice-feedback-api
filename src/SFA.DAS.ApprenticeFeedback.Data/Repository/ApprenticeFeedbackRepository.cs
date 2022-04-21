@@ -3,6 +3,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Data.Repository
@@ -54,8 +55,13 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             }
         }
 
+        public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargets(Guid apprenticeId)
+        {
+            return await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).Where(aft => aft.ApprenticeId == apprenticeId).ToListAsync();
+        }
+
         public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentsApprenticeshipid)
-        => await _dbContext.ApprenticeFeedbackTargets.
+        => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).
             FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentsApprenticeshipid);
 
         public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeFeedbackTargetId)

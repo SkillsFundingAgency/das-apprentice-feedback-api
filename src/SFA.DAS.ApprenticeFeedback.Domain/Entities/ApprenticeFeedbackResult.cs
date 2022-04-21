@@ -12,5 +12,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string ProviderRating { get; set; }
         public bool AllowContact { get; set; }
         public ICollection<ProviderAttribute> ProviderAttributes { get; set; }
+        public ApprenticeFeedbackTarget ApprenticeFeedbackTarget { get; set; }
     }
 }
