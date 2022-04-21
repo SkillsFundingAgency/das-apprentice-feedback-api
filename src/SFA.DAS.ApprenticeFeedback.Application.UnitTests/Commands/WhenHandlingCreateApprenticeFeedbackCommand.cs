@@ -27,7 +27,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             Func<Task> result = async () => await handler.Handle(command, CancellationToken.None);
 
-            await result.Should().ThrowAsync<Exception>().WithMessage($"Apprentice Feedback Target not found. ApprenticeFeedbackTargetId: {command.ApprenticeFeedbackTargetId}");
+            await result.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Apprentice Feedback Target not found. ApprenticeFeedbackTargetId: {command.ApprenticeFeedbackTargetId}");
         }
 
         [Test, RecursiveMoqAutoData]
@@ -41,7 +41,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             Func<Task> result = async () => await handler.Handle(command, CancellationToken.None);
 
-            await result.Should().ThrowAsync<Exception>().WithMessage($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {command.FeedbackAttributes.ToList()}");
+            await result.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {command.FeedbackAttributes.ToList()}");
             
         }
 
@@ -52,8 +52,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget,
             ApprenticeFeedbackResult apprenticeFeedbackResult,
             CreateApprenticeFeedbackHandler handler,
-            IEnumerable<Domain.Entities.Attribute> attributes,
-            CreateApprenticeFeedbackResponse response)
+            IEnumerable<Domain.Entities.Attribute> attributes)
         {
             command.FeedbackAttributes = attributes.Select(a => new FeedbackAttribute { Id = a.AttributeId, Name = a.AttributeName, Status = FeedbackAttributeStatus.Agree }).ToList();
             apprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeId)).ReturnsAsync(apprenticeFeedbackTarget);

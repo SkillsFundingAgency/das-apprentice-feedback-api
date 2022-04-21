@@ -52,11 +52,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                 AllowContact = request.AllowContact
             };
 
-            var updatedFeedback = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackResult(feedback);
+            feedback = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackResult(feedback);
 
-            _logger.LogInformation($"Successfully created feedback object with Id: {feedback.Id}");
-
-            return new CreateApprenticeFeedbackResponse() { ApprenticeFeedbackResultId = updatedFeedback.Id };
+            _logger.LogDebug($"Successfully created feedback object with Id: {feedback.Id}");
+            return new CreateApprenticeFeedbackResponse() { ApprenticeFeedbackResultId = feedback.Id };
         }
     }
 }

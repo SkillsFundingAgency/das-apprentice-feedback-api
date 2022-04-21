@@ -10,7 +10,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
         Task<Guid?> CreateApprenticeFeedbackTarget(ApprenticeFeedbackTarget feedbackTarget);
         Task<IEnumerable<Entities.Attribute>> GetAttributes();
         Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentApprenticeshipId);
-        Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeId);
+        Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeFeedbackTargetId);
         Task<ApprenticeFeedbackTarget> UpdateApprenticeFeedbackTarget(ApprenticeFeedbackTarget apprenticeFeedbackTarget);
         Task<ApprenticeFeedbackResult> CreateApprenticeFeedbackResult(ApprenticeFeedbackResult feedbackResult);
 

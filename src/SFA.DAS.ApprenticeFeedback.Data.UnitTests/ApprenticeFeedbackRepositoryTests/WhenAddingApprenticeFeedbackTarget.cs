@@ -2,6 +2,7 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.ApprenticeFeedback.Data.Repository;
 using SFA.DAS.ApprenticeFeedback.Data.UnitTests.DatabaseMock;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
@@ -10,12 +11,12 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests
+namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepositoryTests
 {
     public class WhenAddingApprenticeFeedbackTarget
     {
         private Mock<IApprenticeFeedbackDataContext> _dbContext;
-        private Repository.ApprenticeFeedbackRepository _repository;
+        private ApprenticeFeedbackRepository _repository;
         
         [SetUp]
         public void Arrange()

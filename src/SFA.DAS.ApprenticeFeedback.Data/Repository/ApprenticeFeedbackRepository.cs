@@ -58,9 +58,9 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
         => await _dbContext.ApprenticeFeedbackTargets.
             FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentsApprenticeshipid);
 
-        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid aftId)
+        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeFeedbackTargetId)
         => await _dbContext.ApprenticeFeedbackTargets.
-                            SingleOrDefaultAsync(aft => aft.Id == aftId);
+                            SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
 
 
         public async Task<IEnumerable<Domain.Entities.Attribute>> GetAttributes()

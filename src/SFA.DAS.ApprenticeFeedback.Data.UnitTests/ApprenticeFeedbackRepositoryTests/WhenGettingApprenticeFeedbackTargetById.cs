@@ -8,7 +8,7 @@ using SFA.DAS.Testing.AutoFixture;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
+namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepositoryTests
 {
     public class WhenGettingApprenticeFeedbackTargetById
     {
