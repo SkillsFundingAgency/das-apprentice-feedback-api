@@ -35,27 +35,20 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             (CreateApprenticeFeedbackCommand command,
             [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
             CreateApprenticeFeedbackHandler handler,
-            Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget)
+            IEnumerable<FeedbackAttribute> validAttributes)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeId)).ReturnsAsync(apprenticeFeedbackTarget);
+            mockApprenticeFeedbackRepository.Setup(s => s.GetAttributes()).ReturnsAsync(validAttributes.Select(s => new Domain.Entities.Attribute { AttributeId = s.Id, AttributeName = s.Name })); 
+
+            var testAttribute1 = new FeedbackAttribute { Id = 1, Name = "FeedbackAttribute1", Status = FeedbackAttributeStatus.Agree };
+            var testAttribute2 = new FeedbackAttribute { Id = 2, Name = "FeedbackAttribute2", Status = FeedbackAttributeStatus.Disagree };
+            command.FeedbackAttributes = new List<FeedbackAttribute> { testAttribute1, testAttribute2 };
+            //command.FeedbackAttributes.AddRange(validAttributes);
+
+            var errorMessage = "Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: FeedbackAttribute1, FeedbackAttribute2"; //+ validAttributes as they are added to request?
 
             Func<Task> result = async () => await handler.Handle(command, CancellationToken.None);
 
-            string attributesProvided = string.Empty;
-
-            foreach (var attribute in command.FeedbackAttributes)
-            {
-                if (string.IsNullOrEmpty(attributesProvided))
-                {
-                    attributesProvided = attribute.Name;
-                }
-                else
-                {
-                    attributesProvided = $"{attributesProvided}, {attribute.Name}";
-                }
-            }
-
-            await result.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}");
+            await result.Should().ThrowAsync<InvalidOperationException>().WithMessage(errorMessage);
             
         }
 
