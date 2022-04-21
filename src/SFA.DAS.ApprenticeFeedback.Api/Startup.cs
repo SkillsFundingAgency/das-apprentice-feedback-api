@@ -11,6 +11,7 @@ using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 using SFA.DAS.ApprenticeFeedback.Api.Authorization;
 using SFA.DAS.ApprenticeFeedback.Api.Configuration;
+using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
 using System.Reflection;
