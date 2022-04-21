@@ -16,6 +16,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string StandardUId { get; set; }
         public string StandardName { get; set; }
         public ICollection<FeedbackTransaction> EmailTransactions { get; set; }
+        public ICollection<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
 
         public static implicit operator ApprenticeFeedbackTarget(Models.ApprenticeFeedbackTarget source)
         {

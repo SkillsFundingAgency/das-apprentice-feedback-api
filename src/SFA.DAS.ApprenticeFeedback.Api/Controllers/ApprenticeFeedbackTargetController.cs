@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargets;
 using System;
 using System.Threading.Tasks;
 
@@ -18,6 +19,22 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         {
             _mediator = mediator;
             _logger = logger;
+        }
+
+        [HttpGet("{apprenticeId}")]
+        public async Task<IActionResult> GetAllForApprentice(Guid apprenticeId)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetApprenticeFeedbackTargetsQuery { ApprenticeId = apprenticeId });
+                return Ok(result.ApprenticeFeedbackTargets);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error attempting to retrieve apprentice feedback targets for ApprenticeId: {apprenticeId}");
+
+                return BadRequest();
+            }
         }
 
         [HttpPost]

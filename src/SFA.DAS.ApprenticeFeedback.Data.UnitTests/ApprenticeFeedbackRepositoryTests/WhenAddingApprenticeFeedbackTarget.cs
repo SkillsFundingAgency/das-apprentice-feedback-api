@@ -17,7 +17,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
     {
         private Mock<IApprenticeFeedbackDataContext> _dbContext;
         private ApprenticeFeedbackRepository _repository;
-        
+
         [SetUp]
         public void Arrange()
         {
@@ -26,7 +26,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
             _repository = new Repository.ApprenticeFeedbackRepository(_dbContext.Object);
         }
 
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task Then_The_ApprenticeFeedbackTarget_Is_Added(ApprenticeFeedbackTarget apprenticeFeedbackTarget)
         {
             //arrange
@@ -40,7 +40,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
             _dbContext.Verify(s => s.SaveChanges(), Times.Once);
         }
 
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task Then_The_ApprenticeFeedbackTarget_Is_Updated(ApprenticeFeedbackTarget apprenticeFeedbackTarget, ApprenticeFeedbackTarget updatedApprenticeFeedbackTarget)
         {
             //arrange
@@ -58,7 +58,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
             _dbContext.Verify(s => s.SaveChanges(), Times.Once);
         }
 
-        [Test,MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task Then_If_There_Is_A_Constraint_Exception_It_Is_Handled(ApprenticeFeedbackTarget afTarget)
         {
             //Arrange

@@ -37,7 +37,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             result.FeedbackId.Should().Be(response);
         }
 
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task And_CommandIsValid_Then_UpdatesFeedback_If_It_Exists(
            CreateApprenticeFeedbackTargetCommand command,
            [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
