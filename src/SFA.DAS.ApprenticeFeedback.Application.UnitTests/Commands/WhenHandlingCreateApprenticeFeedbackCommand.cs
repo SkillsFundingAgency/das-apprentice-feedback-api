@@ -41,7 +41,21 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             Func<Task> result = async () => await handler.Handle(command, CancellationToken.None);
 
-            await result.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {command.FeedbackAttributes.ToList()}");
+            string attributesProvided = string.Empty;
+
+            foreach (var attribute in command.FeedbackAttributes)
+            {
+                if (string.IsNullOrEmpty(attributesProvided))
+                {
+                    attributesProvided = attribute.Name;
+                }
+                else
+                {
+                    attributesProvided = $"{attributesProvided}, {attribute.Name}";
+                }
+            }
+
+            await result.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}");
             
         }
 

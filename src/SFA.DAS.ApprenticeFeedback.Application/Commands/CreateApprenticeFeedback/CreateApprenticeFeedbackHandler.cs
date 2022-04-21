@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback
 {
@@ -34,11 +35,25 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
 
             var validAttributes = await _apprenticeFeedbackRepository.GetAttributes();
 
+            string attributesProvided = string.Empty;
+
+            foreach (var attribute in request.FeedbackAttributes)
+            {
+                if (string.IsNullOrEmpty(attributesProvided))
+                {
+                    attributesProvided = attribute.Name;
+                } else
+                {
+                    attributesProvided = $"{attributesProvided}, {attribute.Name}";
+                }
+            }
+
             var allValidAttributes = request.FeedbackAttributes.Select(s => s.Id).All(t => validAttributes.Select(t => t.AttributeId).Contains(t));
             if (!allValidAttributes)
             {
-                _logger.LogError($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {request.FeedbackAttributes.ToList()}");
-                throw new InvalidOperationException($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {request.FeedbackAttributes.ToList()}");
+                _logger.LogError($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}");
+                Console.WriteLine(attributesProvided);
+                throw new InvalidOperationException($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}");
             }
 
             var feedback = new Domain.Entities.ApprenticeFeedbackResult
