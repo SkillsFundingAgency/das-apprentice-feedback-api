@@ -2,7 +2,6 @@
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using FluentAssertions;
 using SFA.DAS.Testing.AutoFixture;
-using System;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.ApprenticeFeedbackTarget;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models

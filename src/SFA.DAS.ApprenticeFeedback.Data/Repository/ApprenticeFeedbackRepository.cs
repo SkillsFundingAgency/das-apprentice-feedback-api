@@ -41,7 +41,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
                     return null;
                 }
 
-                //ApprenticeId and ApprenticeshipId should not change.
                 feedbackTarget.StartDate = updatedEntity.StartDate;
                 feedbackTarget.EndDate = updatedEntity.EndDate;
                 feedbackTarget.Status = updatedEntity.Status;
@@ -59,10 +58,23 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
         => await _dbContext.ApprenticeFeedbackTargets.
             FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentsApprenticeshipid);
 
+        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeFeedbackTargetId)
+        => await _dbContext.ApprenticeFeedbackTargets.
+                            SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
 
-        public async Task<List<Domain.Entities.Attribute>> GetProviderAttributes()
+
+        public async Task<IEnumerable<Domain.Entities.Attribute>> GetAttributes()
         {
             return await _dbContext.Attributes.ToListAsync();
         }
+
+        public async Task<ApprenticeFeedbackResult> CreateApprenticeFeedbackResult(ApprenticeFeedbackResult feedbackResult)
+        {
+            await _dbContext.ApprenticeFeedbackResults.AddAsync(feedbackResult);
+            _dbContext.SaveChanges();
+
+            return feedbackResult;
+        }
+
     }
 }

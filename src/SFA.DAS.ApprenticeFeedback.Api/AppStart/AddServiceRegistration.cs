@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
 using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Data.Repository;
@@ -14,6 +16,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             services.AddMediatR(typeof(CreateApprenticeFeedbackTargetCommand).Assembly);
             services.AddScoped<IApprenticeFeedbackDataContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IApprenticeFeedbackRepository, ApprenticeFeedbackRepository>();
+            services.AddScoped<IDateTimeHelper, UTCTimeProvider>();
         }
     }
 }

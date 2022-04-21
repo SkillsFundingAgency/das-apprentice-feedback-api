@@ -13,14 +13,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 {
     public class WhenRequestingFeedbackAttributes
     {
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task ThenAttributesAreReturned(
             GetAttributesQuery query,
             [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
             GetAttributesQueryHandler handler,
             List<Domain.Entities.Attribute> response)
         {
-            mockRepository.Setup( s => s.GetProviderAttributes()).ReturnsAsync(response);
+            mockRepository.Setup( s => s.GetAttributes()).ReturnsAsync(response);
 
             var result = await handler.Handle(query, CancellationToken.None);
 

@@ -11,7 +11,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests
+namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepositoryTests
 {
     public class WhenAddingApprenticeFeedbackTarget
     {
@@ -23,7 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests
         {
             _dbContext = new Mock<IApprenticeFeedbackDataContext>();
             _dbContext.Setup(s => s.ApprenticeFeedbackTargets).ReturnsDbSet(new List<ApprenticeFeedbackTarget>());
-            _repository = new ApprenticeFeedbackRepository(_dbContext.Object);
+            _repository = new Repository.ApprenticeFeedbackRepository(_dbContext.Object);
         }
 
         [Test, MoqAutoData]

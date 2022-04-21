@@ -15,7 +15,7 @@ jobs:
 
   - template: azure-pipelines-templates/build/step/app-build.yml@das-platform-building-blocks
     parameters:
-        SonarCloudProjectKey: SkillsFundingAgency_das-apprentice-accounts-api
+        SonarCloudProjectKey: SkillsFundingAgency_das-apprentice-feedback-api
 
   - template: azure-pipelines-templates/build/step/dependency-check.yml@das-platform-building-blocks
 

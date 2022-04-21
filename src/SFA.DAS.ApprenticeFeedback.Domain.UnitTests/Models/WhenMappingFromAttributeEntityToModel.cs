@@ -7,7 +7,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
 {
     public class WhenMappingFromAttributeEntityToModel
     {
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public void ThenTheFieldsAreCorrectlyMapped(Attribute source)
         {
             var result = (Domain.Models.Attribute)source;

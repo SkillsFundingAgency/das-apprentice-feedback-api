@@ -63,12 +63,9 @@
   <ItemGroup>
     <Build Include="Tables\ApprenticeFeedbackResult.sql" />
     <Build Include="Tables\Attribute.sql" />
-    <Build Include="Tables\FeedbackEmailTransaction.sql" />
+    <Build Include="Tables\FeedbackTransaction.sql" />
     <Build Include="Tables\ProviderAttribute.sql" />
     <Build Include="Tables\ApprenticeFeedbackTarget.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <RefactorLog Include="SFA.DAS.ApprenticeFeedback.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
