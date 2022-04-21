@@ -7,10 +7,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 {
     public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext
     {
-        public DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
-
         public DbSet<Attribute> Attributes { get; set; }
-
+        public DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
         public DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
         public DbSet<ProviderAttribute> ProviderAttributes { get; set; }
 
@@ -21,8 +19,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         {
             modelBuilder.ApplyConfiguration(new AttributeConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackTargetConfiguration());
-            modelBuilder.ApplyConfiguration(new Configuration.ApprenticeFeedbackResultConfiguration());
-            modelBuilder.ApplyConfiguration(new Configuration.ProviderAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
             base.OnModelCreating(modelBuilder);
