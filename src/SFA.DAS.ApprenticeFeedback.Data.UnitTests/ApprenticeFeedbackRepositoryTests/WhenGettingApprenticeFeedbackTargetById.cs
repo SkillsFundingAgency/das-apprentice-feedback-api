@@ -23,7 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
             _repository = new Repository.ApprenticeFeedbackRepository(_dbContext.Object);
         }
 
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task Then_ApprenticeFeedbackTargetIsSuccessfullyReturned(ApprenticeFeedbackTarget apprenticeFeedbackTarget)
         {
             var dbSet = new List<ApprenticeFeedbackTarget>() { apprenticeFeedbackTarget };
