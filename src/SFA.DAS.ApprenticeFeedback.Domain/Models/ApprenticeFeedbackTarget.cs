@@ -129,24 +129,54 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             // As the dates, start and end can change over the course of an apprenticeship based on pause / stop / change of circumstances
             // the status can always be changed based on the apprenticeship dates and the dates take priority over 
             // the current status.
+
+            /*        Allow,
+        Deny_TooSoon,
+        Deny_TooLateAfterPassing,
+        Deny_TooLateAfterWithdrawing,
+        Deny_HasGivenFeedbackRecently,
+        Deny_HasGivenFinalFeedback,
+        Deny_NotEnoughActiveApprentices,
+             * */
+
+            //If active can move to stopped state, but you can't go back to inactive ( minimum active apprentices )
+            //
             if (HasApprenticeshipFinishedForFeedback(appSettings, dateTimeHelper))
             {
                 Status = FeedbackTargetStatus.Complete;
+                //FeedbackEligibility = Allow
+                //Eligibility = Deny_TooLateAfterPassing
+                //Eligibility = Deny_TooLateAfterWithdrawing
+                //Eligibility = Deny_TooLateAfterPausing
+                // Need to know if the end date is stop date / pause date / pass date
+
+                //Deny_HasGivenFinalFeedback
+                // End Date has passed, Recent feedback Date is within FinalAllowedPeriodDays
+                // Then can give no more feedback.
+                // FeedbackEligibilityComputedDate
             }
             else if (HasApprenticeshipStartedForFeedback(appSettings, dateTimeHelper))
             {
                 if (HasProviderMetMinimumNumberOfActiveApprenticeships(activeApprenticeshipsCount, appSettings))
                 {
                     Status = FeedbackTargetStatus.Active;
+                    // Elgibility = Allow
                 }
                 else
                 {
                     Status = FeedbackTargetStatus.NotYetActive;
+                    // Elgibility = Deny_NotEnoughActiveApprentices
                 }
+            }
+            else if(HasRecentlyProvidedFeedback(appSettings, dateTimeHelper))
+            {
+                //Eligibility Deny_HasGivenFeedbackRecently
+
             }
             else
             {
                 Status = FeedbackTargetStatus.NotYetActive;
+                // Eligibility = Deny_TooSoon
             }
         }
     }
