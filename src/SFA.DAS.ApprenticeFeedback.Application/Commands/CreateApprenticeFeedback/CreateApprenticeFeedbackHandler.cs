@@ -37,12 +37,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             var validAttributesIds = validAttributes.Select(a => a.AttributeId).ToList();
             var providedAttributesIds = request.FeedbackAttributes.Select(a => a.Id).ToList();
             var invalidAttributesIds = providedAttributesIds.Except(validAttributesIds).ToList();
-            var attributesProvidedNames = GetAttributeNames(request);
-            string invalidAttributeNamesOutput = (invalidAttributesIds.Count != 0) ? CreateInvalidOutput(request, invalidAttributesIds) : string.Empty;
 
-            var allValidAttributes = request.FeedbackAttributes.Select(s => s.Id).All(t => validAttributes.Select(t => t.AttributeId).Contains(t));
-            if (!allValidAttributes)
+            if (invalidAttributesIds.Count > 0)
             {
+                var attributesProvidedNames = GetAttributeNames(request);
+                string invalidAttributeNamesOutput = CreateInvalidOutput(request, invalidAttributesIds);
                 _logger.LogError($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvidedNames}, the following attributes are invalid: {invalidAttributeNamesOutput}");
                 throw new InvalidOperationException($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvidedNames}, the following attributes are invalid: {invalidAttributeNamesOutput}");
             }
@@ -60,7 +59,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             var attributeNames = request.FeedbackAttributes.Select(a => a.Name).ToList();
             return string.Join(", ", attributeNames);
         }
-
 
         private string CreateInvalidOutput(CreateApprenticeFeedbackCommand request, List<int> invalidAttributesIds)
         {
