@@ -33,22 +33,26 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             }
 
             var validAttributes = await _apprenticeFeedbackRepository.GetAttributes();
+            var validAttributesIds = validAttributes.Select(a => a.AttributeId).ToList();
+            var providedAttributesIds = request.FeedbackAttributes.Select(a => a.Id).ToList();
+            var invalidAttributesIds = providedAttributesIds.Except(validAttributesIds).ToList();
+            var attributesProvidedNames = request.FeedbackAttributes.Select(a => a.Name).ToList();
+            string attributesProvided = String.Join(", ", attributesProvidedNames);
 
-            var validAttributesNames = validAttributes.Select(attribute => attribute.AttributeName).ToList();
-
-            var providedAttributesNames = request.FeedbackAttributes.Select(attribute => attribute.Name).ToList();
-
-            string attributesProvided = String.Join(", ", providedAttributesNames);
-
-            var invalidAttributeNames = providedAttributesNames.Except(validAttributesNames).ToList();
-
-            string invalid = string.Join(", ", invalidAttributeNames);
+            string invalidAttributeNamesOutput = string.Empty;
+            if (invalidAttributesIds.Count != 0)
+            {
+                var invalidAttributesNames = (from a in request.FeedbackAttributes
+                                             where invalidAttributesIds.Contains(a.Id)
+                                             select a.Name).ToList();
+                invalidAttributeNamesOutput = string.Join(", ", invalidAttributesNames);
+            }
 
             var allValidAttributes = request.FeedbackAttributes.Select(s => s.Id).All(t => validAttributes.Select(t => t.AttributeId).Contains(t));
             if (!allValidAttributes)
             {
-                _logger.LogError($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}, the following attributes are invalid: {invalid}");
-                throw new InvalidOperationException($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}, the following attributes are invalid: {invalid}");
+                _logger.LogError($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}, the following attributes are invalid: {invalidAttributeNamesOutput}");
+                throw new InvalidOperationException($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvided}, the following attributes are invalid: {invalidAttributeNamesOutput}");
             }
 
             var feedback = new Domain.Entities.ApprenticeFeedbackResult
