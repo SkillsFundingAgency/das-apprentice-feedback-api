@@ -38,14 +38,18 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
                 throw new InvalidOperationException(error);
             }
 
-            if (request.Learner == null && apprenticeFeedbackTarget.IsActive())
+            if (request.Learner == null)
             {
-                // If Learner is null and is currently active, Set the target status to complete
-                // As the learner record won't be returned if it's superceded by a newer apprenticeship.
-                // If it's a different status we leave it be ( e.g. if not yet active as Learner record yet to be created )
-                apprenticeFeedbackTarget.Status = Domain.Models.ApprenticeFeedbackTarget.FeedbackTargetStatus.Complete;
-
-                apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.UpdateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
+                if (apprenticeFeedbackTarget.IsActive())
+                {
+                    // If Learner is null and is currently active, Set the target status to complete
+                    // As the learner record won't be returned if it's superceded by a newer apprenticeship.
+                    // If it's a different status we leave it be ( e.g. if not yet active as Learner record yet to be created )
+                    apprenticeFeedbackTarget.Status = Domain.Models.ApprenticeFeedbackTarget.FeedbackTargetStatus.Complete;
+                    apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.UpdateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
+                }
+                
+                //If the Learner is Null, but not active, we just return the current feedback target as we can't update anything
                 return new UpdateApprenticeFeedbackTargetCommandResponse { UpdatedApprenticeFeedbackTarget = apprenticeFeedbackTarget };
             }
 

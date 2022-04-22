@@ -45,6 +45,10 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
                 feedbackTarget.StartDate = updatedEntity.StartDate;
                 feedbackTarget.EndDate = updatedEntity.EndDate;
                 feedbackTarget.Status = updatedEntity.Status;
+                feedbackTarget.Ukprn = updatedEntity.Ukprn;
+                feedbackTarget.ProviderName = updatedEntity.ProviderName;
+                feedbackTarget.StandardName = updatedEntity.StandardName;
+                feedbackTarget.StandardUId = updatedEntity.StandardUId;
 
                 _dbContext.SaveChanges();
                 return feedbackTarget;

@@ -101,15 +101,15 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             StandardUId = learner.StandardUId;
             StartDate = learner.LearnStartDate;
 
-            if (learner.Outcome.Equals("Pass", StringComparison.InvariantCultureIgnoreCase))
+            if (!string.IsNullOrWhiteSpace(learner.Outcome) && learner.Outcome.Equals("Pass", StringComparison.InvariantCultureIgnoreCase))
             {
                 EndDate = learner.AchievementDate;
             }
-            else if (learner.CompletionStatus == 3)
+            else if (learner?.CompletionStatus == 3)
             {
                 EndDate = learner.ApprovalsStopDate;
             }
-            else if (learner.CompletionStatus == 6)
+            else if (learner?.CompletionStatus == 6)
             {
                 EndDate = learner.ApprovalsPauseDate;
             }
