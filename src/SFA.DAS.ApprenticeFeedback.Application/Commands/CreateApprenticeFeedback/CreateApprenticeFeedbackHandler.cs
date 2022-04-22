@@ -36,7 +36,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             var validAttributes = await _apprenticeFeedbackRepository.GetAttributes();
             var validAttributesIds = validAttributes.Select(a => a.AttributeId).ToList();
             var providedAttributesIds = request.FeedbackAttributes.Select(a => a.Id).ToList();
-            var invalidAttributesIds = GetInvalidAttributeIds(providedAttributesIds, validAttributesIds); 
+            var invalidAttributesIds = providedAttributesIds.Except(validAttributesIds).ToList();
             var attributesProvidedNames = GetAttributeNames(request);
             string invalidAttributeNamesOutput = (invalidAttributesIds.Count != 0) ? CreateInvalidOutput(request, invalidAttributesIds) : string.Empty;
 
@@ -61,10 +61,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             return string.Join(", ", attributeNames);
         }
 
-        private List<int> GetInvalidAttributeIds(List<int> requestAttributes, List<int> validAttributes)
-        {
-            return requestAttributes.Except(validAttributes).ToList(); 
-        }
 
         private string CreateInvalidOutput(CreateApprenticeFeedbackCommand request, List<int> invalidAttributesIds)
         {
