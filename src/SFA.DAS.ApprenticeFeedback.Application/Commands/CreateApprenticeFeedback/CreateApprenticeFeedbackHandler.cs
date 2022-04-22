@@ -38,34 +38,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
 
             var providedAttributesNames = request.FeedbackAttributes.Select(attribute => attribute.Name).ToList();
 
-            string attributesProvided = string.Empty;
-
-            foreach (var attribute in request.FeedbackAttributes)
-            {
-                if (string.IsNullOrEmpty(attributesProvided))
-                {
-                    attributesProvided = attribute.Name;
-                }
-                else
-                {
-                    attributesProvided = $"{attributesProvided}, {attribute.Name}";
-                }
-            }
+            string attributesProvided = String.Join(", ", providedAttributesNames);
 
             var invalidAttributeNames = providedAttributesNames.Except(validAttributesNames).ToList();
 
-            string invalid = string.Empty;
-            foreach (var attributeName in invalidAttributeNames)
-            {
-                if (string.IsNullOrEmpty(invalid))
-                {
-                    invalid = attributeName;
-                }
-                else
-                {
-                    invalid = $"{invalid}, {attributeName}";
-                }
-            }
+            string invalid = string.Join(", ", invalidAttributeNames);
 
             var allValidAttributes = request.FeedbackAttributes.Select(s => s.Id).All(t => validAttributes.Select(t => t.AttributeId).Contains(t));
             if (!allValidAttributes)
