@@ -7,11 +7,11 @@
 	[StartDate] DateTime2 DEFAULT NULL,
 	[EndDate] DateTime2 DEFAULT NULL,
 	[Ukprn] BIGINT NULL,
-	[ProviderName] NVARCHAR(10),
+	[ProviderName] NVARCHAR(120),
 	[StandardUId] NVARCHAR(12),
-	[StandardName] NVARCHAR(100), 
-    [FeedbackEligibility] INT NULL DEFAULT NULL, 
-    [EligibilityCalculationDate] DATETIME2 NULL DEFAULT NULL
+	[StandardName] NVARCHAR(120), 
+	[FeedbackEligibility] INT NOT NULL DEFAULT 0, 
+	[EligibilityCalculationDate] DATETIME2 NULL DEFAULT NULL
 
 )
 
