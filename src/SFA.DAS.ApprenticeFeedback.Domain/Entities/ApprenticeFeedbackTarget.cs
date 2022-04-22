@@ -15,6 +15,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string ProviderName { get; set; }
         public string StandardUId { get; set; }
         public string StandardName { get; set; }
+        public int FeedbackEligibility { get; set; }
+        public DateTime? EligibilityCalculationDate { get; set; }
+
         public ICollection<FeedbackTransaction> EmailTransactions { get; set; }
         public ICollection<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
 
@@ -31,7 +34,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 Ukprn = source.Ukprn,
                 ProviderName = source.ProviderName,
                 StandardUId = source.StandardUId,
-                StandardName = source.StandardName
+                StandardName = source.StandardName,
+                EligibilityCalculationDate = source.EligibilityCalculationDate,
+                FeedbackEligibility = (int)source.FeedbackEligibility
             };
         }
     }
