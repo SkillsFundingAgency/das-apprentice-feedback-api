@@ -81,5 +81,26 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             return feedbackResult;
         }
 
+        public Task<IEnumerable<Provider>> GetProvidersForFeedback(Guid apprenticeId)
+        {
+            // Get all feedback targets for given apprentice guid
+            // filter out extra targets when grouped by UKPRN finding latest feedback targets based on apprenticeship
+            // Determine their status for the dashboard model
+
+            _dbContext.
+
+
+                // computer date
+                // feedback eligiliby
+                // both nullable
+
+
+            throw new NotImplementedException();
+        }
+
+        public Task<Provider> GetProviderForFeedback(int ukprn)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

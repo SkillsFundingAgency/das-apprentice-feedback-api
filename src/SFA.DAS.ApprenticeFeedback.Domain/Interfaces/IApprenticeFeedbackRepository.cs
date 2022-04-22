@@ -19,5 +19,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
                 
         // Apprentice Feedback Result
         Task<ApprenticeFeedbackResult> CreateApprenticeFeedbackResult(ApprenticeFeedbackResult feedbackResult);
+
+        Task<IEnumerable<Entities.Provider>> GetProvidersForFeedback(Guid apprenticeId);
+        Task<Entities.Provider> GetProviderForFeedback(int ukprn);
     }
 }
