@@ -87,12 +87,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             // filter out extra targets when grouped by UKPRN finding latest feedback targets based on apprenticeship
             // Determine their status for the dashboard model
 
-            _dbContext.
-
-
-                // computer date
-                // feedback eligiliby
-                // both nullable
 
 
             throw new NotImplementedException();
