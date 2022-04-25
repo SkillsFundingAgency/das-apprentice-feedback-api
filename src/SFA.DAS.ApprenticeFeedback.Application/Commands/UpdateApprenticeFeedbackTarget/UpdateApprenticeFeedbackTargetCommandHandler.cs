@@ -33,7 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
 
             if (apprenticeFeedbackTarget == null)
             {
-                var error = $"Unable to retrieve ApprenticeFeedbackTarget wtih Id: {request.ApprenticeFeedbackTargetId}";
+                var error = $"Unable to retrieve ApprenticeFeedbackTarget with Id: {request.ApprenticeFeedbackTargetId}";
                 _logger.LogError(error);
                 throw new InvalidOperationException(error);
             }
