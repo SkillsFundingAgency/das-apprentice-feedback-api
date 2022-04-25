@@ -86,7 +86,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="dateTimeHelper"></param>
         /// <returns></returns>
         public bool HasApprenticeshipStartedForFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
-            StartDate.HasValue && StartDate.Value.AddDays(appSettings.InitialDenyPeriodDays) <= dateTimeHelper.Now.Date;
+            StartDate.HasValue && StartDate.Value.AddDays(appSettings.InitialDenyPeriodDays).Date <= dateTimeHelper.Now.Date;
 
         /// <summary>
         /// Has the end date of the apprenticeship plus a configurable time element elapsed to prevent more feedback.
@@ -95,7 +95,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="dateTimeHelper"></param>
         /// <returns></returns>
         public bool HasApprenticeshipFinishedForFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
-            EndDate.HasValue && EndDate.Value.AddDays(appSettings.FinalAllowedPeriodDays) <= dateTimeHelper.Now.Date;
+            EndDate.HasValue && EndDate.Value.AddDays(appSettings.FinalAllowedPeriodDays).Date < dateTimeHelper.Now.Date;
 
         /// <summary>
         /// Are there a minimum number of apprenticeships active by this provider to allow feedback to begin
@@ -113,7 +113,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="dateTimeHelper"></param>
         /// <returns></returns>
         public bool HasRecentlyProvidedFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
-            LastFeedbackCompletedDate.HasValue && LastFeedbackCompletedDate.Value.AddDays(appSettings.RecentDenyPeriodDays) >= dateTimeHelper.Now.Date;
+            LastFeedbackCompletedDate.HasValue && LastFeedbackCompletedDate.Value.AddDays(appSettings.RecentDenyPeriodDays).Date > dateTimeHelper.Now.Date;
 
         /// <summary>
         /// If the apprenticeship is complete, and last feedback has been given, and that feedback was given after the end date of the apprenticeship
@@ -121,8 +121,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="appSettings"></param>
         /// <param name="dateTimeHelper"></param>
         /// <returns></returns>
-        public bool HasProvidedFinalFeedback() => Status == FeedbackTargetStatus.Complete
-            && LastFeedbackCompletedDate.HasValue && LastFeedbackCompletedDate.Value > EndDate;
+        public bool HasProvidedFinalFeedback() => Status == FeedbackTargetStatus.Complete && EndDate.HasValue
+            && LastFeedbackCompletedDate.HasValue && LastFeedbackCompletedDate.Value.Date >= EndDate.Value.Date;
 
 
         public void ResetFeedbackTarget()
@@ -179,7 +179,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="appSettings">App Settings to provide configurable date time values for feedback rules</param>
         /// <param name="activeApprenticeshipsCount">The current active number of apprenticeships for a given Provider as determined by Apprentice Commitments</param>
         /// <param name="dateTimeHelper">DateTimeHelper interface to allow easier mocking for unit tests.</param>
-        public void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, int activeApprenticeshipsCount, IDateTimeHelper dateTimeHelper)
+        private void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, int activeApprenticeshipsCount, IDateTimeHelper dateTimeHelper)
         {
             if (HasApprenticeshipFinishedForFeedback(appSettings, dateTimeHelper))
             {
