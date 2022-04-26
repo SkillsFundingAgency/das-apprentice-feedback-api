@@ -34,7 +34,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         {
             // Arrange
             target.Status = status;
-            
+
             // Act & Assert
             target.IsInactive().Should().Be(NotYetActive);
         }
@@ -302,6 +302,28 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             target.EndDate.Should().Be(learner.EstimatedEndDate);
         }
 
+        [Test, MoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsComplete_NoStatusOrEligibilityChanges(
+            Learner learner,
+            ApplicationSettings settings,
+            Mock<IDateTimeHelper> dateTimeHelper,
+            int activeApprenticeshipsCount,
+            ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.Status = FeedbackTargetStatus.Complete;
+            target.FeedbackEligibility = FeedbackEligibilityStatus.Deny_Complete;
+            var previousCalculatedDate = target.EligibilityCalculationDate;
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper.Object);
+
+            // Assert
+            target.Status.Should().Be(FeedbackTargetStatus.Complete);
+            target.FeedbackEligibility.Should().Be(FeedbackEligibilityStatus.Deny_Complete);
+            target.EligibilityCalculationDate.Should().Be(previousCalculatedDate);
+        }
+
         [Test]
         //Outcome, CompletionStatus, recentFeedbackToEndDate, expected status, expected eligibility
         [MoqInlineAutoData("", 1, true, FeedbackTargetStatus.Complete, FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback)]
@@ -324,12 +346,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             //Setup for ApprenticeFinished for Feedback
             var now = DateTime.UtcNow;
             var dateTimeHelper = new SpecifiedTimeProvider(now);
-            
+
             // Set all end dates to the same, we don't care which one for this test.
-            learner.EstimatedEndDate = now;
-            learner.AchievementDate = now;
-            learner.ApprovalsPauseDate = now;
-            learner.ApprovalsStopDate = now;
+            learner.EstimatedEndDate = dateTimeHelper.Now;
+            learner.AchievementDate = dateTimeHelper.Now;
+            learner.ApprovalsPauseDate = dateTimeHelper.Now;
+            learner.ApprovalsStopDate = dateTimeHelper.Now;
             // Setup for feedback
             target.LastFeedbackCompletedDate = recentFeedbackToEndDate ? now.AddDays(1) : now.AddDays(-1);
 
@@ -351,7 +373,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         }
 
         [Test]
-        //Outcome, CompletionStatus, recentFeedbackToEndDate, expected status, expected eligibility
+        //recentFeedbackToEndDate, expected eligibility
         [MoqInlineAutoData(true, FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently)]
         [MoqInlineAutoData(false, FeedbackEligibilityStatus.Allow)]
         public void WhenCalling_UpdateAndSettingStatusAndEligibility_ForNotFinishedButActive_SetsCorrectEligiblityAndStatus(
@@ -363,8 +385,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             ApprenticeFeedbackTarget target)
         {
             // Arrange
-            // Final Allow is 30 days, but as time not advanced it won't be finished.
-            // Recent Deny set to 30
+            // Final Allow is 10 days, but as time not advanced it won't be finished.
+            // Recent Deny set to 10
             settings.FinalAllowedPeriodDays = 10;
             settings.RecentDenyPeriodDays = 10;
 
@@ -373,16 +395,16 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             var dateTimeHelper = new SpecifiedTimeProvider(now);
             target.Status = FeedbackTargetStatus.Active;
             target.LastFeedbackCompletedDate = recentFeedbackForApprenticeship ? now.AddDays(-5) : now.AddDays(-15);
-            
+
             // Set all end dates to the same, we don't care which one for this test.
-            learner.EstimatedEndDate = now;
-            learner.AchievementDate = now;
-            learner.ApprovalsPauseDate = now;
-            learner.ApprovalsStopDate = now;
+            learner.EstimatedEndDate = dateTimeHelper.Now;
+            learner.AchievementDate = dateTimeHelper.Now;
+            learner.ApprovalsPauseDate = dateTimeHelper.Now;
+            learner.ApprovalsStopDate = dateTimeHelper.Now;
 
             // Set start date to now as well
-            learner.LearnStartDate = now;
-            
+            learner.LearnStartDate = dateTimeHelper.Now;
+
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper);
 
@@ -391,9 +413,84 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
         }
 
-        // Just need unit tests for
-        // Not Finished, Not Active, and Not has started
+        [Test, MoqAutoData]
+        public void WhenCalling_UpdateAndSettingStatusAndEligibility_ForNotFinishedNotActiveNotStarted_SetsStatusToNotYetActiveAndTooSoon(
+            Learner learner,
+            ApplicationSettings settings,
+            int activeApprenticeshipsCount,
+            ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            // Final Allow is 10 days, but as time not advanced it won't be finished.
+            // Initial Deny Set to 10
+            settings.FinalAllowedPeriodDays = 10;
+            settings.InitialDenyPeriodDays = 10;
 
-        // Not finished, Not Active, Has Started
+            //Setup for Apprenticeship to be Not Active, Not Finished and Not Started
+            var now = DateTime.UtcNow;
+            var dateTimeHelper = new SpecifiedTimeProvider(now);
+            learner.LearnStartDate = dateTimeHelper.Now;
+
+            // Advance time but still within the Initial Deny Window
+            dateTimeHelper.Advance(TimeSpan.FromDays(5));
+            target.Status = FeedbackTargetStatus.NotYetActive;
+
+            // Set all end dates to the same, we don't care which one for this test.
+            learner.EstimatedEndDate = dateTimeHelper.Now;
+            learner.AchievementDate = dateTimeHelper.Now;
+            learner.ApprovalsPauseDate = dateTimeHelper.Now;
+            learner.ApprovalsStopDate = dateTimeHelper.Now;
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper);
+
+            // Assert
+            target.Status.Should().Be(FeedbackTargetStatus.NotYetActive);
+            target.FeedbackEligibility.Should().Be(FeedbackEligibilityStatus.Deny_TooSoon);
+            target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+        }
+
+        [Test]
+        [MoqInlineAutoData(5, 10, FeedbackEligibilityStatus.Deny_NotEnoughActiveApprentices, FeedbackTargetStatus.NotYetActive)]
+        [MoqInlineAutoData(11, 10, FeedbackEligibilityStatus.Allow, FeedbackTargetStatus.Active)]
+        public void WhenCalling_UpdateAndSettingStatusAndEligibility_ForNotFinishedNotActiveButNowStarted_SetsStatusAndEligibilityCorrectly(
+            int activeApprenticeshipsCount,
+            int activeApprenticeshipsThreshold,
+            FeedbackEligibilityStatus expectedFeedbackEligibilityStatus,
+            FeedbackTargetStatus expectedFeedbackTargetStatus,
+            Learner learner,
+            ApplicationSettings settings,
+            ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            // Final Allow is 10 days, but as time not advanced it won't be finished.
+            // Initial Deny Set to 10
+            settings.FinalAllowedPeriodDays = 10;
+            settings.InitialDenyPeriodDays = 10;
+            settings.MinimumActiveApprenticeshipCount = activeApprenticeshipsThreshold;
+
+            //Setup for Apprenticeship to be Not Active, Not Finished and Not Started
+            var now = DateTime.UtcNow;
+            var dateTimeHelper = new SpecifiedTimeProvider(now);
+            learner.LearnStartDate = dateTimeHelper.Now;
+
+            // Advance time but now beyond the initial deny window
+            dateTimeHelper.Advance(TimeSpan.FromDays(15));
+            target.Status = FeedbackTargetStatus.Unknown;
+
+            // Set all end dates to the same, we don't care which one for this test.
+            learner.EstimatedEndDate = dateTimeHelper.Now;
+            learner.AchievementDate = dateTimeHelper.Now;
+            learner.ApprovalsPauseDate = dateTimeHelper.Now;
+            learner.ApprovalsStopDate = dateTimeHelper.Now;
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper);
+
+            // Assert
+            target.Status.Should().Be(expectedFeedbackTargetStatus);
+            target.FeedbackEligibility.Should().Be(expectedFeedbackEligibilityStatus);
+            target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+        }
     }
 }

@@ -181,6 +181,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="dateTimeHelper">DateTimeHelper interface to allow easier mocking for unit tests.</param>
         private void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, int activeApprenticeshipsCount, IDateTimeHelper dateTimeHelper)
         {
+            if(Status == FeedbackTargetStatus.Complete)
+            {
+                // If it has already been set to Complete, then we don't revert it.
+                return;
+            }
+
             if (HasApprenticeshipFinishedForFeedback(appSettings, dateTimeHelper))
             {
                 // If end date has passed, we set to complete no matter what, then have to setup the eligibility state.
