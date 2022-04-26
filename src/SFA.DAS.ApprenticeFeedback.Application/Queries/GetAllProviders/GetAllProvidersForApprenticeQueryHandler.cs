@@ -16,11 +16,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
 
         public async Task<GetAllProvidersForApprenticeResult> Handle(GetAllProvidersForApprenticeQuery request, CancellationToken cancellationToken)
         {
-            var foo = await _apprenticeFeedbackRepository.GetProvidersForFeedback(request.ApprenticeId);
+            var providers = await _apprenticeFeedbackRepository.GetProvidersForFeedback(request.ApprenticeId);
 
             var result = new GetAllProvidersForApprenticeResult()
             {
-
+                Providers = providers,
             };
 
             return result;

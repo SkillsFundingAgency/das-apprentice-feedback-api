@@ -81,15 +81,33 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             return feedbackResult;
         }
 
-        public Task<IEnumerable<Provider>> GetProvidersForFeedback(Guid apprenticeId)
+        public async Task<IEnumerable<Provider>> GetProvidersForFeedback(Guid apprenticeId)
         {
-            // Get all feedback targets for given apprentice guid
-            // filter out extra targets when grouped by UKPRN finding latest feedback targets based on apprenticeship
-            // Determine their status for the dashboard model
+            // Get all feedback targets for given apprentice guid.
 
+            var afts = await GetApprenticeFeedbackTargets(apprenticeId);
 
+            // Filter out ones we are not interested in.
 
-            throw new NotImplementedException();
+            var filteredAfts = afts.Where(afts => 
+                afts.StartDate.HasValue 
+                && afts.Ukprn.HasValue 
+                && afts.Status != (int)Domain.Models.ApprenticeFeedbackTarget.FeedbackTargetStatus.Unknown
+                && afts.FeedbackEligibility != (int)Domain.Models.ApprenticeFeedbackTarget.FeedbackEligibilityStatus.Unknown
+                && afts.FeedbackEligibility != (int)Domain.Models.ApprenticeFeedbackTarget.FeedbackEligibilityStatus.Deny_Complete
+                );
+
+            // Map to Provider
+
+            return filteredAfts.Select(p => new Provider() 
+            {  
+                StartDate = p.StartDate.Value,
+                EndDate = p.EndDate,
+                Status = p.Status,
+                Ukprn = p.Ukprn.Value,
+                ProviderName = p.ProviderName,
+                FeedbackEligibility = p.FeedbackEligibility
+            });
         }
 
         public Task<Provider> GetProviderForFeedback(int ukprn)
