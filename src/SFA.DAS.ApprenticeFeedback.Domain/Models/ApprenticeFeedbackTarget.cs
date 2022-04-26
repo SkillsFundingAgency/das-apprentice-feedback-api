@@ -140,7 +140,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 
         public void UpdateApprenticeshipFeedbackTarget(Learner learner, ApplicationSettings appSettings, int activeApprenticeshipsCount, IDateTimeHelper dateTimeHelper)
         {
-            if(learner == null)
+            if (learner == null)
             {
                 if (IsActive())
                 {
@@ -181,7 +181,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="dateTimeHelper">DateTimeHelper interface to allow easier mocking for unit tests.</param>
         private void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, int activeApprenticeshipsCount, IDateTimeHelper dateTimeHelper)
         {
-            if(Status == FeedbackTargetStatus.Complete)
+            if (Status == FeedbackTargetStatus.Complete)
             {
                 // If it has already been set to Complete, then we don't revert it.
                 return;
@@ -236,25 +236,23 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 Status = FeedbackTargetStatus.NotYetActive;
                 FeedbackEligibility = FeedbackEligibilityStatus.Deny_TooSoon;
             }
-            else
+            else if (!HasProviderMetMinimumNumberOfActiveApprenticeships(activeApprenticeshipsCount, appSettings))
             {
                 // The Apprenticeship start and end dates are open for feedback and it's marked as currently not active.
                 // If it hasn't met the minimum number of active apprentices
-                if (!HasProviderMetMinimumNumberOfActiveApprenticeships(activeApprenticeshipsCount, appSettings))
-                {
-                    Status = FeedbackTargetStatus.NotYetActive;
-                    FeedbackEligibility = FeedbackEligibilityStatus.Deny_NotEnoughActiveApprentices;
-                }
-                else
-                {
-                    // Catch All
-                    // If none of the above rules caught anything then the feedback must be now Active and Set to Allowed
-                    // This is specifically the default to allow feedback if a rule has not been defined
-                    // So that there are less issues with showing feedback links.
-                    Status = FeedbackTargetStatus.Active;
-                    FeedbackEligibility = FeedbackEligibilityStatus.Allow;
-                }
+                Status = FeedbackTargetStatus.NotYetActive;
+                FeedbackEligibility = FeedbackEligibilityStatus.Deny_NotEnoughActiveApprentices;
             }
+            else
+            {
+                // Catch All
+                // If none of the above rules caught anything then the feedback must be now Active and Set to Allowed
+                // This is specifically the default to allow feedback if a rule has not been defined
+                // So that there are less issues with showing feedback links.
+                Status = FeedbackTargetStatus.Active;
+                FeedbackEligibility = FeedbackEligibilityStatus.Allow;
+            }
+
 
             EligibilityCalculationDate = dateTimeHelper.Now;
         }
