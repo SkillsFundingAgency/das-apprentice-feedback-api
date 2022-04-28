@@ -20,7 +20,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
 
             var result = new GetAllProvidersForApprenticeResult()
             {
-                Providers = providers,
+                TrainingProviders = providers,
+                
             };
 
             return result;

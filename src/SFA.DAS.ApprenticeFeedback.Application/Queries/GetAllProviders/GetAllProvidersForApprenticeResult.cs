@@ -5,6 +5,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
 {
     public class GetAllProvidersForApprenticeResult
     {
-        public IEnumerable<Provider> Providers { get; set; }
+        public IEnumerable<Provider> TrainingProviders { get; set; }
     }
 }
