@@ -35,13 +35,21 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             (CreateApprenticeFeedbackCommand command,
             [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
             CreateApprenticeFeedbackHandler handler,
-            Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget)
+            IEnumerable<FeedbackAttribute> validAttributes)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeId)).ReturnsAsync(apprenticeFeedbackTarget);
+            mockApprenticeFeedbackRepository.Setup(s => s.GetAttributes()).ReturnsAsync(validAttributes.Select(s => new Domain.Entities.Attribute { AttributeId = s.Id, AttributeName = s.Name })); 
 
+            var testAttribute1 = new FeedbackAttribute { Id = 1, Name = "FeedbackAttribute1", Status = FeedbackAttributeStatus.Agree };
+            var testAttribute2 = new FeedbackAttribute { Id = 2, Name = "FeedbackAttribute2", Status = FeedbackAttributeStatus.Disagree };
+            command.FeedbackAttributes = new List<FeedbackAttribute> { testAttribute1, testAttribute2 };
+            command.FeedbackAttributes.AddRange(validAttributes);
+
+            var mockAttributesNames = validAttributes.Select(attribute => attribute.Name).ToList();
+            string mockAttributes = string.Join(", ", mockAttributesNames);
+            var errorMessage = $"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: FeedbackAttribute1, FeedbackAttribute2, {mockAttributes}, the following attributes are invalid: FeedbackAttribute1, FeedbackAttribute2";
             Func<Task> result = async () => await handler.Handle(command, CancellationToken.None);
 
-            await result.Should().ThrowAsync<InvalidOperationException>().WithMessage($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {command.FeedbackAttributes.ToList()}");
+            await result.Should().ThrowAsync<InvalidOperationException>().WithMessage(errorMessage);
             
         }
 
