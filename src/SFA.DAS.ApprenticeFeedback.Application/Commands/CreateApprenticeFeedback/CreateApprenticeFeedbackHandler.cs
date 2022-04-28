@@ -73,7 +73,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             return new Domain.Entities.ApprenticeFeedbackResult()
             {
                 ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id,
-                StandardUId = request.StandardUId,
+                StandardUId = apprenticeFeedbackTarget.StandardUId,
                 DateTimeCompleted = _timeHelper.Now,
                 ProviderRating = request.OverallRating.ToString(),
                 ProviderAttributes = request.FeedbackAttributes.

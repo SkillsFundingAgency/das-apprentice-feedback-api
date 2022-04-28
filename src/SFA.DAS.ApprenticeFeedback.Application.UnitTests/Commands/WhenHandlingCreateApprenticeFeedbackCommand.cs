@@ -63,9 +63,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             IEnumerable<Domain.Entities.Attribute> attributes)
         {
             command.FeedbackAttributes = attributes.Select(a => new FeedbackAttribute { Id = a.AttributeId, Name = a.AttributeName, Status = FeedbackAttributeStatus.Agree }).ToList();
-            apprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeId)).ReturnsAsync(apprenticeFeedbackTarget);
+            apprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId)).ReturnsAsync(apprenticeFeedbackTarget);
             apprenticeFeedbackRepository.Setup(s => s.GetAttributes()).ReturnsAsync(attributes);
-            apprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackResult(It.Is<ApprenticeFeedbackResult>(c => c.StandardUId == command.StandardUId))).ReturnsAsync(apprenticeFeedbackResult);
+            apprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackResult(It.Is<ApprenticeFeedbackResult>(c => c.StandardUId == apprenticeFeedbackTarget.StandardUId))).ReturnsAsync(apprenticeFeedbackResult);
 
             var result = await handler.Handle(command, CancellationToken.None);
 
