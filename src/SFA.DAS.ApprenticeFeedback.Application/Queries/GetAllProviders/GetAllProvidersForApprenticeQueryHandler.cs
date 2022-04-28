@@ -10,11 +10,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
     public class GetAllProvidersForApprenticeQueryHandler : IRequestHandler<GetAllProvidersForApprenticeQuery, GetAllProvidersForApprenticeResult>
     {
         private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
+        private readonly ApplicationSettings _appSettings;
 
-        public GetAllProvidersForApprenticeQueryHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository)
+        public GetAllProvidersForApprenticeQueryHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
+            ApplicationSettings appSettings)
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
-        }
+            _appSettings = appSettings;
+        }               
 
         public async Task<GetAllProvidersForApprenticeResult> Handle(GetAllProvidersForApprenticeQuery request, CancellationToken cancellationToken)
         {
@@ -48,7 +51,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
             var result = new GetAllProvidersForApprenticeResult()
             {
                 TrainingProviders = providers,
-                
+                InitialDenyPeriodDays = _appSettings.InitialDenyPeriodDays,
+                FinalAllowedPeriodDays = _appSettings.FinalAllowedPeriodDays,
+                RecentDenyPeriodDays = _appSettings.RecentDenyPeriodDays,
+                MinimumActiveApprenticeshipCount = _appSettings.MinimumActiveApprenticeshipCount,
             };
 
             return result;
