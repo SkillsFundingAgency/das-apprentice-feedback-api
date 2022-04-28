@@ -45,6 +45,10 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
                 feedbackTarget.StartDate = updatedEntity.StartDate;
                 feedbackTarget.EndDate = updatedEntity.EndDate;
                 feedbackTarget.Status = updatedEntity.Status;
+                feedbackTarget.Ukprn = updatedEntity.Ukprn;
+                feedbackTarget.ProviderName = updatedEntity.ProviderName;
+                feedbackTarget.StandardName = updatedEntity.StandardName;
+                feedbackTarget.StandardUId = updatedEntity.StandardUId;
 
                 _dbContext.SaveChanges();
                 return feedbackTarget;
@@ -56,23 +60,18 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
         }
 
         public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargets(Guid apprenticeId)
-        {
-            return await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).Where(aft => aft.ApprenticeId == apprenticeId).ToListAsync();
-        }
+            => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
+            .Where(aft => aft.ApprenticeId == apprenticeId).ToListAsync();
 
         public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentsApprenticeshipid)
         => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).
             FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentsApprenticeshipid);
 
         public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeFeedbackTargetId)
-        => await _dbContext.ApprenticeFeedbackTargets.
-                            SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
+        => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
+            .SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
 
-
-        public async Task<IEnumerable<Domain.Entities.Attribute>> GetAttributes()
-        {
-            return await _dbContext.Attributes.ToListAsync();
-        }
+        public async Task<IEnumerable<Domain.Entities.Attribute>> GetAttributes() => await _dbContext.Attributes.ToListAsync();
 
         public async Task<ApprenticeFeedbackResult> CreateApprenticeFeedbackResult(ApprenticeFeedbackResult feedbackResult)
         {

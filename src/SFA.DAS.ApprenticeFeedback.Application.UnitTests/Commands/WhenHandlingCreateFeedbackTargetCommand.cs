@@ -48,7 +48,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             mockApprenticeFeedbackRepository.Setup(s => s.UpdateApprenticeFeedbackTarget(It.Is<ApprenticeFeedbackTarget>(s =>
             s.StartDate == null && s.EndDate == null &&
-            s.Status == (int)FeedbackTargetStatus.NotYetActive &&
+            s.Status == (int)FeedbackTargetStatus.Unknown &&
             s.Id == apprenticeFeedbackTarget.Id))).ReturnsAsync(apprenticeFeedbackTarget);
 
             var result = await handler.Handle(command, CancellationToken.None);

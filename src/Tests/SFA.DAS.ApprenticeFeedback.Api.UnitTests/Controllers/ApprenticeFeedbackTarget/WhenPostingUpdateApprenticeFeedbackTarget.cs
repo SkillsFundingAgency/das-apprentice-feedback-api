@@ -7,6 +7,7 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Api.Controllers;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTarget;
 using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Threading;
@@ -14,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbackTarget
 {
-    public class WhenPostingCreateApprenticeFeedbackTarget
+    public class WhenPostingUpdateApprenticeFeedbackTarget
     {
         ApprenticeFeedbackTargetController _sut;
         Mock<IMediator> _mockMediator;
@@ -26,25 +27,24 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
             _sut = new ApprenticeFeedbackTargetController(_mockMediator.Object, Mock.Of<ILogger<ApprenticeFeedbackTargetController>>());
         }
 
-        [Test, MoqAutoData]
+        [Test, RecursiveMoqAutoData]
         public async Task And_MediatorCommandSuccessful_Then_ReturnOk(
-            CreateApprenticeFeedbackTargetCommand request,
-            CreateApprenticeFeedbackTargetCommandResponse response
-            )
+            UpdateApprenticeFeedbackTargetCommand request,
+            UpdateApprenticeFeedbackTargetCommandResponse response)
         {
             _mockMediator.Setup(s => s.Send(request, It.IsAny<CancellationToken>())).ReturnsAsync(response);
-            var result = await _sut.Create(request);
+            var result = await _sut.ProcessUpdate(request);
 
-            result.Should().BeOfType<OkObjectResult>().Which.
-                Value.Should().BeEquivalentTo(response);
+            result.Should().BeOfType<OkObjectResult>().Which.Value.Should().Be(response.UpdatedApprenticeFeedbackTarget);
         }
 
         [Test, MoqAutoData]
-        public async Task And_MediatorThrowsException_Then_ReturnBadRequest(CreateApprenticeFeedbackTargetCommand request)
+        public async Task And_MediatorThrowsException_Then_ReturnBadRequest(
+            UpdateApprenticeFeedbackTargetCommand request)
         {
-            _mockMediator.Setup(m => m.Send(It.IsAny<CreateApprenticeFeedbackTargetCommand>(), It.IsAny<CancellationToken>())).Throws(new Exception());
+            _mockMediator.Setup(m => m.Send(request, It.IsAny<CancellationToken>())).Throws(new Exception());
 
-            var result = await _sut.Create(request);
+            var result = await _sut.ProcessUpdate(request);
 
             result.Should().BeOfType<BadRequestResult>();
         }
