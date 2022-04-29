@@ -15,6 +15,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <returns></returns>
         public static IEnumerable<ApprenticeFeedbackTarget> FilterForEligibleActiveApprenticeFeedbackTargets(this IEnumerable<ApprenticeFeedbackTarget> source) =>
             source.Where(aft =>
+                aft.Id.HasValue &&
                 aft.StartDate != DateTime.MinValue
                 && aft.Ukprn > 0
                 && aft.Status != FeedbackTargetStatus.Unknown

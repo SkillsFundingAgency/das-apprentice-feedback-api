@@ -6,7 +6,7 @@ using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
 {
-    public class WhenMappingFromApprenticeFeedbackEntityToModel
+    public class WhenMappingFromApprenticeFeedbackTargetEntityToModel
     {
         [Test, RecursiveMoqAutoData]
         public void ThenTheFieldsAreCorrectlyMapped(ApprenticeFeedbackTarget source)

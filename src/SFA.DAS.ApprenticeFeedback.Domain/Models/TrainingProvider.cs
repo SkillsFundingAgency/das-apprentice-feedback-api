@@ -5,6 +5,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
     public class TrainingProvider
     {
+        // The Apprentice Feedback Target that was used to populate this provider.
+        public Guid ApprenticeFeedbackTargetId { get; set; }
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public long Ukprn { get; set; }
@@ -22,6 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 
             return new TrainingProvider
             {
+                ApprenticeFeedbackTargetId = source.Id.GetValueOrDefault(Guid.Empty),
                 Ukprn = source.Ukprn.GetValueOrDefault(0),
                 StartDate = source.StartDate.GetValueOrDefault(),
                 EndDate = source.EndDate,

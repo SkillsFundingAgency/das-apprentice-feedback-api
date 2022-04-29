@@ -20,9 +20,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
         {
             var apprenticeFeedbackTargets = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargets(request.ApprenticeId, request.Ukprn);
                         
-            if (apprenticeFeedbackTargets?.Any() == false)
+            if (apprenticeFeedbackTargets == null || !apprenticeFeedbackTargets.Any())
             {
-                return default;
+                return new GetProviderByUkprnResult();
             }
 
             TrainingProvider trainingProvider = apprenticeFeedbackTargets
