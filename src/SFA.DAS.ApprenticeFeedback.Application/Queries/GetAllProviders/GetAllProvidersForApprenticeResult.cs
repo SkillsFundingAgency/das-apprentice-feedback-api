@@ -5,6 +5,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
 {
     public class GetAllProvidersForApprenticeResult
     {
+        public int RecentDenyPeriodDays { get; set; }
+        public int InitialDenyPeriodDays { get; set; }
+        public int FinalAllowedPeriodDays { get; set; }
+        public int MinimumActiveApprenticeshipCount { get; set; }
         public IEnumerable<TrainingProvider> TrainingProviders { get; set; }
     }
 }
