@@ -16,7 +16,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public static IEnumerable<ApprenticeFeedbackTarget> FilterForEligibleActiveApprenticeFeedbackTargets(this IEnumerable<ApprenticeFeedbackTarget> source) =>
             source.Where(aft =>
                 aft.Id.HasValue &&
-                aft.StartDate != DateTime.MinValue
+                aft.StartDate.HasValue
                 && aft.Ukprn > 0
                 && aft.Status != FeedbackTargetStatus.Unknown
                 && aft.FeedbackEligibility != FeedbackEligibilityStatus.Unknown
@@ -30,7 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="source"></param>
         /// <returns></returns>
         private static IEnumerable<ApprenticeFeedbackTarget> FilterForLatestValidApprenticeshipFeedbackTargetPerTrainingProvider(this IEnumerable<ApprenticeFeedbackTarget> source) =>
-            source.GroupBy(s => s.Ukprn).Select(t => t.LatestValidApprenticeship());
+            source.GroupBy(s => s.Ukprn).Select(t => t.LatestValidApprenticeship()).Where(u => u != null);
 
         private static ApprenticeFeedbackTarget LatestValidApprenticeship(this IEnumerable<ApprenticeFeedbackTarget> source)
         {
@@ -46,7 +46,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             // Already filtered out Unknown,
             // Already ordered by Start Date
             // So return the first not complete target 
-            return orderedTargets.First(s => !s.IsComplete());
+            return orderedTargets.FirstOrDefault(s => !s.IsComplete());
         }
     }
 }
