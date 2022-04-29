@@ -21,43 +21,26 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
 
         public async Task<GetAllProvidersForApprenticeResult> Handle(GetAllProvidersForApprenticeQuery request, CancellationToken cancellationToken)
         {
-            // Get all feedback targets for given apprentice guid.
-
             var afts = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargets(request.ApprenticeId);
 
-            // Filter out ones we are not interested in.
-
-            var filteredAfts = afts.Where(afts =>
-                afts.StartDate.HasValue
-                && afts.Ukprn.HasValue
-                && afts.Status != (int)Domain.Models.ApprenticeFeedbackTarget.FeedbackTargetStatus.Unknown
-                && afts.FeedbackEligibility != (int)Domain.Models.ApprenticeFeedbackTarget.FeedbackEligibilityStatus.Unknown
-                && afts.FeedbackEligibility != (int)Domain.Models.ApprenticeFeedbackTarget.FeedbackEligibilityStatus.Deny_Complete
-                );
-
-            // Map to Provider
-
-            var providers = filteredAfts.Select(p => new TrainingProvider()
+            if (afts?.Any() == false)
             {
-                StartDate = p.StartDate.Value,
-                EndDate = p.EndDate,
-                Status = p.Status,
-                Ukprn = p.Ukprn.Value,
-                ProviderName = p.ProviderName,
-                FeedbackEligibility = p.FeedbackEligibility
-            });
+                return default;
+            }
 
+            var trainingProviders = afts
+                .Select(r => (ApprenticeFeedbackTarget)r)
+                .FilterForEligibleActiveApprenticeFeedbackTargets()
+                .Select(s => (TrainingProvider)s);
 
-            var result = new GetAllProvidersForApprenticeResult()
+            return new GetAllProvidersForApprenticeResult()
             {
-                TrainingProviders = providers,
+                TrainingProviders = trainingProviders,
                 InitialDenyPeriodDays = _appSettings.InitialDenyPeriodDays,
                 FinalAllowedPeriodDays = _appSettings.FinalAllowedPeriodDays,
                 RecentDenyPeriodDays = _appSettings.RecentDenyPeriodDays,
                 MinimumActiveApprenticeshipCount = _appSettings.MinimumActiveApprenticeshipCount,
             };
-
-            return result;
         }
     }
 }

@@ -5,7 +5,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using SFA.DAS.Testing.AutoFixture;
 using System;
-using static SFA.DAS.ApprenticeFeedback.Domain.Models.ApprenticeFeedbackTarget;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
 {

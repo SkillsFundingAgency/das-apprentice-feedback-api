@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Linq;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
@@ -19,36 +20,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public FeedbackEligibilityStatus FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
         public DateTime? LastFeedbackCompletedDate { get; set; }
-
-        public enum FeedbackTargetStatus
-        {
-            Unknown = 0,
-            NotYetActive = 1,
-            Active = 2,
-            Complete = 3,
-        }
-
-        public enum FeedbackEligibilityStatus
-        {
-            Unknown = 0,
-            Allow = 1,
-            Deny_TooSoon = 2,
-            Deny_TooLateAfterPassing = 3,
-            Deny_TooLateAfterWithdrawing = 4,
-            Deny_TooLateAfterPausing = 5,
-            Deny_HasGivenFeedbackRecently = 6,
-            Deny_HasGivenFinalFeedback = 7,
-            Deny_NotEnoughActiveApprentices = 8,
-            Deny_Complete = 9,
-        }
-
-        public enum ApprenticeshipStatus
-        {
-            InProgress = 0,
-            Passed = 1,
-            Stopped = 2,
-            Paused = 3
-        }
 
         public static implicit operator ApprenticeFeedbackTarget(Entities.ApprenticeFeedbackTarget source)
         {
@@ -78,6 +49,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public bool IsActive() => Status == FeedbackTargetStatus.Active;
         public bool IsInactive() => Status == FeedbackTargetStatus.NotYetActive;
         public bool IsComplete() => Status == FeedbackTargetStatus.Complete;
+        public bool IsActiveAndEligible() => IsActive() && FeedbackEligibilityStatus == FeedbackEligibilityStatus.Allow;
 
         /// <summary>
         /// Has the StartDate plus a configurable time element elapsed to allow the beginning of feedback
