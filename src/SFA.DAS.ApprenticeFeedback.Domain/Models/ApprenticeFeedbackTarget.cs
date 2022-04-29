@@ -49,7 +49,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public bool IsActive() => Status == FeedbackTargetStatus.Active;
         public bool IsInactive() => Status == FeedbackTargetStatus.NotYetActive;
         public bool IsComplete() => Status == FeedbackTargetStatus.Complete;
-        public bool IsActiveAndEligible() => IsActive() && FeedbackEligibilityStatus == FeedbackEligibilityStatus.Allow;
+        public bool IsActiveAndEligible() => IsActive() && FeedbackEligibility == FeedbackEligibilityStatus.Allow;
 
         /// <summary>
         /// Has the StartDate plus a configurable time element elapsed to allow the beginning of feedback
