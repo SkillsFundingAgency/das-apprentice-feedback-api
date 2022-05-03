@@ -5,7 +5,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using SFA.DAS.Testing.AutoFixture;
 using System;
-using static SFA.DAS.ApprenticeFeedback.Domain.Models.ApprenticeFeedbackTarget;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
 {
@@ -51,6 +51,30 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
 
             // Act & Assert
             target.IsComplete().Should().Be(isComplete);
+        }
+
+        [Test]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Allow, true)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Unknown, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_Complete, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_NotEnoughActiveApprentices, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_TooLateAfterPassing, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_TooLateAfterPausing, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_TooLateAfterWithdrawing, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_TooSoon, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.NotYetActive, FeedbackEligibilityStatus.Allow, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Complete, FeedbackEligibilityStatus.Allow, false)]
+        [MoqInlineAutoData(FeedbackTargetStatus.Unknown, FeedbackEligibilityStatus.Allow, false)]
+        public void WhenCalling_IsActiveAndEligible_SpecifiesIfTargetIsEligibleAndActive(FeedbackTargetStatus status, FeedbackEligibilityStatus eligibility, bool isComplete, ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.FeedbackEligibility = eligibility;
+            target.Status = status;
+
+            // Act & Assert
+            target.IsActiveAndEligible().Should().Be(isComplete);
         }
 
         [Test]

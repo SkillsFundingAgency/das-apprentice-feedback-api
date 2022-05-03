@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+using SFA.DAS.ApprenticeFeedback.Domain.Models;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,9 +16,31 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
         }
 
-        public Task<GetProviderByUkprnResult> Handle(GetProviderByUkprnQuery request, CancellationToken cancellationToken)
+        public async Task<GetProviderByUkprnResult> Handle(GetProviderByUkprnQuery request, CancellationToken cancellationToken)
         {
-            return null;
+            var apprenticeFeedbackTargets = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargets(request.ApprenticeId, request.Ukprn);
+                        
+            if (apprenticeFeedbackTargets == null || !apprenticeFeedbackTargets.Any())
+            {
+                return null;
+            }
+
+            var apprenticeFeedbackTarget = apprenticeFeedbackTargets
+                .Select(r => (ApprenticeFeedbackTarget)r)
+                .FilterForEligibleActiveApprenticeFeedbackTargets()
+                .SingleOrDefault();
+
+            return new GetProviderByUkprnResult
+            {
+                ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id.Value,
+                Ukprn = apprenticeFeedbackTarget.Ukprn.GetValueOrDefault(0),
+                ProviderName = apprenticeFeedbackTarget.ProviderName,
+                FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility,
+                LastFeedbackSubmittedDate = apprenticeFeedbackTarget.LastFeedbackCompletedDate,
+                // To be calculated based on status rules.
+                SignificantDate = null,
+                TimeWindow = null
+            };
         }
     }
 }

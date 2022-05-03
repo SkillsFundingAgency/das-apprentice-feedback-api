@@ -3,6 +3,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget
 {
@@ -25,7 +26,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                 {
                     ApprenticeId = request.ApprenticeId,
                     ApprenticeshipId = request.CommitmentApprenticeshipId,
-                    Status = Domain.Models.ApprenticeFeedbackTarget.FeedbackTargetStatus.NotYetActive,
+                    Status = FeedbackTargetStatus.NotYetActive,
                 });
             }
             else
