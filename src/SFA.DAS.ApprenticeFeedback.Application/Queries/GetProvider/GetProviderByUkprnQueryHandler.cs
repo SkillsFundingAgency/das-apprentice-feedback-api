@@ -22,7 +22,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
                         
             if (apprenticeFeedbackTargets == null || !apprenticeFeedbackTargets.Any())
             {
-                return new GetProviderByUkprnResult();
+                return null;
             }
 
             TrainingProvider trainingProvider = apprenticeFeedbackTargets

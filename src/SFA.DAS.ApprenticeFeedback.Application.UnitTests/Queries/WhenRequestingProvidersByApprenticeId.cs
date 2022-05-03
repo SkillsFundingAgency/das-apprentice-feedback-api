@@ -19,7 +19,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         [Test]
         [RecursiveMoqInlineAutoData(true)]
         [RecursiveMoqInlineAutoData(false)]
-        public async Task AndNoTargets_ThenNoProvidersAreReturned(
+        public async Task AndNoTargets_ThenShouldReturnNull(
             bool IsNullResponse,
             GetAllProvidersForApprenticeQuery query,
             [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
@@ -33,7 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             var result = await handler.Handle(query, CancellationToken.None);
 
             // Assert
-            result.TrainingProviders.Should().BeNull();
+            result.Should().BeNull();
         }
 
         [Test, RecursiveMoqAutoData]

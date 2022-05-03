@@ -16,6 +16,20 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.WhenRequestingPro
     public class WhenRequestingProvider
     {
         [Test, MoqAutoData]
+        public async Task And_MediatorCommandReturnsNull_Then_ReturnNotFoundResult(
+            [Frozen] Mock<IMediator> mediator,
+            [Greedy] ProvidersController controller,
+            Guid apprenticeId, long ukprn)
+        {
+            mediator.Setup(m => m.Send(It.Is<GetProviderByUkprnQuery>(s =>
+                s.ApprenticeId == apprenticeId && s.Ukprn == ukprn), It.IsAny<CancellationToken>())).ReturnsAsync((GetProviderByUkprnResult)null);
+
+            var result = await controller.GetProviderForApprenticeAndUkprn(apprenticeId, ukprn) as NotFoundResult;
+
+            result.Should().NotBeNull();
+        }
+
+        [Test, MoqAutoData]
         public async Task And_MediatorCommandSuccessful_Then_ReturnOk(
             [Frozen] Mock<IMediator> mediator,
             [Greedy] ProvidersController controller,

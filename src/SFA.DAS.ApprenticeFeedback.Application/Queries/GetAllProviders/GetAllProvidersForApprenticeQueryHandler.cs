@@ -25,7 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
 
             if (afts == null || !afts.Any())
             {
-                return new GetAllProvidersForApprenticeResult();
+                return null;
             }
 
             var trainingProviders = afts

@@ -7,7 +7,6 @@ using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
@@ -20,7 +19,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         [Test]
         [RecursiveMoqInlineAutoData(true)]
         [RecursiveMoqInlineAutoData(false)]
-        public async Task AndNoTargets_ThenNoProviderIsReturned(
+        public async Task AndNoTargets_ThenShouldReturnNull(
             bool IsNullResponse,
             GetProviderByUkprnQuery query,
             [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
@@ -34,7 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             var result = await handler.Handle(query, CancellationToken.None);
 
             // Assert
-            result.TrainingProvider.Should().BeNull();
+            result.Should().BeNull();
         }
 
         [Test, RecursiveMoqAutoData]
