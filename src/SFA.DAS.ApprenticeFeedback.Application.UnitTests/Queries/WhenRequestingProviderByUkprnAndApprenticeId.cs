@@ -7,6 +7,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
@@ -55,12 +56,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             result.Should().BeEquivalentTo(new
             {
                 ApprenticeFeedbackTargetId = response.Id,
-                response.StartDate,
-                response.EndDate,
                 response.Ukprn,
                 response.ProviderName,
-                Status = (FeedbackTargetStatus)response.Status,
-                FeedbackEligibility = (FeedbackEligibilityStatus)response.FeedbackEligibility
+                FeedbackEligibility = (FeedbackEligibilityStatus)response.FeedbackEligibility,
+                LastFeedbackSubmittedDate = response.ApprenticeFeedbackResults.OrderByDescending(s => s.DateTimeCompleted).First().DateTimeCompleted
+                //SignificantDate / TimeWindow
             });
         }
     }
