@@ -52,7 +52,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             var result = await handler.Handle(query, CancellationToken.None);
 
             // Assert
-            result.TrainingProvider.Should().BeEquivalentTo(new
+            result.Should().BeEquivalentTo(new
             {
                 ApprenticeFeedbackTargetId = response.Id,
                 response.StartDate,

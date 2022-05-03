@@ -44,10 +44,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.WhenRequestingPro
 
             result.Should().NotBeNull();
             var model = result.Value;
-            model.Should().BeEquivalentTo(new
-            {
-                response.TrainingProvider
-            });
+            model.Should().BeEquivalentTo(response);
         }
     }
 }

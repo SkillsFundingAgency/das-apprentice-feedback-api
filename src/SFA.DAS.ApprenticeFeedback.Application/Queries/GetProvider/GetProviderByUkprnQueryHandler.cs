@@ -25,14 +25,21 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
                 return null;
             }
 
-            TrainingProvider trainingProvider = apprenticeFeedbackTargets
+            var apprenticeFeedbackTarget = apprenticeFeedbackTargets
                 .Select(r => (ApprenticeFeedbackTarget)r)
                 .FilterForEligibleActiveApprenticeFeedbackTargets()
                 .SingleOrDefault();
 
             return new GetProviderByUkprnResult
             {
-                TrainingProvider = trainingProvider
+                ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id.Value,
+                Ukprn = apprenticeFeedbackTarget.Ukprn.GetValueOrDefault(0),
+                ProviderName = apprenticeFeedbackTarget.ProviderName,
+                FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility,
+                LastFeedbackSubmittedDate = apprenticeFeedbackTarget.LastFeedbackCompletedDate,
+                // To be calculated based on status rules.
+                SignificantDate = null,
+                TimeWindow = null
             };
         }
     }
