@@ -62,5 +62,19 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
 
             result.TimeWindow.Should().Be(TimeSpan.FromDays(appSettings.FinalAllowedPeriodDays));
         }
+
+        [Test]
+        [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Allow)]
+        [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_Complete)]
+        [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_NotEnoughActiveApprentices)]
+        [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Unknown)]
+        public void AndTimeFieldsAreNotRequiredThenTimeFieldsAreNull(Enums.FeedbackEligibilityStatus eligibility, ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
+        {
+            source.FeedbackEligibility = eligibility;
+            var result = TrainingProvider.Create(source, appSettings);
+
+            result.TimeWindow.Should().BeNull();
+            result.SignificantDate.Should().BeNull();
+        }
     }
 }
