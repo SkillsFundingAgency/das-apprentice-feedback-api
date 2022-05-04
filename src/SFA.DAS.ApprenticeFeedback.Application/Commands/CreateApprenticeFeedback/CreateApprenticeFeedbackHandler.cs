@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
+using SFA.DAS.ApprenticeFeedback.Domain.Models;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback
 {
@@ -25,7 +26,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public async Task<CreateApprenticeFeedbackResponse> Handle(CreateApprenticeFeedbackCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Fetch ApprenticeFeedbackTarget record by Id. Id used: {request.ApprenticeFeedbackTargetId}");
-            var apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargetById(request.ApprenticeFeedbackTargetId);
+            ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargetById(request.ApprenticeFeedbackTargetId);
 
             if (apprenticeFeedbackTarget == null)
             {
@@ -33,6 +34,32 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                 throw new InvalidOperationException($"Apprentice Feedback Target not found. ApprenticeFeedbackTargetId: {request.ApprenticeFeedbackTargetId}");
             }
 
+            await ValidateProviderAttributes(request);
+
+            // Create Feedback for new submission
+            var now = _timeHelper.Now;
+            var feedback = new Domain.Entities.ApprenticeFeedbackResult()
+            {
+                ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id.Value,
+                StandardUId = apprenticeFeedbackTarget.StandardUId,
+                DateTimeCompleted = now,
+                ProviderRating = request.OverallRating.ToString(),
+                ProviderAttributes = request.FeedbackAttributes.
+                    Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList(),
+                AllowContact = request.AllowContact
+            };
+            feedback = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackResult(feedback);
+
+            // Update Feedback Target with new status
+            apprenticeFeedbackTarget.UpdateTargetAfterFeedback(now);
+            await _apprenticeFeedbackRepository.UpdateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
+
+            _logger.LogDebug($"Successfully created feedback object with Id: {feedback.Id}");
+            return new CreateApprenticeFeedbackResponse() { ApprenticeFeedbackResultId = feedback.Id };
+        }
+
+        private async Task ValidateProviderAttributes(CreateApprenticeFeedbackCommand request)
+        {
             var validAttributes = await _apprenticeFeedbackRepository.GetAttributes();
             var validAttributesIds = validAttributes.Select(a => a.AttributeId).ToList();
             var providedAttributesIds = request.FeedbackAttributes.Select(a => a.Id).ToList();
@@ -40,24 +67,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
 
             if (invalidAttributesIds.Count > 0)
             {
-                var attributesProvidedNames = GetAttributeNames(request);
+                var attributesProvidedNames = string.Join(", ", request.FeedbackAttributes.Select(a => a.Name));
                 string invalidAttributeNamesOutput = CreateInvalidOutput(request, invalidAttributesIds);
                 _logger.LogError($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvidedNames}, the following attributes are invalid: {invalidAttributeNamesOutput}");
                 throw new InvalidOperationException($"Some or all of the attributes supplied to create the feedback record do not exist in the database. Attributes provided in the request: {attributesProvidedNames}, the following attributes are invalid: {invalidAttributeNamesOutput}");
             }
-
-            var feedback = CreateApprenticeFeedbackResult(request, apprenticeFeedbackTarget);
-
-            feedback = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackResult(feedback);
-
-            _logger.LogDebug($"Successfully created feedback object with Id: {feedback.Id}");
-            return new CreateApprenticeFeedbackResponse() { ApprenticeFeedbackResultId = feedback.Id };
-        }
-
-        private string GetAttributeNames(CreateApprenticeFeedbackCommand request)
-        {
-            var attributeNames = request.FeedbackAttributes.Select(a => a.Name).ToList();
-            return string.Join(", ", attributeNames);
         }
 
         private string CreateInvalidOutput(CreateApprenticeFeedbackCommand request, List<int> invalidAttributesIds)
@@ -65,21 +79,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             var invalidAttributesNames = (from a in request.FeedbackAttributes
                                           where invalidAttributesIds.Contains(a.Id)
                                           select a.Name).ToList();
-            return String.Join(", ", invalidAttributesNames);
-        }
-
-        private Domain.Entities.ApprenticeFeedbackResult CreateApprenticeFeedbackResult(CreateApprenticeFeedbackCommand request, Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget)
-        {
-            return new Domain.Entities.ApprenticeFeedbackResult()
-            {
-                ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id,
-                StandardUId = apprenticeFeedbackTarget.StandardUId,
-                DateTimeCompleted = _timeHelper.Now,
-                ProviderRating = request.OverallRating.ToString(),
-                ProviderAttributes = request.FeedbackAttributes.
-                    Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList(),
-                AllowContact = request.AllowContact
-            };
+            return string.Join(", ", invalidAttributesNames);
         }
     }
 }

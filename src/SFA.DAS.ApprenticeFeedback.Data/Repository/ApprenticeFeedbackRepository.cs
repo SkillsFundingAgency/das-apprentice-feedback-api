@@ -19,46 +19,32 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
 
         public async Task<Guid?> CreateApprenticeFeedbackTarget(ApprenticeFeedbackTarget feedbackTarget)
         {
-            try
-            {
-                await _dbContext.ApprenticeFeedbackTargets.AddAsync(feedbackTarget);
-                _dbContext.SaveChanges();
-            }
-            catch
-            {
-                return null;
-            }
+            await _dbContext.ApprenticeFeedbackTargets.AddAsync(feedbackTarget);
+            _dbContext.SaveChanges();
 
             return feedbackTarget.Id;
         }
 
         public async Task<ApprenticeFeedbackTarget> UpdateApprenticeFeedbackTarget(ApprenticeFeedbackTarget updatedEntity)
         {
-            try
-            {
-                var feedbackTarget = await _dbContext.ApprenticeFeedbackTargets.FirstOrDefaultAsync(s => s.Id == updatedEntity.Id);
-                if (feedbackTarget == null)
-                {
-                    return null;
-                }
-
-                feedbackTarget.StartDate = updatedEntity.StartDate;
-                feedbackTarget.EndDate = updatedEntity.EndDate;
-                feedbackTarget.Status = updatedEntity.Status;
-                feedbackTarget.Ukprn = updatedEntity.Ukprn;
-                feedbackTarget.ProviderName = updatedEntity.ProviderName;
-                feedbackTarget.StandardName = updatedEntity.StandardName;
-                feedbackTarget.StandardUId = updatedEntity.StandardUId;
-                feedbackTarget.FeedbackEligibility = updatedEntity.FeedbackEligibility;
-                feedbackTarget.EligibilityCalculationDate = updatedEntity.EligibilityCalculationDate;
-
-                _dbContext.SaveChanges();
-                return feedbackTarget;
-            }
-            catch
+            var feedbackTarget = await _dbContext.ApprenticeFeedbackTargets.FirstOrDefaultAsync(s => s.Id == updatedEntity.Id);
+            if (feedbackTarget == null)
             {
                 return null;
             }
+
+            feedbackTarget.StartDate = updatedEntity.StartDate;
+            feedbackTarget.EndDate = updatedEntity.EndDate;
+            feedbackTarget.Status = updatedEntity.Status;
+            feedbackTarget.Ukprn = updatedEntity.Ukprn;
+            feedbackTarget.ProviderName = updatedEntity.ProviderName;
+            feedbackTarget.StandardName = updatedEntity.StandardName;
+            feedbackTarget.StandardUId = updatedEntity.StandardUId;
+            feedbackTarget.FeedbackEligibility = updatedEntity.FeedbackEligibility;
+            feedbackTarget.EligibilityCalculationDate = updatedEntity.EligibilityCalculationDate;
+
+            _dbContext.SaveChanges();
+            return feedbackTarget;
         }
 
         public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargets(Guid apprenticeId)

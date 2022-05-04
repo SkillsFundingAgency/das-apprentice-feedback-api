@@ -1,6 +1,7 @@
 ﻿using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Models
@@ -49,6 +50,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public bool IsActive() => Status == FeedbackTargetStatus.Active;
         public bool IsInactive() => Status == FeedbackTargetStatus.NotYetActive;
         public bool IsComplete() => Status == FeedbackTargetStatus.Complete;
+
         public bool IsActiveAndEligible() => IsActive() && FeedbackEligibility == FeedbackEligibilityStatus.Allow;
 
         /// <summary>
@@ -93,8 +95,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="appSettings"></param>
         /// <param name="dateTimeHelper"></param>
         /// <returns></returns>
-        public bool HasProvidedFinalFeedback() => Status == FeedbackTargetStatus.Complete && EndDate.HasValue
-            && LastFeedbackCompletedDate.HasValue && LastFeedbackCompletedDate.Value.Date >= EndDate.Value.Date;
+        public bool HasProvidedFinalFeedback(DateTime? lastFeedbackCompletedDate) => EndDate.HasValue && lastFeedbackCompletedDate.HasValue && lastFeedbackCompletedDate.Value.Date >= EndDate.Value.Date;
 
 
         public void ResetFeedbackTarget()
@@ -110,8 +111,38 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             Status = FeedbackTargetStatus.Unknown;
         }
 
+        /// <summary>
+        /// After feedback has been given, we need to update the target
+        /// to reflect the recently given feedback.
+        /// </summary>
+        /// <param name="now"></param>
+        public void UpdateTargetAfterFeedback(DateTime now)
+        {
+            // After Feedback has been created for a given target, we need to update it
+            // to either still allow + deny for recent feedback or mark it as final feedback.
+
+            if (HasProvidedFinalFeedback(now))
+            {
+                Status = FeedbackTargetStatus.Complete;
+                FeedbackEligibility = FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
+                EligibilityCalculationDate = now;
+            }
+            else
+            {
+                FeedbackEligibility = FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently;
+                EligibilityCalculationDate = now;
+            }
+        }
+
         public void UpdateApprenticeshipFeedbackTarget(Learner learner, ApplicationSettings appSettings, int activeApprenticeshipsCount, IDateTimeHelper dateTimeHelper)
         {
+            if (Status == FeedbackTargetStatus.Complete)
+            {
+                // If it has already been set to Complete, then we don't revert it.
+                // This shouldn't happen but is defensive.
+                return;
+            }
+
             if (learner == null)
             {
                 if (IsActive())
@@ -125,7 +156,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 }
                 return;
             }
-
 
             Ukprn = learner.Ukprn;
             ProviderName = learner.ProviderName;
@@ -153,19 +183,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="dateTimeHelper">DateTimeHelper interface to allow easier mocking for unit tests.</param>
         private void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, int activeApprenticeshipsCount, IDateTimeHelper dateTimeHelper)
         {
-            if (Status == FeedbackTargetStatus.Complete)
-            {
-                // If it has already been set to Complete, then we don't revert it.
-                return;
-            }
-
             if (HasApprenticeshipFinishedForFeedback(appSettings, dateTimeHelper))
             {
                 // If end date has passed, we set to complete no matter what, then have to setup the eligibility state.
                 Status = FeedbackTargetStatus.Complete;
 
                 var apprenticeshipStatus = GetApprenticeshipStatus(learner);
-                if (HasProvidedFinalFeedback())
+                if (HasProvidedFinalFeedback(LastFeedbackCompletedDate))
                 {
                     FeedbackEligibility = FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
                 }

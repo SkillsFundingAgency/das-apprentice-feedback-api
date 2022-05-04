@@ -73,6 +73,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             result.Should().BeOfType<CreateApprenticeFeedbackResponse>().Which.ApprenticeFeedbackResultId.Should().Be(apprenticeFeedbackResult.Id);
             apprenticeFeedbackRepository.Verify(s => s.CreateApprenticeFeedbackResult(It.IsAny<ApprenticeFeedbackResult>()), Times.Once());
 
+            apprenticeFeedbackRepository.Verify(t => t.UpdateApprenticeFeedbackTarget(It.Is<Domain.Entities.ApprenticeFeedbackTarget>(u =>
+                u.Id == apprenticeFeedbackTarget.Id)), Times.Once);
+
         }
     }
 }
