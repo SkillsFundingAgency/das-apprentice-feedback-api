@@ -51,10 +51,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             result.SignificantDate.Should().Be(source.StartDate.Value.Date.AddDays(appSettings.InitialDenyPeriodDays));
         }
 
-        [Test, MoqAutoData]
-        public void AndEligibilityIsTooLateThenTimeFieldsAreSetCorrectly(ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
+        [Test]
+        [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_TooLateAfterPassing)]
+        [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_TooLateAfterPausing)]
+        [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_TooLateAfterWithdrawing)]
+        public void AndEligibilityIsTooLateThenTimeFieldsAreSetCorrectly(Enums.FeedbackEligibilityStatus eligibility, ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
         {
-            source.FeedbackEligibility = Enums.FeedbackEligibilityStatus.Deny_TooLateAfterPassing;
+            source.FeedbackEligibility = eligibility;
             var result = TrainingProvider.Create(source, appSettings);
 
             result.TimeWindow.Should().Be(TimeSpan.FromDays(appSettings.FinalAllowedPeriodDays));
