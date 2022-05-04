@@ -34,28 +34,23 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 Status = source.Status,
             };
 
-            if (FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently == trainingProvider.FeedbackEligibility)
+            switch(trainingProvider.FeedbackEligibility)
             {
-                trainingProvider.SignificantDate = source.LastFeedbackCompletedDate.Value.Date.AddDays(appSettings.RecentDenyPeriodDays);
-            }
-            else if (FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback == trainingProvider.FeedbackEligibility)
-            {
-                trainingProvider.TimeWindow = new TimeSpan(days: appSettings.InitialDenyPeriodDays, 0, 0, 0);
-            }
-            else if (FeedbackEligibilityStatus.Deny_TooSoon == trainingProvider.FeedbackEligibility)
-            {
-                trainingProvider.TimeWindow = new TimeSpan(days: appSettings.InitialDenyPeriodDays, 0, 0, 0);
-                trainingProvider.SignificantDate = trainingProvider.StartDate.Date.AddDays(appSettings.InitialDenyPeriodDays);
-            }
-            else if (
-                (FeedbackEligibilityStatus.Deny_TooLateAfterPassing == trainingProvider.FeedbackEligibility)
-                ||
-                (FeedbackEligibilityStatus.Deny_TooLateAfterPausing == trainingProvider.FeedbackEligibility)
-                ||
-                (FeedbackEligibilityStatus.Deny_TooLateAfterWithdrawing == trainingProvider.FeedbackEligibility)
-                )
-            {
-                trainingProvider.TimeWindow = new TimeSpan(days: appSettings.FinalAllowedPeriodDays, 0, 0, 0);
+                case FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently:
+                    trainingProvider.SignificantDate = source.LastFeedbackCompletedDate.Value.Date.AddDays(appSettings.RecentDenyPeriodDays);
+                    break;
+                case FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback:
+                    trainingProvider.TimeWindow = new TimeSpan(days: appSettings.InitialDenyPeriodDays, 0, 0, 0);
+                    break;
+                case FeedbackEligibilityStatus.Deny_TooSoon:
+                    trainingProvider.TimeWindow = new TimeSpan(days: appSettings.InitialDenyPeriodDays, 0, 0, 0);
+                    trainingProvider.SignificantDate = trainingProvider.StartDate.Date.AddDays(appSettings.InitialDenyPeriodDays);
+                    break;
+                case FeedbackEligibilityStatus.Deny_TooLateAfterPassing:
+                case FeedbackEligibilityStatus.Deny_TooLateAfterPausing:
+                case FeedbackEligibilityStatus.Deny_TooLateAfterWithdrawing:
+                    trainingProvider.TimeWindow = new TimeSpan(days: appSettings.FinalAllowedPeriodDays, 0, 0, 0);
+                    break;
             }
 
             return trainingProvider;
