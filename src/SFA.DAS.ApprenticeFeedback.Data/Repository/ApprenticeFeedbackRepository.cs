@@ -20,7 +20,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
         public async Task<Guid?> CreateApprenticeFeedbackTarget(ApprenticeFeedbackTarget feedbackTarget)
         {
             await _dbContext.ApprenticeFeedbackTargets.AddAsync(feedbackTarget);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return feedbackTarget.Id;
         }
@@ -43,7 +43,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             feedbackTarget.FeedbackEligibility = updatedEntity.FeedbackEligibility;
             feedbackTarget.EligibilityCalculationDate = updatedEntity.EligibilityCalculationDate;
 
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
             return feedbackTarget;
         }
 
@@ -68,7 +68,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
         public async Task<ApprenticeFeedbackResult> CreateApprenticeFeedbackResult(ApprenticeFeedbackResult feedbackResult)
         {
             await _dbContext.ApprenticeFeedbackResults.AddAsync(feedbackResult);
-            _dbContext.SaveChanges();
+            await _dbContext.SaveChangesAsync();
 
             return feedbackResult;
         }

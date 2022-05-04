@@ -37,7 +37,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
             //assert
             result.Value.Should().Be(apprenticeFeedbackTarget.Id);
             _dbContext.Verify(s => s.ApprenticeFeedbackTargets.AddAsync(apprenticeFeedbackTarget, It.IsAny<CancellationToken>()), Times.Once);
-            _dbContext.Verify(s => s.SaveChanges(), Times.Once);
+            _dbContext.Verify(s => s.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test, RecursiveMoqAutoData]
@@ -55,7 +55,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
 
             //assert
             result.Should().BeEquivalentTo(apprenticeFeedbackTarget);
-            _dbContext.Verify(s => s.SaveChanges(), Times.Once);
+            _dbContext.Verify(s => s.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
