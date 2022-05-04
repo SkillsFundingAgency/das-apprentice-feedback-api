@@ -31,7 +31,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
             var trainingProviders = afts
                 .Select(r => (ApprenticeFeedbackTarget)r)
                 .FilterForEligibleActiveApprenticeFeedbackTargets()
-                .Select(s => (TrainingProvider)s);
+                .Select(s => TrainingProvider.Create(s, _appSettings));
 
             return new GetAllProvidersForApprenticeResult()
             {

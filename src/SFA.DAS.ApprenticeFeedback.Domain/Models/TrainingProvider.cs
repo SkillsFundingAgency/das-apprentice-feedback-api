@@ -13,16 +13,17 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public string ProviderName { get; set; }
         public FeedbackTargetStatus Status { get; set; }
         public FeedbackEligibilityStatus FeedbackEligibility { get; set; }
+        public DateTime? SignificantDate { get; set; }
+        public TimeSpan? TimeWindow { get; set; }
 
-
-        public static implicit operator TrainingProvider(ApprenticeFeedbackTarget source)
+        public static TrainingProvider Create(ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
         {
             if (source == null)
             {
                 return null;
             }
 
-            return new TrainingProvider
+            var trainingProvider = new TrainingProvider
             {
                 ApprenticeFeedbackTargetId = source.Id.GetValueOrDefault(Guid.Empty),
                 Ukprn = source.Ukprn.GetValueOrDefault(0),
@@ -32,6 +33,27 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 FeedbackEligibility = source.FeedbackEligibility,
                 Status = source.Status,
             };
+
+            switch(trainingProvider.FeedbackEligibility)
+            {
+                case FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently:
+                    trainingProvider.SignificantDate = source.LastFeedbackCompletedDate.Value.Date.AddDays(appSettings.RecentDenyPeriodDays);
+                    break;
+                case FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback:
+                    trainingProvider.TimeWindow = TimeSpan.FromDays(appSettings.InitialDenyPeriodDays);
+                    break;
+                case FeedbackEligibilityStatus.Deny_TooSoon:
+                    trainingProvider.TimeWindow = TimeSpan.FromDays(appSettings.InitialDenyPeriodDays);
+                    trainingProvider.SignificantDate = trainingProvider.StartDate.Date.AddDays(appSettings.InitialDenyPeriodDays);
+                    break;
+                case FeedbackEligibilityStatus.Deny_TooLateAfterPassing:
+                case FeedbackEligibilityStatus.Deny_TooLateAfterPausing:
+                case FeedbackEligibilityStatus.Deny_TooLateAfterWithdrawing:
+                    trainingProvider.TimeWindow = TimeSpan.FromDays(appSettings.FinalAllowedPeriodDays);
+                    break;
+            }
+
+            return trainingProvider;
         }
     }
 }
