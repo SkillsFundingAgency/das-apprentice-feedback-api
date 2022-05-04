@@ -38,7 +38,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             source.FeedbackEligibility = Enums.FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
             var result = TrainingProvider.Create(source, appSettings);
 
-            result.TimeWindow.Should().Be(new TimeSpan(days: appSettings.InitialDenyPeriodDays, 0, 0, 0));
+            result.TimeWindow.Should().Be(TimeSpan.FromDays(appSettings.InitialDenyPeriodDays));
         }
 
         [Test, MoqAutoData]
@@ -47,7 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             source.FeedbackEligibility = Enums.FeedbackEligibilityStatus.Deny_TooSoon;
             var result = TrainingProvider.Create(source, appSettings);
 
-            result.TimeWindow.Should().Be(new TimeSpan(days: appSettings.InitialDenyPeriodDays, 0, 0, 0));
+            result.TimeWindow.Should().Be(TimeSpan.FromDays(appSettings.InitialDenyPeriodDays));
             result.SignificantDate.Should().Be(source.StartDate.Value.Date.AddDays(appSettings.InitialDenyPeriodDays));
         }
 
@@ -57,7 +57,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             source.FeedbackEligibility = Enums.FeedbackEligibilityStatus.Deny_TooLateAfterPassing;
             var result = TrainingProvider.Create(source, appSettings);
 
-            result.TimeWindow.Should().Be(new TimeSpan(days: appSettings.FinalAllowedPeriodDays, 0, 0, 0));
+            result.TimeWindow.Should().Be(TimeSpan.FromDays(appSettings.FinalAllowedPeriodDays));
         }
     }
 }
