@@ -2,6 +2,7 @@
 using FluentAssertions;
 using SFA.DAS.Testing.AutoFixture;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
+using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
 {
@@ -19,6 +20,44 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             result.ProviderName.Should().Be(source.ProviderName);   
             result.Status.Should().Be(source.Status);
             result.FeedbackEligibility.Should().Be(source.FeedbackEligibility);
+            result.SignificantDate.Should().Be(null);
+        }
+
+        [Test, MoqAutoData]
+        public void AndEligibilityIsTooRecentThenTimeFieldsAreSetCorrectly(ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
+        {
+            source.FeedbackEligibility = Enums.FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently;
+            var result = TrainingProvider.Create(source, appSettings);
+
+            result.SignificantDate.Should().Be(source.LastFeedbackCompletedDate.Value.Date.AddDays(appSettings.RecentDenyPeriodDays));
+        }
+
+        [Test, MoqAutoData]
+        public void AndEligibilityIsFinalDoneThenTimeFieldsAreSetCorrectly(ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
+        {
+            source.FeedbackEligibility = Enums.FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
+            var result = TrainingProvider.Create(source, appSettings);
+
+            result.TimeWindow.Should().Be(new TimeSpan(days: appSettings.InitialDenyPeriodDays, 0, 0, 0));
+        }
+
+        [Test, MoqAutoData]
+        public void AndEligibilityIsTooSoonThenTimeFieldsAreSetCorrectly(ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
+        {
+            source.FeedbackEligibility = Enums.FeedbackEligibilityStatus.Deny_TooSoon;
+            var result = TrainingProvider.Create(source, appSettings);
+
+            result.TimeWindow.Should().Be(new TimeSpan(days: appSettings.InitialDenyPeriodDays, 0, 0, 0));
+            result.SignificantDate.Should().Be(source.StartDate.Value.Date.AddDays(appSettings.InitialDenyPeriodDays));
+        }
+
+        [Test, MoqAutoData]
+        public void AndEligibilityIsTooLateThenTimeFieldsAreSetCorrectly(ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
+        {
+            source.FeedbackEligibility = Enums.FeedbackEligibilityStatus.Deny_TooLateAfterPassing;
+            var result = TrainingProvider.Create(source, appSettings);
+
+            result.TimeWindow.Should().Be(new TimeSpan(days: appSettings.FinalAllowedPeriodDays, 0, 0, 0));
         }
     }
 }
