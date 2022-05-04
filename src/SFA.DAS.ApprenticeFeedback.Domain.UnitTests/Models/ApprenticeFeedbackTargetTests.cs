@@ -165,35 +165,21 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         }
 
         [Test]
-        [MoqInlineAutoData(-1, FeedbackTargetStatus.Complete, false)]
-        [MoqInlineAutoData(0, FeedbackTargetStatus.Complete, true)]
-        [MoqInlineAutoData(1, FeedbackTargetStatus.Complete, true)]
-
-        [MoqInlineAutoData(-1, FeedbackTargetStatus.Active, false)]
-        [MoqInlineAutoData(0, FeedbackTargetStatus.Active, false)]
-        [MoqInlineAutoData(1, FeedbackTargetStatus.Active, false)]
-
-        [MoqInlineAutoData(-1, FeedbackTargetStatus.NotYetActive, false)]
-        [MoqInlineAutoData(0, FeedbackTargetStatus.NotYetActive, false)]
-        [MoqInlineAutoData(1, FeedbackTargetStatus.NotYetActive, false)]
-
-        [MoqInlineAutoData(-1, FeedbackTargetStatus.Unknown, false)]
-        [MoqInlineAutoData(0, FeedbackTargetStatus.Unknown, false)]
-        [MoqInlineAutoData(1, FeedbackTargetStatus.Unknown, false)]
+        [MoqInlineAutoData(-1, false)]
+        [MoqInlineAutoData(0, true)]
+        [MoqInlineAutoData(1, true)]
         //If feedback was given the same date as the end date we classify it as final feedback
         public void WhenCalling_HasApprenticeProvidedFinalFeedback_SpecifiesIfFinalFeedbackHasBeenGiven(
             int advanceDateDays,
-            FeedbackTargetStatus status,
             bool hasGivenFinalFeedback,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
-            target.Status = status;
             target.EndDate = DateTime.UtcNow;
-            target.LastFeedbackCompletedDate = DateTime.UtcNow.AddDays(advanceDateDays);
+            var lastFeedbackCompletedDate = DateTime.UtcNow.AddDays(advanceDateDays);
 
             // Act & Assert
-            target.HasProvidedFinalFeedback().Should().Be(hasGivenFinalFeedback);
+            target.HasProvidedFinalFeedback(lastFeedbackCompletedDate).Should().Be(hasGivenFinalFeedback);
         }
 
         [Test, MoqAutoData]
@@ -232,6 +218,28 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             target.Status.Should().Be(FeedbackTargetStatus.Complete);
             target.EligibilityCalculationDate.Should().Be(now);
             target.FeedbackEligibility.Should().Be(FeedbackEligibilityStatus.Deny_Complete);
+        }
+
+        [Test, MoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndLearnerIsNotNull_FieldsAreNotUpdated_IfTargetIsComplete(
+            Learner learner,
+            ApplicationSettings settings,
+            Mock<IDateTimeHelper> dateTimeHelper,
+            int activeApprenticeshipsCount,
+            ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.Status = FeedbackTargetStatus.Complete;
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper.Object);
+
+            // Assert
+            target.Ukprn.Should().NotBe(learner.Ukprn);
+            target.ProviderName.Should().NotBe(learner.ProviderName);
+            target.StandardName.Should().NotBe(learner.StandardName);
+            target.StandardUId.Should().NotBe(learner.StandardUId);
+            target.StartDate.Should().NotBe(learner.LearnStartDate);
         }
 
         [Test, MoqAutoData]
@@ -515,6 +523,31 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             target.Status.Should().Be(expectedFeedbackTargetStatus);
             target.FeedbackEligibility.Should().Be(expectedFeedbackEligibilityStatus);
             target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+        }
+
+        [Test]
+        [MoqInlineAutoData(-10, FeedbackTargetStatus.Active, FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently)]
+        [MoqInlineAutoData(10, FeedbackTargetStatus.Active, FeedbackTargetStatus.Complete, FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback)]
+        public void WhenCalling_UpdateTargetAfterFeedback_SetsCorrectEligibilityAndCalculationDate(
+            int advanceDays,
+            FeedbackTargetStatus startingStatus,
+            FeedbackTargetStatus expectedStatus,
+            FeedbackEligibilityStatus expectedEligibility,
+            ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            var dateTimeHelper = new SpecifiedTimeProvider(DateTime.UtcNow);
+            target.EndDate = dateTimeHelper.Now;
+            target.Status = startingStatus;
+            dateTimeHelper.Advance(TimeSpan.FromDays(advanceDays));
+
+            // Act
+            target.UpdateTargetAfterFeedback(dateTimeHelper.Now);
+
+            // Assert
+            target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+            target.FeedbackEligibility.Should().Be(expectedEligibility);
+            target.Status.Should().Be(expectedStatus);
         }
     }
 }

@@ -37,7 +37,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
             //assert
             result.Value.Should().Be(apprenticeFeedbackTarget.Id);
             _dbContext.Verify(s => s.ApprenticeFeedbackTargets.AddAsync(apprenticeFeedbackTarget, It.IsAny<CancellationToken>()), Times.Once);
-            _dbContext.Verify(s => s.SaveChanges(), Times.Once);
+            _dbContext.Verify(s => s.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test, RecursiveMoqAutoData]
@@ -55,21 +55,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
 
             //assert
             result.Should().BeEquivalentTo(apprenticeFeedbackTarget);
-            _dbContext.Verify(s => s.SaveChanges(), Times.Once);
-        }
-
-        [Test, RecursiveMoqAutoData]
-        public async Task Then_If_There_Is_A_Constraint_Exception_It_Is_Handled(ApprenticeFeedbackTarget afTarget)
-        {
-            //Arrange
-            _dbContext.Setup(x => x.SaveChanges()).Throws(new DbUpdateException());
-
-            //Act
-            var result = await _repository.CreateApprenticeFeedbackTarget(afTarget);
-
-            //Assert
-            _dbContext.Verify(x => x.SaveChanges(), Times.Once);
-            result.Should().BeNull();
+            _dbContext.Verify(s => s.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

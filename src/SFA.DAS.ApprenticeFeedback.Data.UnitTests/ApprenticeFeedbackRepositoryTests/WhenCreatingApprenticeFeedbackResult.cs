@@ -31,7 +31,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
 
             result.Should().BeEquivalentTo(mockApprenticeFeedbackResult);
             _dbContext.Verify(s => s.ApprenticeFeedbackResults.AddAsync(mockApprenticeFeedbackResult, It.IsAny<CancellationToken>()), Times.Once);
-            _dbContext.Verify(s => s.SaveChanges(), Times.Once);
+            _dbContext.Verify(s => s.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
