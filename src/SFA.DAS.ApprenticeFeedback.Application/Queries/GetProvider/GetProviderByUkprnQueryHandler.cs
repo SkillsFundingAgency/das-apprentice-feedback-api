@@ -10,10 +10,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
     public class GetProviderByUkprnQueryHandler : IRequestHandler<GetProviderByUkprnQuery, GetProviderByUkprnResult>
     {
         private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
+        private readonly ApplicationSettings _appSettings;
 
-        public GetProviderByUkprnQueryHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository)
+        public GetProviderByUkprnQueryHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
+            ApplicationSettings appSettings)
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
+            _appSettings = appSettings;
         }
 
         public async Task<GetProviderByUkprnResult> Handle(GetProviderByUkprnQuery request, CancellationToken cancellationToken)
@@ -28,18 +31,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
             var apprenticeFeedbackTarget = apprenticeFeedbackTargets
                 .Select(r => (ApprenticeFeedbackTarget)r)
                 .FilterForEligibleActiveApprenticeFeedbackTargets()
+                .Select(s => TrainingProvider.Create(s, _appSettings))
                 .SingleOrDefault();
 
             return new GetProviderByUkprnResult
             {
-                ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id.Value,
-                Ukprn = apprenticeFeedbackTarget.Ukprn.GetValueOrDefault(0),
-                ProviderName = apprenticeFeedbackTarget.ProviderName,
-                FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility,
-                LastFeedbackSubmittedDate = apprenticeFeedbackTarget.LastFeedbackSubmittedDate,
-                // To be calculated based on status rules.
-                SignificantDate = null,
-                TimeWindow = null
+                TrainingProvider = apprenticeFeedbackTarget
             };
         }
     }
