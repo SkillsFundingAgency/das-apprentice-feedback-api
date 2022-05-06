@@ -20,7 +20,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public string StandardName { get; set; }
         public FeedbackEligibilityStatus FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
-        public DateTime? LastFeedbackCompletedDate { get; set; }
+        public DateTime? LastFeedbackSubmittedDate { get; set; }
 
         public static implicit operator ApprenticeFeedbackTarget(Entities.ApprenticeFeedbackTarget source)
         {
@@ -43,7 +43,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 StandardName = source.StandardName,
                 EligibilityCalculationDate = source.EligibilityCalculationDate,
                 FeedbackEligibility = (FeedbackEligibilityStatus)source.FeedbackEligibility,
-                LastFeedbackCompletedDate = source.ApprenticeFeedbackResults?.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault()?.DateTimeCompleted
+                LastFeedbackSubmittedDate = source.ApprenticeFeedbackResults?.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault()?.DateTimeCompleted
             };
         }
 
@@ -87,7 +87,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <param name="dateTimeHelper"></param>
         /// <returns></returns>
         public bool HasRecentlyProvidedFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
-            LastFeedbackCompletedDate.HasValue && LastFeedbackCompletedDate.Value.AddDays(appSettings.RecentDenyPeriodDays).Date > dateTimeHelper.Now.Date;
+            LastFeedbackSubmittedDate.HasValue && LastFeedbackSubmittedDate.Value.AddDays(appSettings.RecentDenyPeriodDays).Date > dateTimeHelper.Now.Date;
 
         /// <summary>
         /// If the apprenticeship is complete, and last feedback has been given, and that feedback was given after the end date of the apprenticeship
@@ -189,7 +189,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 Status = FeedbackTargetStatus.Complete;
 
                 var apprenticeshipStatus = GetApprenticeshipStatus(learner);
-                if (HasProvidedFinalFeedback(LastFeedbackCompletedDate))
+                if (HasProvidedFinalFeedback(LastFeedbackSubmittedDate))
                 {
                     FeedbackEligibility = FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
                 }

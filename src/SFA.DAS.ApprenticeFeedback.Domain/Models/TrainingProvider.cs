@@ -13,6 +13,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public string ProviderName { get; set; }
         public FeedbackTargetStatus Status { get; set; }
         public FeedbackEligibilityStatus FeedbackEligibility { get; set; }
+        public DateTime? LastFeedbackSubmittedDate { get; set; }
         public DateTime? SignificantDate { get; set; }
         public TimeSpan? TimeWindow { get; set; }
 
@@ -32,12 +33,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 ProviderName = source.ProviderName,
                 FeedbackEligibility = source.FeedbackEligibility,
                 Status = source.Status,
+                LastFeedbackSubmittedDate = source.LastFeedbackSubmittedDate,
             };
 
             switch(trainingProvider.FeedbackEligibility)
             {
                 case FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently:
-                    trainingProvider.SignificantDate = source.LastFeedbackCompletedDate.Value.Date.AddDays(appSettings.RecentDenyPeriodDays);
+                    trainingProvider.SignificantDate = source.LastFeedbackSubmittedDate.Value.Date.AddDays(appSettings.RecentDenyPeriodDays);
                     break;
                 case FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback:
                     trainingProvider.TimeWindow = TimeSpan.FromDays(appSettings.InitialDenyPeriodDays);

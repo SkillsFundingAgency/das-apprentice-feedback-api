@@ -156,7 +156,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             ApplicationSettings settings)
         {
             var now = DateTime.UtcNow;
-            target.LastFeedbackCompletedDate = now;
+            target.LastFeedbackSubmittedDate = now;
             settings.RecentDenyPeriodDays = recentDenyPeriodDays;
             var timeHelper = new SpecifiedTimeProvider(now);
             timeHelper.Advance(TimeSpan.FromDays(advanceDateDays));
@@ -385,7 +385,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             learner.ApprovalsPauseDate = dateTimeHelper.Now;
             learner.ApprovalsStopDate = dateTimeHelper.Now;
             // Setup for feedback
-            target.LastFeedbackCompletedDate = recentFeedbackToEndDate ? now.AddDays(1) : now.AddDays(-1);
+            target.LastFeedbackSubmittedDate = recentFeedbackToEndDate ? now.AddDays(1) : now.AddDays(-1);
 
             //Advance time 1 day beyond the final allowed period days
             settings.FinalAllowedPeriodDays = 30;
@@ -426,7 +426,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             var now = DateTime.UtcNow;
             var dateTimeHelper = new SpecifiedTimeProvider(now);
             target.Status = FeedbackTargetStatus.Active;
-            target.LastFeedbackCompletedDate = recentFeedbackForApprenticeship ? now.AddDays(-5) : now.AddDays(-15);
+            target.LastFeedbackSubmittedDate = recentFeedbackForApprenticeship ? now.AddDays(-5) : now.AddDays(-15);
 
             // Set all end dates to the same, we don't care which one for this test.
             learner.EstimatedEndDate = dateTimeHelper.Now;
