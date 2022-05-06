@@ -26,7 +26,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                 {
                     ApprenticeId = request.ApprenticeId,
                     ApprenticeshipId = request.CommitmentApprenticeshipId,
-                    Status = FeedbackTargetStatus.NotYetActive,
+                    // This will be set by the daily job once it's processed for the first time.
+                    Status = FeedbackTargetStatus.Unknown,
                 });
             }
             else
