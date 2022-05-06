@@ -1,8 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.ApprenticeFeedback.Domain.Entities;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using System;
 using System.Threading;
 using System.Threading.Tasks;

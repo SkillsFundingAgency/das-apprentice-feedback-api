@@ -1,4 +1,4 @@
-﻿namespace SFA.DAS.ApprenticeFeedback.Domain.Models
+﻿namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
 {
     public class ApplicationSettings
     {

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
+using System;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Models

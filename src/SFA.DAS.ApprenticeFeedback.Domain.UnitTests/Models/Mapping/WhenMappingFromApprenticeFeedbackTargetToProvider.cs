@@ -1,7 +1,8 @@
-﻿using NUnit.Framework;
-using FluentAssertions;
-using SFA.DAS.Testing.AutoFixture;
+﻿using FluentAssertions;
+using NUnit.Framework;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
+using SFA.DAS.Testing.AutoFixture;
 using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models

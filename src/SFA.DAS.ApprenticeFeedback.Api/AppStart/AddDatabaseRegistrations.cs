@@ -1,10 +1,9 @@
 ﻿using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.ApprenticeFeedback.Api.Configuration;
 using SFA.DAS.ApprenticeFeedback.Data;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.AppStart

@@ -1,6 +1,7 @@
 ﻿using FluentAssertions;
 using Moq;
 using NUnit.Framework;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using SFA.DAS.Testing.AutoFixture;
