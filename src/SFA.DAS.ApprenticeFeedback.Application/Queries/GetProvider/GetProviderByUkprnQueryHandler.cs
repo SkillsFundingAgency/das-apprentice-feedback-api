@@ -36,7 +36,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
                 Ukprn = apprenticeFeedbackTarget.Ukprn.GetValueOrDefault(0),
                 ProviderName = apprenticeFeedbackTarget.ProviderName,
                 FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility,
-                LastFeedbackSubmittedDate = apprenticeFeedbackTarget.LastFeedbackCompletedDate,
+                LastFeedbackSubmittedDate = apprenticeFeedbackTarget.LastFeedbackSubmittedDate,
                 // To be calculated based on status rules.
                 SignificantDate = null,
                 TimeWindow = null

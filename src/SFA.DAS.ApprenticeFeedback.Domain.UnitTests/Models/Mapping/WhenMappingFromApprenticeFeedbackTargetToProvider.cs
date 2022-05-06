@@ -29,7 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             source.FeedbackEligibility = Enums.FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently;
             var result = TrainingProvider.Create(source, appSettings);
 
-            result.SignificantDate.Should().Be(source.LastFeedbackCompletedDate.Value.Date.AddDays(appSettings.RecentDenyPeriodDays));
+            result.SignificantDate.Should().Be(source.LastFeedbackSubmittedDate.Value.Date.AddDays(appSettings.RecentDenyPeriodDays));
         }
 
         [Test, MoqAutoData]
