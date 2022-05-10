@@ -60,7 +60,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_Complete, false)]
         [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently, false)]
         [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback, false)]
-        [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_NotEnoughActiveApprentices, false)]
         [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_TooLateAfterPassing, false)]
         [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_TooLateAfterPausing, false)]
         [MoqInlineAutoData(FeedbackTargetStatus.Active, FeedbackEligibilityStatus.Deny_TooLateAfterWithdrawing, false)]
@@ -126,25 +125,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         }
 
         [Test]
-        [MoqInlineAutoData(9, 10, false)]
-        [MoqInlineAutoData(10, 10, true)]
-        [MoqInlineAutoData(11, 10, true)]
-        //If number matches, we allow feedback to start.
-        public void WhenCalling_HasProviderMetTheMinimumNumberOfApprenticeships_SpecifiesIfNumberHasBeenMet(
-            int activeApprenticeships,
-            int minimumRequired,
-            bool thresholdHasBeenMet,
-            ApprenticeFeedbackTarget target,
-            ApplicationSettings settings)
-        {
-            // Arrange
-            settings.MinimumActiveApprenticeshipCount = minimumRequired;
-
-            // Act & Assert
-            target.HasProviderMetMinimumNumberOfActiveApprenticeships(activeApprenticeships, settings).Should().Be(thresholdHasBeenMet);
-        }
-
-        [Test]
         [MoqInlineAutoData(9, 10, true)]
         [MoqInlineAutoData(10, 10, false)]
         [MoqInlineAutoData(11, 10, false)]
@@ -204,7 +184,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         [Test, MoqAutoData]
         public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndLearnerIsNull_AndTargetActive_UpdatesTargetToComplete(
             ApplicationSettings settings,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
@@ -213,7 +192,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             var dateTimeHelper = new SpecifiedTimeProvider(now);
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(null, settings, activeApprenticeshipsCount, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(null, settings, dateTimeHelper);
 
             // Assert
             target.Status.Should().Be(FeedbackTargetStatus.Complete);
@@ -226,14 +205,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
             target.Status = FeedbackTargetStatus.Complete;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
             target.Ukprn.Should().NotBe(learner.Ukprn);
@@ -248,11 +226,10 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
             target.Ukprn.Should().Be(learner.Ukprn);
@@ -267,14 +244,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
             learner.Outcome = "pass";
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.AchievementDate);
@@ -285,14 +261,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
             learner.CompletionStatus = 3;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.ApprovalsStopDate);
@@ -303,14 +278,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
             learner.CompletionStatus = 6;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.ApprovalsPauseDate);
@@ -321,7 +295,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
@@ -329,7 +302,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             learner.Outcome = "";
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.EstimatedEndDate);
@@ -340,7 +313,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
@@ -349,7 +321,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             var previousCalculatedDate = target.EligibilityCalculationDate;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
             target.Status.Should().Be(FeedbackTargetStatus.Complete);
@@ -372,7 +344,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             FeedbackEligibilityStatus expectedEligibility,
             Learner learner,
             ApplicationSettings settings,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
@@ -397,7 +368,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             learner.CompletionStatus = completionStatus;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
 
             // Assert
             target.Status.Should().Be(expectedStatus);
@@ -414,7 +385,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             FeedbackEligibilityStatus expectedEligibility,
             Learner learner,
             ApplicationSettings settings,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
@@ -439,7 +409,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             learner.LearnStartDate = dateTimeHelper.Now;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
 
             // Assert
             target.FeedbackEligibility.Should().Be(expectedEligibility);
@@ -450,7 +420,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         public void WhenCalling_UpdateAndSettingStatusAndEligibility_ForNotFinishedNotActiveNotStarted_SetsStatusToNotYetActiveAndTooSoon(
             Learner learner,
             ApplicationSettings settings,
-            int activeApprenticeshipsCount,
             ApprenticeFeedbackTarget target)
         {
             // Arrange
@@ -475,7 +444,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             learner.ApprovalsStopDate = dateTimeHelper.Now;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
 
             // Assert
             target.Status.Should().Be(FeedbackTargetStatus.NotYetActive);
@@ -484,11 +453,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         }
 
         [Test]
-        [MoqInlineAutoData(5, 10, FeedbackEligibilityStatus.Deny_NotEnoughActiveApprentices, FeedbackTargetStatus.NotYetActive)]
-        [MoqInlineAutoData(11, 10, FeedbackEligibilityStatus.Allow, FeedbackTargetStatus.Active)]
+        [MoqInlineAutoData(FeedbackEligibilityStatus.Allow, FeedbackTargetStatus.Active)]
         public void WhenCalling_UpdateAndSettingStatusAndEligibility_ForNotFinishedNotActiveButNowStarted_SetsStatusAndEligibilityCorrectly(
-            int activeApprenticeshipsCount,
-            int activeApprenticeshipsThreshold,
             FeedbackEligibilityStatus expectedFeedbackEligibilityStatus,
             FeedbackTargetStatus expectedFeedbackTargetStatus,
             Learner learner,
@@ -500,7 +466,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             // Initial Deny Set to 10
             settings.FinalAllowedPeriodDays = 10;
             settings.InitialDenyPeriodDays = 10;
-            settings.MinimumActiveApprenticeshipCount = activeApprenticeshipsThreshold;
 
             //Setup for Apprenticeship to be Not Active, Not Finished and Not Started
             var now = DateTime.UtcNow;
@@ -518,7 +483,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             learner.ApprovalsStopDate = dateTimeHelper.Now;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, activeApprenticeshipsCount, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
 
             // Assert
             target.Status.Should().Be(expectedFeedbackTargetStatus);

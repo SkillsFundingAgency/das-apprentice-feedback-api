@@ -49,7 +49,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.WhenRequestingPro
                 response.FinalAllowedPeriodDays,
                 response.RecentDenyPeriodDays,
                 response.InitialDenyPeriodDays,
-                response.MinimumActiveApprenticeshipCount
             });
         }
     }

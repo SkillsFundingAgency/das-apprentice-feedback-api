@@ -18,6 +18,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public long? Ukprn { get; set; }
         public string ProviderName { get; set; }
         public string StandardUId { get; set; }
+        public int LarsCode { get; set; }
         public string StandardName { get; set; }
         public FeedbackEligibilityStatus FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
@@ -41,6 +42,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 Ukprn = source.Ukprn,
                 ProviderName = source.ProviderName,
                 StandardUId = source.StandardUId,
+                LarsCode = source.LarsCode,
                 StandardName = source.StandardName,
                 EligibilityCalculationDate = source.EligibilityCalculationDate,
                 FeedbackEligibility = (FeedbackEligibilityStatus)source.FeedbackEligibility,
@@ -71,15 +73,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <returns></returns>
         public bool HasApprenticeshipFinishedForFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
             EndDate.HasValue && EndDate.Value.AddDays(appSettings.FinalAllowedPeriodDays).Date < dateTimeHelper.Now.Date;
-
-        /// <summary>
-        /// Are there a minimum number of apprenticeships active by this provider to allow feedback to begin
-        /// </summary>
-        /// <param name="currentCount"></param>
-        /// <param name="appSettings"></param>
-        /// <returns></returns>
-        public bool HasProviderMetMinimumNumberOfActiveApprenticeships(int currentCount, ApplicationSettings appSettings) =>
-            currentCount >= appSettings.MinimumActiveApprenticeshipCount;
 
         /// <summary>
         /// Has feedback been given within a configurably recent time frame
@@ -135,7 +128,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             }
         }
 
-        public void UpdateApprenticeshipFeedbackTarget(Learner learner, ApplicationSettings appSettings, int activeApprenticeshipsCount, IDateTimeHelper dateTimeHelper)
+        public void UpdateApprenticeshipFeedbackTarget(Learner learner, ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper)
         {
             if (Status == FeedbackTargetStatus.Complete)
             {
@@ -162,6 +155,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             ProviderName = learner.ProviderName;
             StandardName = learner.StandardName;
             StandardUId = learner.StandardUId;
+            LarsCode = learner.StandardCode;
             StartDate = learner.LearnStartDate;
 
             EndDate = GetApprenticeshipStatus(learner) switch
@@ -172,7 +166,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 _ => learner.EstimatedEndDate,
             };
 
-            SetStatusAndEligibility(learner, appSettings, activeApprenticeshipsCount, dateTimeHelper);
+            SetStatusAndEligibility(learner, appSettings, dateTimeHelper);
         }
 
         /// <summary>
@@ -180,9 +174,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// </summary>
         /// <param name="learner">Latest Learner information as supplied from the Assessors Service</param>
         /// <param name="appSettings">App Settings to provide configurable date time values for feedback rules</param>
-        /// <param name="activeApprenticeshipsCount">The current active number of apprenticeships for a given Provider as determined by Apprentice Commitments</param>
         /// <param name="dateTimeHelper">DateTimeHelper interface to allow easier mocking for unit tests.</param>
-        private void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, int activeApprenticeshipsCount, IDateTimeHelper dateTimeHelper)
+        private void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper)
         {
             if (HasApprenticeshipFinishedForFeedback(appSettings, dateTimeHelper))
             {
@@ -232,13 +225,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 // and it's not ready to start for feedback therefore it's too soon for feedback
                 Status = FeedbackTargetStatus.NotYetActive;
                 FeedbackEligibility = FeedbackEligibilityStatus.Deny_TooSoon;
-            }
-            else if (!HasProviderMetMinimumNumberOfActiveApprenticeships(activeApprenticeshipsCount, appSettings))
-            {
-                // The Apprenticeship start and end dates are open for feedback and it's marked as currently not active.
-                // If it hasn't met the minimum number of active apprentices
-                Status = FeedbackTargetStatus.NotYetActive;
-                FeedbackEligibility = FeedbackEligibilityStatus.Deny_NotEnoughActiveApprentices;
             }
             else
             {

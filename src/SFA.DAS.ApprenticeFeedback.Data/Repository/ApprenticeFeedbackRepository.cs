@@ -40,6 +40,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             feedbackTarget.ProviderName = updatedEntity.ProviderName;
             feedbackTarget.StandardName = updatedEntity.StandardName;
             feedbackTarget.StandardUId = updatedEntity.StandardUId;
+            feedbackTarget.LarsCode = updatedEntity.LarsCode;
             feedbackTarget.FeedbackEligibility = updatedEntity.FeedbackEligibility;
             feedbackTarget.EligibilityCalculationDate = updatedEntity.EligibilityCalculationDate;
 

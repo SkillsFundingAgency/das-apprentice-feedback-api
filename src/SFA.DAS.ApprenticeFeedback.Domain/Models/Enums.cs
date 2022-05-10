@@ -20,7 +20,6 @@
             Deny_TooLateAfterPausing = 5,
             Deny_HasGivenFeedbackRecently = 6,
             Deny_HasGivenFinalFeedback = 7,
-            Deny_NotEnoughActiveApprentices = 8,
             Deny_Complete = 9,
         }
 

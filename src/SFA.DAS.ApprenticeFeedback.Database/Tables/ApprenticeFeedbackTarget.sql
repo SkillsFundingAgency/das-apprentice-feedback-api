@@ -9,6 +9,7 @@
 	[Ukprn] BIGINT NULL,
 	[ProviderName] NVARCHAR(120),
 	[StandardUId] NVARCHAR(12),
+	[LarsCode] INT NULL,
 	[StandardName] NVARCHAR(120), 
 	[FeedbackEligibility] INT NOT NULL DEFAULT 0, 
 	[EligibilityCalculationDate] DATETIME2 NULL DEFAULT NULL

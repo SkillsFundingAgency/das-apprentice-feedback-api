@@ -11,6 +11,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public DateTime StartDate { get; set; }
         public DateTime? EndDate { get; set; }
         public long Ukprn { get; set; }
+        public int LarsCode { get; set; }
         public string ProviderName { get; set; }
         public FeedbackTargetStatus Status { get; set; }
         public FeedbackEligibilityStatus FeedbackEligibility { get; set; }
@@ -29,6 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             {
                 ApprenticeFeedbackTargetId = source.Id.GetValueOrDefault(Guid.Empty),
                 Ukprn = source.Ukprn.GetValueOrDefault(0),
+                LarsCode = source.LarsCode,
                 StartDate = source.StartDate.GetValueOrDefault(),
                 EndDate = source.EndDate,
                 ProviderName = source.ProviderName,
