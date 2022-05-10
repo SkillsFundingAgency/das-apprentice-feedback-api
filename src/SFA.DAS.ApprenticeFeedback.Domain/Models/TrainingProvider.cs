@@ -30,7 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             {
                 ApprenticeFeedbackTargetId = source.Id.GetValueOrDefault(Guid.Empty),
                 Ukprn = source.Ukprn.GetValueOrDefault(0),
-                LarsCode = source.LarsCode,
+                LarsCode = source.LarsCode.GetValueOrDefault(0),
                 StartDate = source.StartDate.GetValueOrDefault(),
                 EndDate = source.EndDate,
                 ProviderName = source.ProviderName,

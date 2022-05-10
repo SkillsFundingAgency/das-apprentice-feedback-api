@@ -14,7 +14,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public long? Ukprn { get; set; }
         public string ProviderName { get; set; }
         public string StandardUId { get; set; }
-        public int LarsCode { get; set; }
+        public int? LarsCode { get; set; }
         public string StandardName { get; set; }
         public int FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
