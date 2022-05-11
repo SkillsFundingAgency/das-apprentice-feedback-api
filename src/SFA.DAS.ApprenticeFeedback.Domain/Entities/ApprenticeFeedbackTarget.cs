@@ -14,6 +14,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public long? Ukprn { get; set; }
         public string ProviderName { get; set; }
         public string StandardUId { get; set; }
+        public int? LarsCode { get; set; }
         public string StandardName { get; set; }
         public int FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
@@ -34,6 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 Ukprn = source.Ukprn,
                 ProviderName = source.ProviderName,
                 StandardUId = source.StandardUId,
+                LarsCode = source.LarsCode,
                 StandardName = source.StandardName,
                 EligibilityCalculationDate = source.EligibilityCalculationDate,
                 FeedbackEligibility = (int)source.FeedbackEligibility

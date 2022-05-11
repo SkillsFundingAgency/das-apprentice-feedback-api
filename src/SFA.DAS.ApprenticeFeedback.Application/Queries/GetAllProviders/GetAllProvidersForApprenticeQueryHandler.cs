@@ -40,7 +40,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
                 InitialDenyPeriodDays = _appSettings.InitialDenyPeriodDays,
                 FinalAllowedPeriodDays = _appSettings.FinalAllowedPeriodDays,
                 RecentDenyPeriodDays = _appSettings.RecentDenyPeriodDays,
-                MinimumActiveApprenticeshipCount = _appSettings.MinimumActiveApprenticeshipCount,
             };
         }
     }

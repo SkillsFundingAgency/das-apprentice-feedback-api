@@ -7,7 +7,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
     public class UpdateApprenticeFeedbackTargetCommand : IRequest<UpdateApprenticeFeedbackTargetCommandResponse>
     {
         public Guid ApprenticeFeedbackTargetId { get; set; }
-        public int ActiveApprenticeshipsCount { get; set; }
         public Learner Learner { get; set; }
     }
 }

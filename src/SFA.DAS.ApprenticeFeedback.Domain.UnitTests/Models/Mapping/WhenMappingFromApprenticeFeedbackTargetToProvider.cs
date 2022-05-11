@@ -67,7 +67,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         [Test]
         [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Allow)]
         [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_Complete)]
-        [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_NotEnoughActiveApprentices)]
         [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Unknown)]
         public void AndTimeFieldsAreNotRequiredThenTimeFieldsAreNull(Enums.FeedbackEligibilityStatus eligibility, ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
         {
