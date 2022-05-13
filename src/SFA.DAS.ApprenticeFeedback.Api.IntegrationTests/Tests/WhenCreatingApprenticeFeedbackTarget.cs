@@ -31,7 +31,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Tests
 
             var response = await _fixture.SendAsync(command);
 
-            var created = await _fixture.ExecuteDbContextAsync(db => db.ApprenticeFeedbackTargets.Where(c => c.Id == response.FeedbackId).SingleOrDefaultAsync());
+            var created = await _fixture.ExecuteDbContextAsync(db => db.ApprenticeFeedbackTargets.Where(c => c.Id == response.ApprenticeFeedbackTargetId).SingleOrDefaultAsync());
 
             created.Should().NotBeNull();
             created.ApprenticeId.Should().Be(command.ApprenticeId);

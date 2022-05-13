@@ -33,7 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            result.FeedbackId.Should().Be(response);
+            result.ApprenticeFeedbackTargetId.Should().Be(response);
         }
 
         [Test, RecursiveMoqAutoData]
@@ -52,7 +52,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            result.FeedbackId.Should().Be(apprenticeFeedbackTarget.Id);
+            result.ApprenticeFeedbackTargetId.Should().Be(apprenticeFeedbackTarget.Id);
         }
     }
 }
