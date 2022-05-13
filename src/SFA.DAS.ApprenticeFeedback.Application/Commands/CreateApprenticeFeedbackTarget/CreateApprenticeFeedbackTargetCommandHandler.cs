@@ -19,10 +19,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public async Task<CreateApprenticeFeedbackTargetCommandResponse> Handle(CreateApprenticeFeedbackTargetCommand request, CancellationToken cancellationToken)
         {
             var apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTarget(request.ApprenticeId, request.CommitmentApprenticeshipId);
-            Guid? feedbackId;
+            Guid? apprenticeFeedbackTargetId;
             if (apprenticeFeedbackTarget == null)
             {
-                feedbackId = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackTarget(new Domain.Models.ApprenticeFeedbackTarget
+                apprenticeFeedbackTargetId = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackTarget(new Domain.Models.ApprenticeFeedbackTarget
                 {
                     ApprenticeId = request.ApprenticeId,
                     ApprenticeshipId = request.CommitmentApprenticeshipId,
@@ -35,12 +35,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                 Domain.Models.ApprenticeFeedbackTarget updatedTarget = apprenticeFeedbackTarget;
                 updatedTarget.ResetFeedbackTarget();
                 apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.UpdateApprenticeFeedbackTarget(updatedTarget);
-                feedbackId = apprenticeFeedbackTarget.Id;
+                apprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id;
             }
 
             return new CreateApprenticeFeedbackTargetCommandResponse
             {
-                FeedbackId = feedbackId
+                ApprenticeFeedbackTargetId = apprenticeFeedbackTargetId.GetValueOrDefault(Guid.Empty)
             };
         }
     }
