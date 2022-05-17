@@ -117,36 +117,36 @@ stages:
       ServiceConnection: SFA-DIG-PreProd-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
-# - stage: Deploy_PROD
-#   dependsOn: Build
-#   displayName: Deploy to PROD
-#   variables:
-#   - group: PROD Management Resources
-#   - group: PROD Shared Resources
-#   - group: __PRODSpecificReleaseVariables__ #PLACEHOLDER
-#   jobs:
-#   - template: pipeline-templates/job/deploy.yml
-#     parameters:
-#       Environment: PROD
-#       SolutionBaseName: $(SolutionBaseName)
-#       DACPACSolutionBaseName: $(DACPACSolutionBaseName)
-#       ServiceConnection: SFA-DIG-Prod-ARM
-#       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
+- stage: Deploy_PROD
+  dependsOn: Build
+  displayName: Deploy to PROD
+  variables:
+  - group: PROD Management Resources
+  - group: PROD Shared Resources
+  - group: PROD das-apprentice-feedback-api
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      Environment: PROD
+      SolutionBaseName: $(SolutionBaseName)
+      DACPACSolutionBaseName: $(DACPACSolutionBaseName)
+      ServiceConnection: SFA-DIG-Prod-ARM
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
-# - stage: Deploy_MO
-#   dependsOn: Build
-#   displayName: Deploy to MO
-#   variables:
-#   - group: MO Management Resources
-#   - group: MO Shared Resources
-#   jobs:
-#   - template: pipeline-templates/job/deploy.yml
-#     parameters:
-#       Environment: MO
-#       SolutionBaseName: $(SolutionBaseName)
-#       DACPACSolutionBaseName: $(DACPACSolutionBaseName)
-#       ServiceConnection: SFA-ASM-ModelOffice-ARM
-#       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
+- stage: Deploy_MO
+  dependsOn: Build
+  displayName: Deploy to MO
+  variables:
+  - group: MO Management Resources
+  - group: MO Shared Resources
+  jobs:
+  - template: pipeline-templates/job/deploy.yml
+    parameters:
+      Environment: MO
+      SolutionBaseName: $(SolutionBaseName)
+      DACPACSolutionBaseName: $(DACPACSolutionBaseName)
+      ServiceConnection: SFA-ASM-ModelOffice-ARM
+      OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
 
 - stage: Deploy_DEMO
   dependsOn: Build
