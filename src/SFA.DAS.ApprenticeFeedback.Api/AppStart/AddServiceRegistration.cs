@@ -16,7 +16,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             services.AddMediatR(typeof(CreateApprenticeFeedbackTargetCommand).Assembly);
             services.AddScoped<IApprenticeFeedbackDataContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IApprenticeFeedbackRepository, ApprenticeFeedbackRepository>();
-            services.AddScoped<IDateTimeHelper, UTCTimeProvider>();
+            services.AddScoped<IDateTimeHelper, UtcTimeProvider>();
         }
     }
 }

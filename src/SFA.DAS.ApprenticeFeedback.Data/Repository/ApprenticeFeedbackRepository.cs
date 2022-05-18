@@ -25,24 +25,24 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             return feedbackTarget.Id;
         }
 
-        public async Task<ApprenticeFeedbackTarget> UpdateApprenticeFeedbackTarget(ApprenticeFeedbackTarget updatedEntity)
+        public async Task<ApprenticeFeedbackTarget> UpdateApprenticeFeedbackTarget(ApprenticeFeedbackTarget apprenticeFeedbackTarget)
         {
-            var feedbackTarget = await _dbContext.ApprenticeFeedbackTargets.FirstOrDefaultAsync(s => s.Id == updatedEntity.Id);
+            var feedbackTarget = await _dbContext.ApprenticeFeedbackTargets.FirstOrDefaultAsync(s => s.Id == apprenticeFeedbackTarget.Id);
             if (feedbackTarget == null)
             {
                 return null;
             }
 
-            feedbackTarget.StartDate = updatedEntity.StartDate;
-            feedbackTarget.EndDate = updatedEntity.EndDate;
-            feedbackTarget.Status = updatedEntity.Status;
-            feedbackTarget.Ukprn = updatedEntity.Ukprn;
-            feedbackTarget.ProviderName = updatedEntity.ProviderName;
-            feedbackTarget.StandardName = updatedEntity.StandardName;
-            feedbackTarget.StandardUId = updatedEntity.StandardUId;
-            feedbackTarget.LarsCode = updatedEntity.LarsCode;
-            feedbackTarget.FeedbackEligibility = updatedEntity.FeedbackEligibility;
-            feedbackTarget.EligibilityCalculationDate = updatedEntity.EligibilityCalculationDate;
+            feedbackTarget.StartDate = apprenticeFeedbackTarget.StartDate;
+            feedbackTarget.EndDate = apprenticeFeedbackTarget.EndDate;
+            feedbackTarget.Status = apprenticeFeedbackTarget.Status;
+            feedbackTarget.Ukprn = apprenticeFeedbackTarget.Ukprn;
+            feedbackTarget.ProviderName = apprenticeFeedbackTarget.ProviderName;
+            feedbackTarget.StandardName = apprenticeFeedbackTarget.StandardName;
+            feedbackTarget.StandardUId = apprenticeFeedbackTarget.StandardUId;
+            feedbackTarget.LarsCode = apprenticeFeedbackTarget.LarsCode;
+            feedbackTarget.FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility;
+            feedbackTarget.EligibilityCalculationDate = apprenticeFeedbackTarget.EligibilityCalculationDate;
 
             await _dbContext.SaveChangesAsync();
             return feedbackTarget;
@@ -56,9 +56,9 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
             .Where(aft => aft.ApprenticeId == apprenticeId && aft.Ukprn == ukprn).ToListAsync();
 
-        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentsApprenticeshipid)
+        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentApprenticeshipid)
         => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).
-            FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentsApprenticeshipid);
+            FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentApprenticeshipid);
 
         public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeFeedbackTargetId)
         => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)

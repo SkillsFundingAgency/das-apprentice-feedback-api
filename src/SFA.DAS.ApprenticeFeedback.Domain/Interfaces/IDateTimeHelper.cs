@@ -7,7 +7,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
         DateTime Now { get; }
     }
 
-    public class UTCTimeProvider : IDateTimeHelper
+    public class UtcTimeProvider : IDateTimeHelper
     {
         public DateTime Now => DateTime.UtcNow;
     }
