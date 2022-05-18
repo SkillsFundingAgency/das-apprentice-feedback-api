@@ -6,18 +6,19 @@ CREATE TABLE #TempAttributes
 )
 
 INSERT INTO #TempAttributes VALUES 
-(1,'Organising well-structured training'),
+(1, 'Organising well-structured training'),
 (2, 'Communicating clearly with you'),
 (3, 'Providing accessible training resources'), 
 (4, 'Balancing online learning with classroom-based training to suit your apprenticeship'),
 (5, 'Taking into account your previous learning'),
 (6, 'Helping you learn new skills and develop existing ones'),
 (7, 'Giving you relevant training that helps you perform your job better'),
-(8, 'Training that takes up at least 20% of your total apprenticeship time'),
+(8, 'Providing Off The Job training that takes up at least 20% of your total apprenticeship time'),
 (9, 'Supporting you and your apprenticeship'),
-(10, 'Responding to your needs'),
+(10, 'Resolving any issues you have'),
 (11, 'Ensuring you understand the requirements of your end-point assessment'),
 (12, 'Preparing you for success in your future career') 
+
 
 SET IDENTITY_INSERT [dbo].[Attribute] ON;
 
