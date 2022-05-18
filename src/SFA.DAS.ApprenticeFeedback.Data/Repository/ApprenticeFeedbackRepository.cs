@@ -56,9 +56,9 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
             => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
             .Where(aft => aft.ApprenticeId == apprenticeId && aft.Ukprn == ukprn).ToListAsync();
 
-        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentApprenticeshipid)
+        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTarget(Guid apprenticeId, long commitmentApprenticeshipId)
         => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).
-            FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentApprenticeshipid);
+            FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentApprenticeshipId);
 
         public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetById(Guid apprenticeFeedbackTargetId)
         => await _dbContext.ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
