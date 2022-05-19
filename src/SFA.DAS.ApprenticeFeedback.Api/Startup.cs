@@ -1,4 +1,3 @@
-using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -11,7 +10,7 @@ using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 using SFA.DAS.ApprenticeFeedback.Api.Authorization;
 using SFA.DAS.ApprenticeFeedback.Api.Configuration;
-using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
 
@@ -39,7 +38,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 #if DEBUG
             config.AddJsonFile($"appsettings.Development.json", optional: true);
 #endif
-         
+
             Configuration = config.Build();
             Environment = environment;
         }
@@ -47,6 +46,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddApplicationInsightsTelemetry();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "SFA.DAS.ApprenticeFeedback.Api", Version = "v1" });
@@ -54,22 +54,19 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(s => s.GetRequiredService<IOptions<ApplicationSettings>>().Value);
+            var appSettings = Configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
 
             services.Configure<AzureActiveDirectoryApiConfiguration>(Configuration.GetSection("AzureAd"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value);
-
-            var azureAdConfiguration = Configuration
-                .GetSection("AzureAd")
-                .Get<AzureActiveDirectoryApiConfiguration>();
+            var azureAdConfiguration = Configuration.GetSection("AzureAd").Get<AzureActiveDirectoryApiConfiguration>();
 
             services.AddApiAuthentication(azureAdConfiguration, Environment.IsDevelopment())
                 .AddApiAuthorization(Environment);
 
-            services.AddMediatR(typeof(CreateFeedbackTargetCommand).Assembly);
-            services.AddServices();
+            var environmentName = Environment.EnvironmentName == "IntegrationTests" ? "IntegrationTests" : Configuration["EnvironmentName"];
+            services.AddDatabaseRegistration(appSettings, environmentName);
 
-            var appSettings = Configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
-            services.AddDatabase(appSettings, Configuration["EnvironmentName"]);
+            services.AddServices();            
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

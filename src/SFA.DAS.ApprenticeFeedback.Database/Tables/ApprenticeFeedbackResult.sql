@@ -1,7 +1,9 @@
 ﻿CREATE TABLE [dbo].[ApprenticeFeedbackResult]
 (
-	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY, 
-    [FeedbackId] UNIQUEIDENTIFIER NOT NULL FOREIGN KEY REFERENCES [dbo].[ApprenticeFeedback](FeedbackId),
-    [DateTimeCompleted] TIMESTAMP NOT NULL, 
-    [ProviderRating] NCHAR(10) NOT NULL
+	[Id] UNIQUEIDENTIFIER PRIMARY KEY, 
+	[ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER FOREIGN KEY REFERENCES [dbo].[ApprenticeFeedbackTarget](Id),
+	[StandardUId] NVARCHAR(12),
+	[DateTimeCompleted] DATETIME2, 
+	[ProviderRating] NVARCHAR(10), 
+    [AllowContact] BIT NULL DEFAULT 0
 )

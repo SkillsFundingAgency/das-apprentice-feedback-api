@@ -28,9 +28,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Authentication
                     auth.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                     {
                         ValidAudiences = new List<string>
-                    {
-                        config.Identifier
-                    }
+                        {
+                            config.Identifier
+                        }
                     };
                 });
                 services.AddSingleton<IClaimsTransformation, AzureAdScopeClaimTransformation>();

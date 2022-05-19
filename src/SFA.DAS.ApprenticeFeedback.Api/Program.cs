@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
 using NLog.Web;
+using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Api
 {
@@ -8,7 +9,17 @@ namespace SFA.DAS.ApprenticeFeedback.Api
     {
         public static void Main(string[] args)
         {
-            CreateHostBuilder(args).Build().Run();
+            var logger = NLogBuilder.ConfigureNLog("nlog.config").GetCurrentClassLogger();
+            try
+            {
+                logger.Info("Starting up host");
+                CreateHostBuilder(args).Build().Run();
+            }
+            catch(Exception ex)
+            {
+                logger.Error(ex, "Could not start host");
+                throw;
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>

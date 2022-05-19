@@ -16,12 +16,13 @@
     <ModelCollation>1033, CI</ModelCollation>
     <DefaultFileStructure>BySchemaAndSchemaType</DefaultFileStructure>
     <DeployToDatabase>True</DeployToDatabase>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <TargetLanguage>CS</TargetLanguage>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <SqlServerVerification>False</SqlServerVerification>
     <IncludeCompositeObjects>True</IncludeCompositeObjects>
     <TargetDatabaseSet>True</TargetDatabaseSet>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\Release\</OutputPath>
@@ -57,18 +58,22 @@
   <ItemGroup>
     <Folder Include="Properties" />
     <Folder Include="Tables" />
+    <Folder Include="Scripts" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\ApprenticeFeedback.sql" />
-    <Build Include="Tables\Providers.sql" />
     <Build Include="Tables\ApprenticeFeedbackResult.sql" />
-    <Build Include="Tables\Standards.sql" />
     <Build Include="Tables\Attribute.sql" />
-    <Build Include="Tables\FeedbackEmailHistory.sql" />
-    <Build Include="Tables\ProviderAttributes.sql" />
-    <Build Include="Tables\FeedbackTargets.sql" />
+    <Build Include="Tables\FeedbackTransaction.sql" />
+    <Build Include="Tables\ProviderAttribute.sql" />
+    <Build Include="Tables\ApprenticeFeedbackTarget.sql" />
   </ItemGroup>
   <ItemGroup>
-    <RefactorLog Include="SFA.DAS.ApprenticeFeedback.Database.refactorlog" />
+    <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Scripts\AddDefaultProviderAttributes.sql" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="Scripts\Script.PostDeployment1.sql" />
   </ItemGroup>
 </Project>
