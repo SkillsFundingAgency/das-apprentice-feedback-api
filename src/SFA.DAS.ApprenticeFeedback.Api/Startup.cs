@@ -66,6 +66,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             var environmentName = Environment.EnvironmentName == "IntegrationTests" ? "IntegrationTests" : Configuration["EnvironmentName"];
             services.AddDatabaseRegistration(appSettings, environmentName);
 
+            services.AddHealthChecks()
+                .AddCheck<ApprenticeFeedbackHealthCheck>(nameof(ApprenticeFeedbackHealthCheck));
+
             services.AddServices();            
         }
 
@@ -87,6 +90,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapHealthChecks("/ping");
             });
         }
     }
