@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 {
-    public class ApprenticeFeedbackTarget
+    public class ApprenticeFeedbackTarget : EntityBase
     {
         public Guid Id { get; set; }
         public Guid ApprenticeId { get; set; }
@@ -38,7 +38,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 LarsCode = source.LarsCode,
                 StandardName = source.StandardName,
                 EligibilityCalculationDate = source.EligibilityCalculationDate,
-                FeedbackEligibility = (int)source.FeedbackEligibility
+                FeedbackEligibility = (int)source.FeedbackEligibility,
             };
         }
     }
