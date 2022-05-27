@@ -23,6 +23,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public FeedbackEligibilityStatus FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
         public DateTime? LastFeedbackSubmittedDate { get; set; }
+        
+        public DateTime CreatedOn { get; private set; }
+        public DateTime UpdatedOn { get; private set; }
 
         public static implicit operator ApprenticeFeedbackTarget(Entities.ApprenticeFeedbackTarget source)
         {
@@ -46,7 +49,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 StandardName = source.StandardName,
                 EligibilityCalculationDate = source.EligibilityCalculationDate,
                 FeedbackEligibility = (FeedbackEligibilityStatus)source.FeedbackEligibility,
-                LastFeedbackSubmittedDate = source.ApprenticeFeedbackResults?.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault()?.DateTimeCompleted
+                LastFeedbackSubmittedDate = source.ApprenticeFeedbackResults?.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault()?.DateTimeCompleted,
+                CreatedOn = source.CreatedOn,
+                UpdatedOn = source.UpdatedOn,
             };
         }
 

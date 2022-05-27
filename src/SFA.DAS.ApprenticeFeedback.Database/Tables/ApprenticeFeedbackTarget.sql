@@ -12,7 +12,9 @@
 	[LarsCode] INT NULL,
 	[StandardName] NVARCHAR(120), 
 	[FeedbackEligibility] INT NOT NULL DEFAULT 0, 
-	[EligibilityCalculationDate] DATETIME2 NULL DEFAULT NULL
+	[EligibilityCalculationDate] DATETIME2 NULL DEFAULT NULL,
+	[CreatedOn] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
+	[UpdatedOn] DATETIME2 NOT NULL DEFAULT GETUTCDATE()
 
 )
 

@@ -35,14 +35,19 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Repository
 
             feedbackTarget.StartDate = apprenticeFeedbackTarget.StartDate;
             feedbackTarget.EndDate = apprenticeFeedbackTarget.EndDate;
-            feedbackTarget.Status = apprenticeFeedbackTarget.Status;
             feedbackTarget.Ukprn = apprenticeFeedbackTarget.Ukprn;
             feedbackTarget.ProviderName = apprenticeFeedbackTarget.ProviderName;
             feedbackTarget.StandardName = apprenticeFeedbackTarget.StandardName;
             feedbackTarget.StandardUId = apprenticeFeedbackTarget.StandardUId;
             feedbackTarget.LarsCode = apprenticeFeedbackTarget.LarsCode;
-            feedbackTarget.FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility;
-            feedbackTarget.EligibilityCalculationDate = apprenticeFeedbackTarget.EligibilityCalculationDate;
+
+            if (feedbackTarget.FeedbackEligibility != apprenticeFeedbackTarget.FeedbackEligibility ||
+                feedbackTarget.Status != apprenticeFeedbackTarget.Status)
+            {
+                feedbackTarget.Status = apprenticeFeedbackTarget.Status;
+                feedbackTarget.FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility;
+                feedbackTarget.EligibilityCalculationDate = apprenticeFeedbackTarget.EligibilityCalculationDate;
+            }
 
             await _dbContext.SaveChangesAsync();
             return feedbackTarget;
