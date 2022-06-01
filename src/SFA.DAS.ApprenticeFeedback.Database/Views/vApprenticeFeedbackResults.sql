@@ -5,6 +5,7 @@ SELECT id
     ,CASE [Status] WHEN 0 THEN 'Unknown' WHEN 1 THEN 'Inactive' WHEN 2 THEN 'Active' WHEN 3 THEN 'Completed' END ApprenticeFeedbackStatus
     ,[Ukprn]
     ,[ProviderName]
+    ,[StandardName]
     ,CASE [FeedbackEligibility] 
      WHEN 0 THEN 'Unknown'
      WHEN 1 THEN 'Allow'
