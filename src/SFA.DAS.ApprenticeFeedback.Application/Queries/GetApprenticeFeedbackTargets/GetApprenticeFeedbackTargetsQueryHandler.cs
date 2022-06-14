@@ -8,15 +8,16 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
 {
     public class GetApprenticeFeedbackTargetsQueryHandler : IRequestHandler<GetApprenticeFeedbackTargetsQuery, GetApprenticeFeedbackTargetsResult>
     {
-        private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
+        private readonly IApprenticeFeedbackTargetDataContext _apprenticeFeedbackTargetDataContext;
 
-        public GetApprenticeFeedbackTargetsQueryHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository)
+        public GetApprenticeFeedbackTargetsQueryHandler(IApprenticeFeedbackTargetDataContext apprenticeFeedbackTargetDataContext)
         {
-            _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
+            _apprenticeFeedbackTargetDataContext = apprenticeFeedbackTargetDataContext;
         }
+
         public async Task<GetApprenticeFeedbackTargetsResult> Handle(GetApprenticeFeedbackTargetsQuery request, CancellationToken cancellationToken)
         {
-            var apprenticeFeedbackTargets = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargets(request.ApprenticeId);
+            var apprenticeFeedbackTargets = await _apprenticeFeedbackTargetDataContext.GetApprenticeFeedbackTargetsAsync(request.ApprenticeId);
 
             return new GetApprenticeFeedbackTargetsResult
             {

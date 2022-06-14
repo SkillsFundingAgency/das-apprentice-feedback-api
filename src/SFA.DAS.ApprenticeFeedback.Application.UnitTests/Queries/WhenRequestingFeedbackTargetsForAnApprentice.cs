@@ -19,10 +19,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         public async Task ThenFeedbackTargetsAreReturned(
             GetApprenticeFeedbackTargetsQuery query,
             [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
+            [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
             GetApprenticeFeedbackTargetsQueryHandler handler,
             List<Domain.Entities.ApprenticeFeedbackTarget> response)
         {
-            mockRepository.Setup( s => s.GetApprenticeFeedbackTargets(query.ApprenticeId)).ReturnsAsync(response);
+            mockApprenticeFeedbackTargetDataContext.Setup( s => s.GetApprenticeFeedbackTargetsAsync(query.ApprenticeId)).ReturnsAsync(response);
 
             var result = await handler.Handle(query, CancellationToken.None);
 

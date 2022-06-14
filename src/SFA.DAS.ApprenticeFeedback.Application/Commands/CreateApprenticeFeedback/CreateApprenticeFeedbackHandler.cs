@@ -15,10 +15,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
         public readonly ILogger<CreateApprenticeFeedbackHandler> _logger;
         public readonly IDateTimeHelper _timeHelper;
+        private readonly IApprenticeFeedbackTargetDataContext _dbContext;
 
-        public CreateApprenticeFeedbackHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository, IDateTimeHelper timeHelper, ILogger<CreateApprenticeFeedbackHandler> logger)
+        public CreateApprenticeFeedbackHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository, IApprenticeFeedbackTargetDataContext dbContext, IDateTimeHelper timeHelper, ILogger<CreateApprenticeFeedbackHandler> logger)
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
+            _dbContext = dbContext;
             _timeHelper = timeHelper;
             _logger = logger;
         }
@@ -26,7 +28,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public async Task<CreateApprenticeFeedbackResponse> Handle(CreateApprenticeFeedbackCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Fetch ApprenticeFeedbackTarget record by Id. Id used: {request.ApprenticeFeedbackTargetId}");
-            ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargetById(request.ApprenticeFeedbackTargetId);
+            ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _dbContext.GetApprenticeFeedbackTargetByIdAsync(request.ApprenticeFeedbackTargetId);
 
             if (apprenticeFeedbackTarget == null)
             {

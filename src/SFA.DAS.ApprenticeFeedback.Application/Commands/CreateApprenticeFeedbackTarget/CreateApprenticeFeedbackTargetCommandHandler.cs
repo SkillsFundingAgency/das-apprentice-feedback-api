@@ -10,15 +10,18 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
     public class CreateApprenticeFeedbackTargetCommandHandler : IRequestHandler<CreateApprenticeFeedbackTargetCommand, CreateApprenticeFeedbackTargetCommandResponse>
     {
         private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
+        private readonly IApprenticeFeedbackTargetDataContext _apprenticeFeedbackTargetDataContext;
 
-        public CreateApprenticeFeedbackTargetCommandHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository)
+        public CreateApprenticeFeedbackTargetCommandHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
+            IApprenticeFeedbackTargetDataContext apprenticeFeedbackTargetDataContext)
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
+            _apprenticeFeedbackTargetDataContext = apprenticeFeedbackTargetDataContext;
         }
 
         public async Task<CreateApprenticeFeedbackTargetCommandResponse> Handle(CreateApprenticeFeedbackTargetCommand request, CancellationToken cancellationToken)
         {
-            var apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTarget(request.ApprenticeId, request.CommitmentApprenticeshipId);
+            var apprenticeFeedbackTarget = await _apprenticeFeedbackTargetDataContext.GetApprenticeFeedbackTargetAsync(request.ApprenticeId, request.CommitmentApprenticeshipId);
             Guid? apprenticeFeedbackTargetId;
             if (apprenticeFeedbackTarget == null)
             {

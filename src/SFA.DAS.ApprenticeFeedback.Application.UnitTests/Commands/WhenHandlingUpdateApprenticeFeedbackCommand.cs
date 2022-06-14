@@ -21,10 +21,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         [Test, MoqAutoData]
         public async Task And_CommandIsValid_Then_Errors_If_FeedbackTarget_Doesnt_Exist(
            UpdateApprenticeFeedbackTargetCommand command, 
-           [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
+           [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
            UpdateApprenticeFeedbackTargetCommandHandler handler)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
+            mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetByIdAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
 
             Func<Task> action = async () => await handler.Handle(command, CancellationToken.None);
 
@@ -35,17 +35,18 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         [Test, RecursiveMoqAutoData]
         public async Task And_CommandIsValid_Then_UpdatesFeedback_If_It_Exists(
            UpdateApprenticeFeedbackTargetCommand command,
+           [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
            [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
            ApprenticeFeedbackTarget apprenticeFeedbackTarget,
            UpdateApprenticeFeedbackTargetCommandHandler handler)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId)).ReturnsAsync(apprenticeFeedbackTarget);
+            mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetByIdAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync(apprenticeFeedbackTarget);
             mockApprenticeFeedbackRepository.Setup(s => s.UpdateApprenticeFeedbackTarget(It.IsAny<ApprenticeFeedbackTarget>())).ReturnsAsync(apprenticeFeedbackTarget);
 
             var result = await handler.Handle(command, CancellationToken.None);
 
             result.UpdatedApprenticeFeedbackTarget.Id.Should().Be(apprenticeFeedbackTarget.Id);
-            mockApprenticeFeedbackRepository.Verify(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId), Times.Once());
+            mockApprenticeFeedbackTargetDataContext.Verify(s => s.GetApprenticeFeedbackTargetByIdAsync(command.ApprenticeFeedbackTargetId), Times.Once());
             mockApprenticeFeedbackRepository.Verify(s => s.UpdateApprenticeFeedbackTarget(It.IsAny<ApprenticeFeedbackTarget>()),Times.Once());
         }
     }

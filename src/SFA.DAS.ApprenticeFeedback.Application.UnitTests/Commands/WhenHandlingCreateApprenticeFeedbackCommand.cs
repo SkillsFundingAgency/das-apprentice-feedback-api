@@ -20,10 +20,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         [Test, RecursiveMoqAutoData]
         public async Task And_GetFeedbackTargetIsNull_Then_ThrowException
             (CreateApprenticeFeedbackCommand command,
-            [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
+            [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
             CreateApprenticeFeedbackHandler handler)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId)).ReturnsAsync((Domain.Entities.ApprenticeFeedbackTarget)null);
+            mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetByIdAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync((Domain.Entities.ApprenticeFeedbackTarget)null);
 
             Func<Task> result = async () => await handler.Handle(command, CancellationToken.None);
 
@@ -57,13 +57,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         public async Task And_GetFeedbackTargetIsValid_And_GetAttributesIsValid_Then_CreateNewFeedbackRecord_And_ReturnResponse
             (CreateApprenticeFeedbackCommand command,
             [Frozen] Mock<IApprenticeFeedbackRepository> apprenticeFeedbackRepository,
+            [Frozen] Mock<IApprenticeFeedbackTargetDataContext> apprenticeFeedbackTargetDataContext,
             Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget,
             ApprenticeFeedbackResult apprenticeFeedbackResult,
             CreateApprenticeFeedbackHandler handler,
             IEnumerable<Domain.Entities.Attribute> attributes)
         {
             command.FeedbackAttributes = attributes.Select(a => new FeedbackAttribute { Id = a.AttributeId, Name = a.AttributeName, Status = FeedbackAttributeStatus.Agree }).ToList();
-            apprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId)).ReturnsAsync(apprenticeFeedbackTarget);
+            apprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetByIdAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync(apprenticeFeedbackTarget);
             apprenticeFeedbackRepository.Setup(s => s.GetAttributes()).ReturnsAsync(attributes);
             apprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackResult(It.Is<ApprenticeFeedbackResult>(c => c.StandardUId == apprenticeFeedbackTarget.StandardUId))).ReturnsAsync(apprenticeFeedbackResult);
 

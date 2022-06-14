@@ -9,10 +9,12 @@ using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
-    public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext
+    public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext, IApprenticeFeedbackTargetDataContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -105,5 +107,21 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 }
             }
         }
+
+        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetByIdAsync(Guid apprenticeFeedbackTargetId)
+            => await ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
+                .SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
+
+        public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargetsAsync(Guid apprenticeId)
+            => await ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
+            .Where(aft => aft.ApprenticeId == apprenticeId).ToListAsync();
+
+        public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargetsAsync(Guid apprenticeId, long ukprn)
+            => await ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
+            .Where(aft => aft.ApprenticeId == apprenticeId && aft.Ukprn == ukprn).ToListAsync();
+
+        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetAsync(Guid apprenticeId, long commitmentApprenticeshipId)
+        => await ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).
+            FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentApprenticeshipId);
     }
 }
