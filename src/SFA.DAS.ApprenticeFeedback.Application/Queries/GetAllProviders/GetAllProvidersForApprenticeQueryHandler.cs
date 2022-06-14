@@ -10,15 +10,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
 {
     public class GetAllProvidersForApprenticeQueryHandler : IRequestHandler<GetAllProvidersForApprenticeQuery, GetAllProvidersForApprenticeResult>
     {
-        private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
         private readonly IApprenticeFeedbackTargetDataContext _apprenticeFeedbackTargetDataContext;
         private readonly ApplicationSettings _appSettings;
 
-        public GetAllProvidersForApprenticeQueryHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
-            IApprenticeFeedbackTargetDataContext apprenticeFeedbackTargetDataContext,
+        public GetAllProvidersForApprenticeQueryHandler(IApprenticeFeedbackTargetDataContext apprenticeFeedbackTargetDataContext,
             ApplicationSettings appSettings)
         {
-            _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
             _apprenticeFeedbackTargetDataContext = apprenticeFeedbackTargetDataContext;
             _appSettings = appSettings;
         }               
