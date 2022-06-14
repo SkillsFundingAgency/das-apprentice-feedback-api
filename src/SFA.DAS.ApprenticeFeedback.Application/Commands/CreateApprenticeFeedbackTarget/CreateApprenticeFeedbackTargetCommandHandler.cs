@@ -10,10 +10,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
     public class CreateApprenticeFeedbackTargetCommandHandler : IRequestHandler<CreateApprenticeFeedbackTargetCommand, CreateApprenticeFeedbackTargetCommandResponse>
     {
         private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
-        private readonly IApprenticeFeedbackTargetDataContext _apprenticeFeedbackTargetDataContext;
+        private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetDataContext;
 
         public CreateApprenticeFeedbackTargetCommandHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
-            IApprenticeFeedbackTargetDataContext apprenticeFeedbackTargetDataContext)
+            IApprenticeFeedbackTargetContext apprenticeFeedbackTargetDataContext)
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
             _apprenticeFeedbackTargetDataContext = apprenticeFeedbackTargetDataContext;

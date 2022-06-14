@@ -20,7 +20,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         [Test, RecursiveMoqAutoData]
         public async Task And_GetFeedbackTargetIsNull_Then_ThrowException
             (CreateApprenticeFeedbackCommand command,
-            [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
+            [Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetDataContext,
             CreateApprenticeFeedbackHandler handler)
         {
             mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetByIdAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync((Domain.Entities.ApprenticeFeedbackTarget)null);
@@ -57,7 +57,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         public async Task And_GetFeedbackTargetIsValid_And_GetAttributesIsValid_Then_CreateNewFeedbackRecord_And_ReturnResponse
             (CreateApprenticeFeedbackCommand command,
             [Frozen] Mock<IApprenticeFeedbackRepository> apprenticeFeedbackRepository,
-            [Frozen] Mock<IApprenticeFeedbackTargetDataContext> apprenticeFeedbackTargetDataContext,
+            [Frozen] Mock<IApprenticeFeedbackTargetContext> apprenticeFeedbackTargetDataContext,
             Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget,
             ApprenticeFeedbackResult apprenticeFeedbackResult,
             CreateApprenticeFeedbackHandler handler,

@@ -19,7 +19,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         public async Task And_CommandIsValid_Then_CreatesFeedback_If_It_Doesnt_Exist(
            CreateApprenticeFeedbackTargetCommand command,
            [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
-           [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
+           [Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetDataContext,
            CreateApprenticeFeedbackTargetCommandHandler handler,
            Guid response)
         {
@@ -41,7 +41,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         public async Task And_CommandIsValid_Then_UpdatesFeedback_If_It_Exists(
            CreateApprenticeFeedbackTargetCommand command,
            [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
-           [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
+           [Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetDataContext,
            ApprenticeFeedbackTarget apprenticeFeedbackTarget,
            CreateApprenticeFeedbackTargetCommandHandler handler)
         {

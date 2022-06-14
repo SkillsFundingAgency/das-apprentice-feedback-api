@@ -23,7 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         public async Task AndNoTargets_ThenShouldReturnNull(
             bool IsNullResponse,
             GetProviderByUkprnQuery query,
-            [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
+            [Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetDataContext,
             GetProviderByUkprnQueryHandler handler)
         {
             // Arrange
@@ -40,7 +40,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         [Test, RecursiveMoqAutoData]
         public async Task ThenAProviderIsReturned(
             GetProviderByUkprnQuery query,
-            [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
+            [Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetDataContext,
             GetProviderByUkprnQueryHandler handler,
             ApprenticeFeedbackTarget response)
         {

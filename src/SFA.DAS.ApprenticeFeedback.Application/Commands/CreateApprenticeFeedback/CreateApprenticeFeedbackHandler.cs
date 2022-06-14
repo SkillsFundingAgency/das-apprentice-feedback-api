@@ -15,9 +15,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
         public readonly ILogger<CreateApprenticeFeedbackHandler> _logger;
         public readonly IDateTimeHelper _timeHelper;
-        private readonly IApprenticeFeedbackTargetDataContext _dbContext;
+        private readonly IApprenticeFeedbackTargetContext _dbContext;
 
-        public CreateApprenticeFeedbackHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository, IApprenticeFeedbackTargetDataContext dbContext, IDateTimeHelper timeHelper, ILogger<CreateApprenticeFeedbackHandler> logger)
+        public CreateApprenticeFeedbackHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository, IApprenticeFeedbackTargetContext dbContext, IDateTimeHelper timeHelper, ILogger<CreateApprenticeFeedbackHandler> logger)
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
             _dbContext = dbContext;
