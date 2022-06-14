@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Linq;
 using System.Threading;
@@ -8,15 +9,17 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
 {
     public class GetApprenticeFeedbackTargetsQueryHandler : IRequestHandler<GetApprenticeFeedbackTargetsQuery, GetApprenticeFeedbackTargetsResult>
     {
-        private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
+        private readonly IApprenticeFeedbackDataContext _dbContext;
 
-        public GetApprenticeFeedbackTargetsQueryHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository)
+        public GetApprenticeFeedbackTargetsQueryHandler(IApprenticeFeedbackDataContext dbContext)
         {
-            _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
+            _dbContext = dbContext;
         }
         public async Task<GetApprenticeFeedbackTargetsResult> Handle(GetApprenticeFeedbackTargetsQuery request, CancellationToken cancellationToken)
         {
-            var apprenticeFeedbackTargets = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargets(request.ApprenticeId);
+            var apprenticeFeedbackTargets = await _dbContext.ApprenticeFeedbackTargets
+                                                    .Include(s => s.ApprenticeFeedbackResults)
+                                                    .Where(aft => aft.ApprenticeId == request.ApprenticeId).ToListAsync();
 
             return new GetApprenticeFeedbackTargetsResult
             {

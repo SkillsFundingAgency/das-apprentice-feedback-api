@@ -1,8 +1,10 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,17 +12,17 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
 {
     public class UpdateApprenticeFeedbackTargetCommandHandler : IRequestHandler<UpdateApprenticeFeedbackTargetCommand, UpdateApprenticeFeedbackTargetCommandResponse>
     {
-        private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
+        private readonly IApprenticeFeedbackDataContext _dbContext;
         private readonly ILogger<UpdateApprenticeFeedbackTargetCommandHandler> _logger;
         private readonly ApplicationSettings _appSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
 
-        public UpdateApprenticeFeedbackTargetCommandHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
+        public UpdateApprenticeFeedbackTargetCommandHandler(IApprenticeFeedbackDataContext dbContext,
             ApplicationSettings appSettings,
             IDateTimeHelper dateTimeHelper,
             ILogger<UpdateApprenticeFeedbackTargetCommandHandler> logger)
         {
-            _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
+            _dbContext = dbContext;
             _appSettings = appSettings;
             _dateTimeHelper = dateTimeHelper;
             _logger = logger;
@@ -28,7 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
 
         public async Task<UpdateApprenticeFeedbackTargetCommandResponse> Handle(UpdateApprenticeFeedbackTargetCommand request, CancellationToken cancellationToken)
         {
-            Domain.Models.ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargetById(request.ApprenticeFeedbackTargetId);
+            Domain.Models.ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _dbContext.ApprenticeFeedbackTargets.FirstOrDefaultAsync(aft => aft.Id == request.ApprenticeFeedbackTargetId);
 
             if (apprenticeFeedbackTarget == null)
             {
@@ -38,7 +40,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
             }
 
             apprenticeFeedbackTarget.UpdateApprenticeshipFeedbackTarget(request.Learner, _appSettings, _dateTimeHelper);
-            apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.UpdateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
+
+            await _dbContext.SaveChangesAsync();
 
             return new UpdateApprenticeFeedbackTargetCommandResponse { UpdatedApprenticeFeedbackTarget = apprenticeFeedbackTarget };
         }
