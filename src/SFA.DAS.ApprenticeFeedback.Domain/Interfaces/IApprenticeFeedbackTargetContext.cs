@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 {
-    public interface IApprenticeFeedbackTargetDataContext
+    public interface IApprenticeFeedbackTargetContext
     {
         Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetByIdAsync(Guid apprenticeFeedbackTargetId);
         Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetAsync(Guid apprenticeId, long commitmentApprenticeshipId);

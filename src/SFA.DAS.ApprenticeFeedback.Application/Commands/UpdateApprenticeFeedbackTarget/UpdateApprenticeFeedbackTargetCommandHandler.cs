@@ -11,13 +11,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
     public class UpdateApprenticeFeedbackTargetCommandHandler : IRequestHandler<UpdateApprenticeFeedbackTargetCommand, UpdateApprenticeFeedbackTargetCommandResponse>
     {
         private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
-        private readonly IApprenticeFeedbackTargetDataContext _apprenticeFeedbackTargetDataContext;
+        private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetDataContext;
         private readonly ILogger<UpdateApprenticeFeedbackTargetCommandHandler> _logger;
         private readonly ApplicationSettings _appSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
 
         public UpdateApprenticeFeedbackTargetCommandHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
-            IApprenticeFeedbackTargetDataContext apprenticeFeedbackTargetDataContext,
+            IApprenticeFeedbackTargetContext apprenticeFeedbackTargetDataContext,
             ApplicationSettings appSettings,
             IDateTimeHelper dateTimeHelper,
             ILogger<UpdateApprenticeFeedbackTargetCommandHandler> logger)

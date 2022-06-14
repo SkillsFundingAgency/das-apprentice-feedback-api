@@ -14,7 +14,7 @@ using System.Linq;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
-    public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext, IApprenticeFeedbackTargetDataContext
+    public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext, IApprenticeFeedbackTargetContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;

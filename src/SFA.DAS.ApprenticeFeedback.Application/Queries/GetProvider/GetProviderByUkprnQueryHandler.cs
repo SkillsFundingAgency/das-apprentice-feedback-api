@@ -10,10 +10,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
 {
     public class GetProviderByUkprnQueryHandler : IRequestHandler<GetProviderByUkprnQuery, GetProviderByUkprnResult>
     {
-        private readonly IApprenticeFeedbackTargetDataContext _apprenticeFeedbackTargetDbContext;
+        private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetDbContext;
         private readonly ApplicationSettings _appSettings;
 
-        public GetProviderByUkprnQueryHandler(IApprenticeFeedbackTargetDataContext apprenticeFeedbackTargetDbContext,
+        public GetProviderByUkprnQueryHandler(IApprenticeFeedbackTargetContext apprenticeFeedbackTargetDbContext,
             ApplicationSettings appSettings)
         {
             _apprenticeFeedbackTargetDbContext = apprenticeFeedbackTargetDbContext;

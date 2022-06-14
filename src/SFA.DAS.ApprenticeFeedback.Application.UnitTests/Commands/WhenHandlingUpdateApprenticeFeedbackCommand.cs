@@ -21,7 +21,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         [Test, MoqAutoData]
         public async Task And_CommandIsValid_Then_Errors_If_FeedbackTarget_Doesnt_Exist(
            UpdateApprenticeFeedbackTargetCommand command, 
-           [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
+           [Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetDataContext,
            UpdateApprenticeFeedbackTargetCommandHandler handler)
         {
             mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetByIdAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
@@ -35,7 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         [Test, RecursiveMoqAutoData]
         public async Task And_CommandIsValid_Then_UpdatesFeedback_If_It_Exists(
            UpdateApprenticeFeedbackTargetCommand command,
-           [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
+           [Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetDataContext,
            [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
            ApprenticeFeedbackTarget apprenticeFeedbackTarget,
            UpdateApprenticeFeedbackTargetCommandHandler handler)
