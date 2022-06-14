@@ -11,16 +11,19 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
     public class UpdateApprenticeFeedbackTargetCommandHandler : IRequestHandler<UpdateApprenticeFeedbackTargetCommand, UpdateApprenticeFeedbackTargetCommandResponse>
     {
         private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
+        private readonly IApprenticeFeedbackTargetDataContext _apprenticeFeedbackTargetDataContext;
         private readonly ILogger<UpdateApprenticeFeedbackTargetCommandHandler> _logger;
         private readonly ApplicationSettings _appSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
 
         public UpdateApprenticeFeedbackTargetCommandHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
+            IApprenticeFeedbackTargetDataContext apprenticeFeedbackTargetDataContext,
             ApplicationSettings appSettings,
             IDateTimeHelper dateTimeHelper,
             ILogger<UpdateApprenticeFeedbackTargetCommandHandler> logger)
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
+            _apprenticeFeedbackTargetDataContext = apprenticeFeedbackTargetDataContext;
             _appSettings = appSettings;
             _dateTimeHelper = dateTimeHelper;
             _logger = logger;
@@ -28,7 +31,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
 
         public async Task<UpdateApprenticeFeedbackTargetCommandResponse> Handle(UpdateApprenticeFeedbackTargetCommand request, CancellationToken cancellationToken)
         {
-            Domain.Models.ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargetById(request.ApprenticeFeedbackTargetId);
+            Domain.Models.ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackTargetDataContext.GetApprenticeFeedbackTargetByIdAsync(request.ApprenticeFeedbackTargetId);
 
             if (apprenticeFeedbackTarget == null)
             {

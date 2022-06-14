@@ -23,12 +23,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         public async Task AndNoTargets_ThenShouldReturnNull(
             bool IsNullResponse,
             GetProviderByUkprnQuery query,
-            [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
+            [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
             GetProviderByUkprnQueryHandler handler)
         {
             // Arrange
             var targets = IsNullResponse ? null : new List<ApprenticeFeedbackTarget>();
-            mockRepository.Setup(s => s.GetApprenticeFeedbackTargets(query.ApprenticeId, query.Ukprn)).ReturnsAsync(targets);
+            mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetsAsync(query.ApprenticeId, query.Ukprn)).ReturnsAsync(targets);
 
             // Act
             var result = await handler.Handle(query, CancellationToken.None);
@@ -40,14 +40,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         [Test, RecursiveMoqAutoData]
         public async Task ThenAProviderIsReturned(
             GetProviderByUkprnQuery query,
-            [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
+            [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
             GetProviderByUkprnQueryHandler handler,
             ApprenticeFeedbackTarget response)
         {
             // Arrange
             response.Status = (int)FeedbackTargetStatus.Active;
             response.FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently;
-            mockRepository.Setup( s => s.GetApprenticeFeedbackTargets(query.ApprenticeId, query.Ukprn)).ReturnsAsync(new List<ApprenticeFeedbackTarget> { response });
+            mockApprenticeFeedbackTargetDataContext.Setup( s => s.GetApprenticeFeedbackTargetsAsync(query.ApprenticeId, query.Ukprn)).ReturnsAsync(new List<ApprenticeFeedbackTarget> { response });
 
             // Act
             var result = await handler.Handle(query, CancellationToken.None);

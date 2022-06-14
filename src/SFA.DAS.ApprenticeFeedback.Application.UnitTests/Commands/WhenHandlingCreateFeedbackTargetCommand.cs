@@ -17,12 +17,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
     {
         [Test, MoqAutoData]
         public async Task And_CommandIsValid_Then_CreatesFeedback_If_It_Doesnt_Exist(
-           CreateApprenticeFeedbackTargetCommand command, 
+           CreateApprenticeFeedbackTargetCommand command,
            [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
+           [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
            CreateApprenticeFeedbackTargetCommandHandler handler,
            Guid response)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTarget(command.ApprenticeId, command.CommitmentApprenticeshipId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
+            mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetAsync(command.ApprenticeId, command.CommitmentApprenticeshipId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
 
             mockApprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackTarget(
                 It.Is<ApprenticeFeedbackTarget>(s => 
@@ -40,10 +41,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         public async Task And_CommandIsValid_Then_UpdatesFeedback_If_It_Exists(
            CreateApprenticeFeedbackTargetCommand command,
            [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
+           [Frozen] Mock<IApprenticeFeedbackTargetDataContext> mockApprenticeFeedbackTargetDataContext,
            ApprenticeFeedbackTarget apprenticeFeedbackTarget,
            CreateApprenticeFeedbackTargetCommandHandler handler)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTarget(command.ApprenticeId, command.CommitmentApprenticeshipId)).ReturnsAsync(apprenticeFeedbackTarget);
+            mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetAsync(command.ApprenticeId, command.CommitmentApprenticeshipId)).ReturnsAsync(apprenticeFeedbackTarget);
 
             mockApprenticeFeedbackRepository.Setup(s => s.UpdateApprenticeFeedbackTarget(It.Is<ApprenticeFeedbackTarget>(s =>
             s.StartDate == null && s.EndDate == null &&

@@ -10,19 +10,19 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
 {
     public class GetProviderByUkprnQueryHandler : IRequestHandler<GetProviderByUkprnQuery, GetProviderByUkprnResult>
     {
-        private readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
+        private readonly IApprenticeFeedbackTargetDataContext _apprenticeFeedbackTargetDbContext;
         private readonly ApplicationSettings _appSettings;
 
-        public GetProviderByUkprnQueryHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
+        public GetProviderByUkprnQueryHandler(IApprenticeFeedbackTargetDataContext apprenticeFeedbackTargetDbContext,
             ApplicationSettings appSettings)
         {
-            _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
+            _apprenticeFeedbackTargetDbContext = apprenticeFeedbackTargetDbContext;
             _appSettings = appSettings;
         }
 
         public async Task<GetProviderByUkprnResult> Handle(GetProviderByUkprnQuery request, CancellationToken cancellationToken)
         {
-            var apprenticeFeedbackTargets = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargets(request.ApprenticeId, request.Ukprn);
+            var apprenticeFeedbackTargets = await _apprenticeFeedbackTargetDbContext.GetApprenticeFeedbackTargetsAsync(request.ApprenticeId, request.Ukprn);
                         
             if (apprenticeFeedbackTargets == null || !apprenticeFeedbackTargets.Any())
             {

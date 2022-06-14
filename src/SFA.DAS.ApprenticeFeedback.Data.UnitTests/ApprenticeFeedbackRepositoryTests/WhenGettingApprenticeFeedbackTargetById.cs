@@ -10,6 +10,9 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepositoryTests
 {
+    // QF-428
+    // Repository being removed
+    /*
     public class WhenGettingApprenticeFeedbackTargetById
     {
         private Mock<IApprenticeFeedbackDataContext> _dbContext;
@@ -34,4 +37,5 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.ApprenticeFeedbackRepository
             result.Should().BeEquivalentTo(apprenticeFeedbackTarget);
         }
     }
+    */
 }
