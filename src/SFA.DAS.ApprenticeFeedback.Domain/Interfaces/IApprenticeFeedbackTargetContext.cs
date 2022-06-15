@@ -1,15 +1,28 @@
-﻿using SFA.DAS.ApprenticeFeedback.Domain.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 {
-    public interface IApprenticeFeedbackTargetContext
+    public interface IApprenticeFeedbackTargetContext : IEntityContext<ApprenticeFeedbackTarget>
     {
-        Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetByIdAsync(Guid apprenticeFeedbackTargetId);
-        Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetAsync(Guid apprenticeId, long commitmentApprenticeshipId);
-        Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargetsAsync(Guid apprenticeId);
-        Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargetsAsync(Guid apprenticeId, long ukprn);
+        public async Task<ApprenticeFeedbackTarget> FindByIdAndIncludeFeedbackResultsAsync(Guid apprenticeFeedbackTargetId)
+            => await Entities.Include(s => s.ApprenticeFeedbackResults)
+                .SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
+
+        public async Task<ApprenticeFeedbackTarget> FindByApprenticeIdAndApprenticeshipIdAndIncludeFeedbackResultsAsync(Guid apprenticeId, long commitmentApprenticeshipId)
+            => await Entities.Include(s => s.ApprenticeFeedbackResults)
+                .FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentApprenticeshipId);
+
+        public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetAllForApprenticeIdAndIncludeFeedbackResultsAsync(Guid apprenticeId)
+            => await Entities.Include(s => s.ApprenticeFeedbackResults)
+                .Where(aft => aft.ApprenticeId == apprenticeId).ToListAsync();
+
+        public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetAllForApprenticeIdAndUkprnAndIncludeFeedbackResultsAsync(Guid apprenticeId, long ukprn)
+            => await Entities.Include(s => s.ApprenticeFeedbackResults)
+                .Where(aft => aft.ApprenticeId == apprenticeId && aft.Ukprn == ukprn).ToListAsync();
     }
 }

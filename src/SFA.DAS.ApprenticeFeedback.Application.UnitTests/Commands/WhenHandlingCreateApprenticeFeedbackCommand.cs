@@ -23,7 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             [Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetDataContext,
             CreateApprenticeFeedbackHandler handler)
         {
-            mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetByIdAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync((Domain.Entities.ApprenticeFeedbackTarget)null);
+            mockApprenticeFeedbackTargetDataContext.Setup(s => s.FindByIdAndIncludeFeedbackResultsAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync((Domain.Entities.ApprenticeFeedbackTarget)null);
 
             Func<Task> result = async () => await handler.Handle(command, CancellationToken.None);
 
@@ -64,7 +64,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             IEnumerable<Domain.Entities.Attribute> attributes)
         {
             command.FeedbackAttributes = attributes.Select(a => new FeedbackAttribute { Id = a.AttributeId, Name = a.AttributeName, Status = FeedbackAttributeStatus.Agree }).ToList();
-            apprenticeFeedbackTargetDataContext.Setup(s => s.GetApprenticeFeedbackTargetByIdAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync(apprenticeFeedbackTarget);
+            apprenticeFeedbackTargetDataContext.Setup(s => s.FindByIdAndIncludeFeedbackResultsAsync(command.ApprenticeFeedbackTargetId)).ReturnsAsync(apprenticeFeedbackTarget);
             apprenticeFeedbackRepository.Setup(s => s.GetAttributes()).ReturnsAsync(attributes);
             apprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackResult(It.Is<ApprenticeFeedbackResult>(c => c.StandardUId == apprenticeFeedbackTarget.StandardUId))).ReturnsAsync(apprenticeFeedbackResult);
 
