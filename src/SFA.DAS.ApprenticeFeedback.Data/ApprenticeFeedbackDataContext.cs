@@ -9,8 +9,6 @@ using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -21,9 +19,13 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public DbSet<Domain.Entities.Attribute> Attributes { get; set; }
-        public DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
+        public virtual DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
         public DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
         public DbSet<ProviderAttribute> ProviderAttributes { get; set; }
+
+        public DbSet<ApprenticeFeedbackTarget> Entities => throw new NotImplementedException();
+
+        DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
         {
@@ -107,21 +109,5 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 }
             }
         }
-
-        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetByIdAsync(Guid apprenticeFeedbackTargetId)
-            => await ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
-                .SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
-
-        public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargetsAsync(Guid apprenticeId)
-            => await ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
-            .Where(aft => aft.ApprenticeId == apprenticeId).ToListAsync();
-
-        public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetApprenticeFeedbackTargetsAsync(Guid apprenticeId, long ukprn)
-            => await ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults)
-            .Where(aft => aft.ApprenticeId == apprenticeId && aft.Ukprn == ukprn).ToListAsync();
-
-        public async Task<ApprenticeFeedbackTarget> GetApprenticeFeedbackTargetAsync(Guid apprenticeId, long commitmentApprenticeshipId)
-        => await ApprenticeFeedbackTargets.Include(s => s.ApprenticeFeedbackResults).
-            FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentApprenticeshipId);
     }
 }

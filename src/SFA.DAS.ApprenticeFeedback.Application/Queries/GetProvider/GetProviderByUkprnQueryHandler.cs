@@ -22,7 +22,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
 
         public async Task<GetProviderByUkprnResult> Handle(GetProviderByUkprnQuery request, CancellationToken cancellationToken)
         {
-            var apprenticeFeedbackTargets = await _apprenticeFeedbackTargetDbContext.GetApprenticeFeedbackTargetsAsync(request.ApprenticeId, request.Ukprn);
+            var apprenticeFeedbackTargets = await _apprenticeFeedbackTargetDbContext.GetAllForApprenticeIdAndUkprnAndIncludeFeedbackResultsAsync(request.ApprenticeId, request.Ukprn);
                         
             if (apprenticeFeedbackTargets == null || !apprenticeFeedbackTargets.Any())
             {

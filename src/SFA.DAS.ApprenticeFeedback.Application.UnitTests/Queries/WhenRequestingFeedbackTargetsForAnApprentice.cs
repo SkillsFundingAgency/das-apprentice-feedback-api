@@ -23,7 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             GetApprenticeFeedbackTargetsQueryHandler handler,
             List<Domain.Entities.ApprenticeFeedbackTarget> response)
         {
-            mockApprenticeFeedbackTargetDataContext.Setup( s => s.GetApprenticeFeedbackTargetsAsync(query.ApprenticeId)).ReturnsAsync(response);
+            mockApprenticeFeedbackTargetDataContext.Setup( s => s.GetAllForApprenticeIdAndIncludeFeedbackResultsAsync(query.ApprenticeId)).ReturnsAsync(response);
 
             var result = await handler.Handle(query, CancellationToken.None);
 

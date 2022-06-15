@@ -17,7 +17,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
 
         public async Task<GetApprenticeFeedbackTargetsResult> Handle(GetApprenticeFeedbackTargetsQuery request, CancellationToken cancellationToken)
         {
-            var apprenticeFeedbackTargets = await _apprenticeFeedbackTargetDataContext.GetApprenticeFeedbackTargetsAsync(request.ApprenticeId);
+            var apprenticeFeedbackTargets = await _apprenticeFeedbackTargetDataContext.GetAllForApprenticeIdAndIncludeFeedbackResultsAsync(request.ApprenticeId);
 
             return new GetApprenticeFeedbackTargetsResult
             {
