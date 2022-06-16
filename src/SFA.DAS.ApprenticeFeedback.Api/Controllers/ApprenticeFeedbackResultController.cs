@@ -24,7 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         }
 
         [HttpGet("/{ukprn}")]
-        public IActionResult PostUkprns(long ukprn)
+        public IActionResult GetUkprn(long ukprn)
         {
             return Ok(TempDataPopulation.CreateFeedbackResponse(ukprn));
         }
