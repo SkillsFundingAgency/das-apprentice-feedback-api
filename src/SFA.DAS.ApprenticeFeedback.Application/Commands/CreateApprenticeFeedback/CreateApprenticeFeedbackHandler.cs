@@ -15,12 +15,18 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
         public readonly ILogger<CreateApprenticeFeedbackHandler> _logger;
         public readonly IDateTimeHelper _timeHelper;
-        private readonly IApprenticeFeedbackTargetContext _dbContext;
+        private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetContext;
+        private readonly IApprenticeFeedbackResultContext _apprenticeFeedbackResultContext;
 
-        public CreateApprenticeFeedbackHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository, IApprenticeFeedbackTargetContext dbContext, IDateTimeHelper timeHelper, ILogger<CreateApprenticeFeedbackHandler> logger)
+        public CreateApprenticeFeedbackHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository,
+            IApprenticeFeedbackTargetContext apprenticeFeedbackTargetContext,
+            IApprenticeFeedbackResultContext apprenticeFeedbackResultContext,
+            IDateTimeHelper timeHelper, 
+            ILogger<CreateApprenticeFeedbackHandler> logger)
         {
             _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
-            _dbContext = dbContext;
+            _apprenticeFeedbackTargetContext = apprenticeFeedbackTargetContext;
+            _apprenticeFeedbackResultContext = apprenticeFeedbackResultContext;
             _timeHelper = timeHelper;
             _logger = logger;
         }
@@ -28,7 +34,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public async Task<CreateApprenticeFeedbackResponse> Handle(CreateApprenticeFeedbackCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Fetch ApprenticeFeedbackTarget record by Id. Id used: {request.ApprenticeFeedbackTargetId}");
-            ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _dbContext.FindByIdAndIncludeFeedbackResultsAsync(request.ApprenticeFeedbackTargetId);
+            ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackTargetContext.FindByIdAndIncludeFeedbackResultsAsync(request.ApprenticeFeedbackTargetId);
 
             if (apprenticeFeedbackTarget == null)
             {
@@ -50,7 +56,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                     Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList(),
                 AllowContact = request.AllowContact
             };
-            feedback = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackResult(feedback);
+
+            _apprenticeFeedbackResultContext.Add(feedback);
+            await _apprenticeFeedbackResultContext.SaveChangesAsync();
 
             // Update Feedback Target with new status
             apprenticeFeedbackTarget.UpdateTargetAfterFeedback(now);
