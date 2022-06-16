@@ -18,7 +18,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.CreateApprenticeF
         [Test, MoqAutoData]
         public async Task And_MediatorCommandIsSuccessful_Then_ReturnOk
             (CreateApprenticeFeedbackCommand request,
-            [Greedy] ApprenticeFeedbackController controller)
+            [Greedy] ApprenticeFeedbackResultController controller)
         {
             var result = await controller.Post(request);
 
@@ -29,7 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.CreateApprenticeF
         public async Task And_MediatorCommandIsUnsuccessful_Then_ReturnBadRequest
             (CreateApprenticeFeedbackCommand request,
             [Frozen] Mock<IMediator> mediator,
-            [Greedy] ApprenticeFeedbackController controller)
+            [Greedy] ApprenticeFeedbackResultController controller)
         {
             mediator.Setup(m => m.Send(It.IsAny<CreateApprenticeFeedbackCommand>(), It.IsAny<CancellationToken>())).Throws(new Exception());
 
