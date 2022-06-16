@@ -12,7 +12,7 @@ using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
-    public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext, IApprenticeFeedbackTargetContext
+    public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext, IApprenticeFeedbackTargetContext, IApprenticeFeedbackResultContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -20,12 +20,13 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
         public DbSet<Domain.Entities.Attribute> Attributes { get; set; }
         public virtual DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
-        public DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
+        public virtual DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; } = null!;
         public DbSet<ProviderAttribute> ProviderAttributes { get; set; }
 
-        public DbSet<ApprenticeFeedbackTarget> Entities => throw new NotImplementedException();
+
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
+        DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
         {
