@@ -14,4 +14,8 @@
     <ProjectReference Include="..\SFA.DAS.ApprenticeFeedback.Domain\SFA.DAS.ApprenticeFeedback.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Repository\" />
+  </ItemGroup>
+
 </Project>

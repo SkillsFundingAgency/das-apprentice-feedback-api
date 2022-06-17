@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
@@ -26,7 +25,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
                 services.AddDbContext<ApprenticeFeedbackDataContext>(ServiceLifetime.Transient);
             }
 
-            services.AddTransient<IApprenticeFeedbackDataContext, ApprenticeFeedbackDataContext>(provider => provider.GetService<ApprenticeFeedbackDataContext>());
             services.AddTransient(provider => new Lazy<ApprenticeFeedbackDataContext>(provider.GetService<ApprenticeFeedbackDataContext>()));
         }
     }

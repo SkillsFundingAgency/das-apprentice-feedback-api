@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,11 +9,11 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
     public class ApprenticeFeedbackHealthCheck : IHealthCheck
     {
         private const string HealthCheckResultsDescription = "Apprentice Feedback API Health Check";
-        private readonly IApprenticeFeedbackRepository _repository;
+        private readonly IAttributeContext _attributeContext;
 
-        public ApprenticeFeedbackHealthCheck(IApprenticeFeedbackRepository repository)
+        public ApprenticeFeedbackHealthCheck(IAttributeContext attributeContext)
         {
-            _repository = repository;
+            _attributeContext = attributeContext;
         }
 
         public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
@@ -22,7 +21,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             var dbConnectionHealthy = true;
             try
             {
-                await _repository.GetAttributes();
+                await _attributeContext.Entities.ToListAsync();
             }
             catch
             {

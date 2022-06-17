@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 {

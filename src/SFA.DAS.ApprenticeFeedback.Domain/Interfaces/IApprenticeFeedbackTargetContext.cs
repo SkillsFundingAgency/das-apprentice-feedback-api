@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
@@ -24,5 +26,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
         public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetAllForApprenticeIdAndUkprnAndIncludeFeedbackResultsAsync(Guid apprenticeId, long ukprn)
             => await Entities.Include(s => s.ApprenticeFeedbackResults)
                 .Where(aft => aft.ApprenticeId == apprenticeId && aft.Ukprn == ukprn).ToListAsync();
+
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+
+        public ChangeTracker ChangeTracker { get; }
     }
 }
