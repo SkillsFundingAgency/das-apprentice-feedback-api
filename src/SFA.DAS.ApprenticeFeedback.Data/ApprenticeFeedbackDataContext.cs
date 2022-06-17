@@ -9,24 +9,29 @@ using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
-    public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext, IApprenticeFeedbackTargetContext, IApprenticeFeedbackResultContext
+    public class ApprenticeFeedbackDataContext : DbContext, 
+        IApprenticeFeedbackTargetContext,
+        IApprenticeFeedbackResultContext,
+        IAttributeContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
-        public DbSet<Domain.Entities.Attribute> Attributes { get; set; }
+        public virtual DbSet<Domain.Entities.Attribute> Attributes { get; set; }
         public virtual DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
         public virtual DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; } = null!;
-        public DbSet<ProviderAttribute> ProviderAttributes { get; set; }
+        //public DbSet<ProviderAttribute> ProviderAttributes { get; set; }
 
-
+        
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
+        DbSet<Domain.Entities.Attribute> IEntityContext<Domain.Entities.Attribute>.Entities => Attributes;
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
         {
