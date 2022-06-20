@@ -23,13 +23,13 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet("/{ukprn}")]
+        [HttpGet("{ukprn}")]
         public IActionResult GetUkprn(long ukprn)
         {
             return Ok(TempDataPopulation.CreateFeedbackResponse(ukprn));
         }
 
-        [HttpPost("/request")]
+        [HttpPost("request")]
         public IActionResult PostUkprns([FromBody] FetchApprenticeFeedbackRequest request)
         {
             return Ok(request.Ukprns.Select(TempDataPopulation.CreateFeedbackResponse));
