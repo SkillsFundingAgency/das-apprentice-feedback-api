@@ -7,17 +7,17 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]/")]
-    public class ProviderAttributesController : Controller
+    public class AttributesController : Controller
     {
         private readonly IMediator _mediator;
 
-        public ProviderAttributesController(IMediator mediator)
+        public AttributesController(IMediator mediator)
         {
             _mediator = mediator;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProviderAttributes()
+        public async Task<IActionResult> GetAttributes()
         {
             var result = await _mediator.Send(new GetAttributesQuery());
 

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackResult
 {
-    public class GetApprenticeFeedbackResultQueryHandler : IRequestHandler<GetApprenticeFeedbackResultQuery, GetApprenticeFeedbackResultResult>
+    public class GetApprenticeFeedbackResultsQueryHandler : IRequestHandler<GetApprenticeFeedbackResultsQuery, GetApprenticeFeedbackResultsResult>
     {
         private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetContext;
         private readonly IApprenticeFeedbackResultContext _apprenticeFeedbackResultContext;
@@ -18,7 +18,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ApplicationSettings _settings;
 
-        public GetApprenticeFeedbackResultQueryHandler(
+        public GetApprenticeFeedbackResultsQueryHandler(
             IApprenticeFeedbackTargetContext apprenticeFeedbackTargetContext,
             IApprenticeFeedbackResultContext apprenticeFeedbackResultContext,
             IProviderAttributeContext providerAttributeContext,
@@ -35,11 +35,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
             _settings = settings;
         }
 
-        public async Task<GetApprenticeFeedbackResultResult> Handle(GetApprenticeFeedbackResultQuery request, CancellationToken cancellationToken)
+        public async Task<GetApprenticeFeedbackResultsResult> Handle(GetApprenticeFeedbackResultsQuery request, CancellationToken cancellationToken)
         {
-            var result = new GetApprenticeFeedbackResultResult();
+            var result = new GetApprenticeFeedbackResultsResult();
 
-            var sprocResult = await _apprenticeFeedbackResultContext.GetFeedbackForProvidersAsync(new long[]{ request.Ukprn }, _settings.ReportingMinNumberOfResponses, _settings.ReportingFeedbackCutoffMonths);
+            var sprocResult = await _apprenticeFeedbackResultContext.GetFeedbackForProvidersAsync(request.Ukprns, _settings.ReportingMinNumberOfResponses, _settings.ReportingFeedbackCutoffMonths);
 
             var ratings = sprocResult.GroupBy(grp => grp.ProviderRating).Select(grp => new { Rating = grp.Key, Count = grp.Count() });
 
@@ -50,7 +50,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
 
             if (sprocResult.Any())
             {
-                result.Ukprn = request.Ukprn;
+                result.Ukprns = sprocResult.Select(u => u.Ukprn).Distinct().ToArray();
 
                 foreach (var rating in ratings)
                 {
