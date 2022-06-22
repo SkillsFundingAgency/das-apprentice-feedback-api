@@ -88,7 +88,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
                     result.ProviderAttribute.Add(new Domain.Entities.AttributeResult() 
                     { 
                         Name = ar.Attribute.AttributeName,
-                        Category = "",  // ??
+                        Category = ar.Attribute.Category,
                         Agree = 0,
                         Disagree = 0
                     });
