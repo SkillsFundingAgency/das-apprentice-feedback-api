@@ -16,6 +16,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
     public class ApprenticeFeedbackDataContext : DbContext, 
         IApprenticeFeedbackTargetContext,
         IApprenticeFeedbackResultContext,
+        IProviderAttributeContext,
         IAttributeContext
     {
         private const string AzureResource = "https://database.windows.net/";
@@ -25,13 +26,13 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public virtual DbSet<Domain.Entities.Attribute> Attributes { get; set; }
         public virtual DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
         public virtual DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; } = null!;
-        //public DbSet<ProviderAttribute> ProviderAttributes { get; set; }
+        public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; } = null!;
 
-        
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
         DbSet<Domain.Entities.Attribute> IEntityContext<Domain.Entities.Attribute>.Entities => Attributes;
+        DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
         {
