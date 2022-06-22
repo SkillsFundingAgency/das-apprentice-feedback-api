@@ -24,7 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
             var result = await handler.Handle(query, CancellationToken.None);
 
-            result.ProviderAttributes.Count.Should().Be(response.Count);
+            result.Attributes.Count.Should().Be(response.Count);
         }
     }
 }

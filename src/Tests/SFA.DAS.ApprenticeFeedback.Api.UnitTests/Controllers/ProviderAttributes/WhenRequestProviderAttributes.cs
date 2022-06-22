@@ -17,7 +17,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ProviderAttribute
         [Test, MoqAutoData]
         public async Task And_MediatorCommandSuccessful_Then_ReturnOk(
             [Frozen] Mock<IMediator> mediator,
-            [Greedy] ProviderAttributesController controller,
+            [Greedy] AttributesController controller,
             GetAttributesResult response)
         {
             mediator.Setup(m => m.Send(It.IsAny<GetAttributesQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(response);
@@ -28,7 +28,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ProviderAttribute
 
             var model = result.Value;
 
-            model.Should().BeEquivalentTo(response.ProviderAttributes);
+            model.Should().BeEquivalentTo(response.Attributes);
         }
     }
 }

@@ -25,7 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAttributes
 
             return new GetAttributesResult
             {
-                ProviderAttributes = attributes
+                Attributes = attributes
             };
         }
     }

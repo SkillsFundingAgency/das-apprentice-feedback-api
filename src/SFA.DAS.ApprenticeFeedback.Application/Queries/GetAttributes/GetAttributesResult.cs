@@ -5,6 +5,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAttributes
 {
     public class GetAttributesResult
     {
-        public List<Attribute> ProviderAttributes { get; set; }
+        public List<Attribute> Attributes { get; set; }
     }
 }
