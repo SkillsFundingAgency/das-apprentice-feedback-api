@@ -4,5 +4,6 @@
 				NOT NULL 
 				IDENTITY(1, 1)
 				PRIMARY KEY,
-    [AttributeName] NVARCHAR(100) NULL
+	[AttributeName] NVARCHAR(100) NULL,
+	[Category] NVARCHAR(100) NULL
 )
