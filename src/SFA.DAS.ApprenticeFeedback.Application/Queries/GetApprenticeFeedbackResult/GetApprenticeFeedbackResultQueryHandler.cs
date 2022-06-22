@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Linq;
 using System.Threading;
@@ -12,65 +13,38 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
         private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetContext;
         private readonly IApprenticeFeedbackResultContext _apprenticeFeedbackResultContext;
         private readonly IProviderAttributeContext _providerAttributeContext;
+        private readonly IAttributeContext _attributeContext;
         private readonly IDateTimeHelper _dateTimeHelper;
 
         public GetApprenticeFeedbackResultQueryHandler(
             IApprenticeFeedbackTargetContext apprenticeFeedbackTargetContext,
             IApprenticeFeedbackResultContext apprenticeFeedbackResultContext,
             IProviderAttributeContext providerAttributeContext,
+            IAttributeContext attributeContext,
             IDateTimeHelper dateTimeHelper
             )
         {
             _apprenticeFeedbackTargetContext = apprenticeFeedbackTargetContext;
             _apprenticeFeedbackResultContext = apprenticeFeedbackResultContext;
             _providerAttributeContext = providerAttributeContext;
+            _attributeContext = attributeContext;
             _dateTimeHelper = dateTimeHelper;
         }
 
-        public Task<GetApprenticeFeedbackResultResult> Handle(GetApprenticeFeedbackResultQuery request, CancellationToken cancellationToken)
+        public async Task<GetApprenticeFeedbackResultResult> Handle(GetApprenticeFeedbackResultQuery request, CancellationToken cancellationToken)
         {
             var result = new GetApprenticeFeedbackResultResult();
 
-            var recentFeedbackResultsForUkprn = _apprenticeFeedbackTargetContext.Entities
-                                    .Include(r => r.ApprenticeFeedbackResults)
-                                    .Where(t => t.Ukprn == request.Ukprn
-                                                && t.ApprenticeFeedbackResults.All(r => r.DateTimeCompleted >= _dateTimeHelper.Now.Date.AddMonths(-12))
-                                                )
-                                    // @ToDo: must have more than 10 feedback responses from different learners
-                                    .Select(f => new { ApprenticeFeedbackResultId = f.ApprenticeFeedbackResults.OrderByDescending(r => r.DateTimeCompleted).First().Id, Rating = f.ApprenticeFeedbackResults.OrderByDescending(r => r.DateTimeCompleted).First().ProviderRating })
-                                    .ToList();
+            var sprocResult = await _apprenticeFeedbackResultContext.GetFeedbackForProvidersAsync(new long[]{ request.Ukprn });
 
-            var apprenticeFeedbackResultIds = recentFeedbackResultsForUkprn.Select(r => r.ApprenticeFeedbackResultId).ToList();
+            var ratings = sprocResult.GroupBy(grp => grp.ProviderRating).Select(grp => new { Rating = grp.Key, Count = grp.Count() });
 
-            var ratings = recentFeedbackResultsForUkprn
-                        .GroupBy(info => info.Rating)
-                        .Select(group => new
-                        {
-                            Rating = group.Key,
-                            Count = group.Count()
-                        }).ToList();
+            var apprenticeFeedbackResultIds = sprocResult.Select(sr => sr.ApprenticeFeedbackResultId).Distinct();
+            var providerAttributeResults = _providerAttributeContext.Entities.Where(a => apprenticeFeedbackResultIds.Contains(a.ApprenticeFeedbackResultId)).ToList();
 
-            var attributeResults = _providerAttributeContext.Entities
-                                    .Include(a => a.Attribute)
-                                    .Where(pa => apprenticeFeedbackResultIds.Contains(pa.ApprenticeFeedbackResultId) )
-                                    .ToList();
+            var attributes = _attributeContext.Entities.ToList();
 
-
-            /*
-
-
-
-                        var foo = attributeResults.GroupBy(a => a.AttributeId)
-                                                    .Select(grp => new 
-                                                    {
-                                                        AttributeId = grp.Key,
-                                                        Value = grp.Count()
-                                                    });
-
-                        */
-
-
-            if (recentFeedbackResultsForUkprn.Any())
+            if (sprocResult.Any())
             {
                 result.Ukprn = request.Ukprn;
 
@@ -82,22 +56,20 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
                     }
                 }
 
-                // temp
-                foreach(var ar in attributeResults)
+                // @ToDo: a more elegant way of doing this ?
+                foreach(var a in attributes)
                 {
                     result.ProviderAttribute.Add(new Domain.Entities.AttributeResult() 
                     { 
-                        Name = ar.Attribute.AttributeName,
-                        Category = ar.Attribute.Category,
-                        Agree = 0,
-                        Disagree = 0
+                        Name = a.AttributeName,
+                        Category = a.Category,
+                        Agree = providerAttributeResults.Where(par => par.AttributeId == a.AttributeId && par.AttributeValue == 1).Count(),
+                        Disagree = providerAttributeResults.Where(par => par.AttributeId == a.AttributeId && par.AttributeValue == 0).Count()
                     });
                 }
-
             }
 
-
-            return Task.FromResult(result);
+            return result;
         }
     }
 }

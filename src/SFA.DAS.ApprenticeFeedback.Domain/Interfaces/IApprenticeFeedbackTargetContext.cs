@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -28,7 +27,5 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
                 .Where(aft => aft.ApprenticeId == apprenticeId && aft.Ukprn == ukprn).ToListAsync();
 
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-
-        public ChangeTracker ChangeTracker { get; }
     }
 }

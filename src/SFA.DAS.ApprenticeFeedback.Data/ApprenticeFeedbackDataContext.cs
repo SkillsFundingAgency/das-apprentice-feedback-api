@@ -10,6 +10,8 @@ using System.Threading.Tasks;
 using System.Threading;
 using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -33,6 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
         DbSet<Domain.Entities.Attribute> IEntityContext<Domain.Entities.Attribute>.Entities => Attributes;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
+
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
         {
@@ -65,6 +68,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackTargetConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
+            modelBuilder.Entity<FeedbackForProvidersResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
 
@@ -115,6 +119,34 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
                 }
             }
+        }
+
+        public async Task<IEnumerable<FeedbackForProvidersResult>> GetFeedbackForProvidersAsync(long[] ukPrns)
+        {
+            var parameterRecentFeedbackMonths = new SqlParameter
+            {
+                ParameterName = "recentFeedbackMonths",
+                SqlDbType = System.Data.SqlDbType.Int,
+                Value = 12,
+            };
+
+            var parameterMinimumNumberOfReviews = new SqlParameter
+            {
+                ParameterName = "minimumNumberOfReviews",
+                SqlDbType = System.Data.SqlDbType.Int,
+                Value = 0,
+            };
+
+            var result = await Set<FeedbackForProvidersResult>()
+                .FromSqlRaw("EXEC [dbo].[GetFeedbackForProviders] @recentFeedbackMonths, @minimumNumberOfReviews", parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews)
+                .ToListAsync();
+
+            if(null != ukPrns && ukPrns.Length > 0)
+            {
+                result = result.Where(sr => ukPrns.Contains(sr.Ukprn)).ToList();
+            }
+
+            return result;
         }
     }
 }
