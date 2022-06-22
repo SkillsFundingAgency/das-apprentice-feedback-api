@@ -22,7 +22,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ProviderAttribute
         {
             mediator.Setup(m => m.Send(It.IsAny<GetAttributesQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(response);
 
-            var result = await controller.GetProviderAttributes() as OkObjectResult;
+            var result = await controller.GetAttributes() as OkObjectResult;
 
             result.Should().NotBeNull();
 
