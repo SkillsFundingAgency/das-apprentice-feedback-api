@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Linq;
@@ -15,13 +16,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
         private readonly IProviderAttributeContext _providerAttributeContext;
         private readonly IAttributeContext _attributeContext;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly ApplicationSettings _settings;
 
         public GetApprenticeFeedbackResultQueryHandler(
             IApprenticeFeedbackTargetContext apprenticeFeedbackTargetContext,
             IApprenticeFeedbackResultContext apprenticeFeedbackResultContext,
             IProviderAttributeContext providerAttributeContext,
             IAttributeContext attributeContext,
-            IDateTimeHelper dateTimeHelper
+            IDateTimeHelper dateTimeHelper,
+            ApplicationSettings settings
             )
         {
             _apprenticeFeedbackTargetContext = apprenticeFeedbackTargetContext;
@@ -29,13 +32,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
             _providerAttributeContext = providerAttributeContext;
             _attributeContext = attributeContext;
             _dateTimeHelper = dateTimeHelper;
+            _settings = settings;
         }
 
         public async Task<GetApprenticeFeedbackResultResult> Handle(GetApprenticeFeedbackResultQuery request, CancellationToken cancellationToken)
         {
             var result = new GetApprenticeFeedbackResultResult();
 
-            var sprocResult = await _apprenticeFeedbackResultContext.GetFeedbackForProvidersAsync(new long[]{ request.Ukprn });
+            var sprocResult = await _apprenticeFeedbackResultContext.GetFeedbackForProvidersAsync(new long[]{ request.Ukprn }, _settings.ReportingMinNumberOfResponses, _settings.ReportingFeedbackCutoffMonths);
 
             var ratings = sprocResult.GroupBy(grp => grp.ProviderRating).Select(grp => new { Rating = grp.Key, Count = grp.Count() });
 

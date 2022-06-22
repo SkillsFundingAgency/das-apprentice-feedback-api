@@ -121,20 +121,20 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             }
         }
 
-        public async Task<IEnumerable<FeedbackForProvidersResult>> GetFeedbackForProvidersAsync(long[] ukPrns)
+        public async Task<IEnumerable<FeedbackForProvidersResult>> GetFeedbackForProvidersAsync(long[] ukPrns, int minimumNumberOfResponses, int reportingFeedbackCutoffMonths )
         {
             var parameterRecentFeedbackMonths = new SqlParameter
             {
                 ParameterName = "recentFeedbackMonths",
                 SqlDbType = System.Data.SqlDbType.Int,
-                Value = 12,
+                Value = reportingFeedbackCutoffMonths,
             };
 
             var parameterMinimumNumberOfReviews = new SqlParameter
             {
                 ParameterName = "minimumNumberOfReviews",
                 SqlDbType = System.Data.SqlDbType.Int,
-                Value = 0,
+                Value = minimumNumberOfResponses,
             };
 
             var result = await Set<FeedbackForProvidersResult>()
