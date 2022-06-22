@@ -8,6 +8,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
     public interface IApprenticeFeedbackResultContext : IEntityContext<ApprenticeFeedbackResult>
     {
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-        Task<IEnumerable<FeedbackForProvidersResult>> GetFeedbackForProvidersAsync(long[] ukPrns);
+        Task<IEnumerable<FeedbackForProvidersResult>> GetFeedbackForProvidersAsync(long[] ukPrns, int minimumNumberOfResponses, int reportingFeedbackCutoffMonths);
     }
 }

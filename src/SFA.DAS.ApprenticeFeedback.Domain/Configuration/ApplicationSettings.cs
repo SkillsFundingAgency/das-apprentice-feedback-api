@@ -20,5 +20,15 @@
         /// The minimum number of apprentices active for a given provider such that feedback is allowed
         /// </summary>
         public int MinimumActiveApprenticeshipCount { get; set; }
+        /// <summary>
+        /// FAT reporting endpoint returns feedback results where there has been 
+        /// at least a certain number of responses within this number of months 
+        /// </summary>
+        public int ReportingFeedbackCutoffMonths { get; set; }
+        /// <summary>
+        /// FAT reporting endpoint returns feedback results where there has been 
+        /// at least this number of responses within a certain number of months 
+        /// </summary>
+        public int ReportingMinNumberOfResponses { get; set; }
     }
 }
