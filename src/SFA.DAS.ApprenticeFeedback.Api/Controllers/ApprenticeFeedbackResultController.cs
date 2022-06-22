@@ -1,7 +1,9 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackResult;
+using System;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
@@ -19,11 +21,38 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             _logger = logger;
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Post([FromBody] CreateApprenticeFeedbackCommand request)
+        {
+            try
+            {
+                var result = await _mediator.Send(request);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error saving apprentice feedback to database.");
+                return BadRequest();
+            }
+        }
+
+
         [HttpGet("{ukprn}")]
         public async Task<IActionResult> GetUkprn(long ukprn)
         {
-            var result = await _mediator.Send(new GetApprenticeFeedbackResultQuery { Ukprn = ukprn });
-            if(0 == result.Ukprn)
+            var result = await _mediator.Send(new GetApprenticeFeedbackResultsQuery { Ukprns = new long[]{ ukprn } });
+            if(null == result.Ukprns || 0 == result.Ukprns.Length)
+            {
+                return new StatusCodeResult(204);
+            }
+            return Ok(result);
+        }
+
+        [HttpPost("request")]
+        public async Task<IActionResult> PostUkprns([FromBody] long[] ukprns)
+        {
+            var result = await _mediator.Send(new GetApprenticeFeedbackResultsQuery { Ukprns = ukprns });
+            if (null == result.Ukprns || 0 == result.Ukprns.Length)
             {
                 return new StatusCodeResult(204);
             }
