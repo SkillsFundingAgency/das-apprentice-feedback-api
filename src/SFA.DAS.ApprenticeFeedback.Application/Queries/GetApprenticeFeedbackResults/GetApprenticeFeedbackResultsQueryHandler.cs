@@ -12,11 +12,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
 {
     public class GetApprenticeFeedbackResultsQueryHandler : IRequestHandler<GetApprenticeFeedbackResultsQuery, GetApprenticeFeedbackResultsResult>
     {
-        private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetContext;
         private readonly IApprenticeFeedbackResultContext _apprenticeFeedbackResultContext;
         private readonly IProviderAttributeContext _providerAttributeContext;
         private readonly IAttributeContext _attributeContext;
-        private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ApplicationSettings _settings;
 
         public GetApprenticeFeedbackResultsQueryHandler(
@@ -28,11 +26,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
             ApplicationSettings settings
             )
         {
-            _apprenticeFeedbackTargetContext = apprenticeFeedbackTargetContext;
             _apprenticeFeedbackResultContext = apprenticeFeedbackResultContext;
             _providerAttributeContext = providerAttributeContext;
             _attributeContext = attributeContext;
-            _dateTimeHelper = dateTimeHelper;
             _settings = settings;
         }
 
@@ -72,8 +68,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
                         {
                             Name = a.AttributeName,
                             Category = a.Category,
-                            Agree = providerAttributeResults.Where(par => par.AttributeId == a.AttributeId && par.AttributeValue == 1).Count(),
-                            Disagree = providerAttributeResults.Where(par => par.AttributeId == a.AttributeId && par.AttributeValue == 0).Count()
+                            Agree = providerAttributeResults.Count(par => par.AttributeId == a.AttributeId && par.AttributeValue == 1),
+                            Disagree = providerAttributeResults.Count(par => par.AttributeId == a.AttributeId && par.AttributeValue == 0)
                         });
                     }
 
