@@ -18,7 +18,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         [Test, RecursiveMoqAutoData]
         public async Task ThenFeedbackTargetsAreReturned(
             GetApprenticeFeedbackTargetsQuery query,
-            [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
             [Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetDataContext,
             GetApprenticeFeedbackTargetsQueryHandler handler,
             List<Domain.Entities.ApprenticeFeedbackTarget> response)
