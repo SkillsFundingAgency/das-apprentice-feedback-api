@@ -6,6 +6,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackResult.GetApprenticeFeedbackResultsResult;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackResult
 {
@@ -41,35 +42,42 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
 
             var sprocResult = await _apprenticeFeedbackResultContext.GetFeedbackForProvidersAsync(request.Ukprns, _settings.ReportingMinNumberOfResponses, _settings.ReportingFeedbackCutoffMonths);
 
-            var ratings = sprocResult.GroupBy(grp => grp.ProviderRating).Select(grp => new { Rating = grp.Key, Count = grp.Count() });
-
-            var apprenticeFeedbackResultIds = sprocResult.Select(sr => sr.ApprenticeFeedbackResultId).Distinct();
-            var providerAttributeResults = _providerAttributeContext.Entities.Where(a => apprenticeFeedbackResultIds.Contains(a.ApprenticeFeedbackResultId)).ToList();
-
-            var attributes = _attributeContext.Entities.ToList();
-
             if (sprocResult.Any())
             {
-                result.Ukprns = sprocResult.Select(u => u.Ukprn).Distinct().ToArray();
+                var ukprns = sprocResult.Select(u => u.Ukprn).Distinct().ToArray();
+                var attributes = _attributeContext.Entities.ToList();
 
-                foreach (var rating in ratings)
+                foreach (var ukprn in ukprns)
                 {
-                    if(!string.IsNullOrEmpty(rating.Rating))
+                    var ratings = sprocResult.Where(r => r.Ukprn == ukprn).GroupBy(grp => grp.ProviderRating).Select(grp => new { Rating = grp.Key, Count = grp.Count() });
+
+                    var feedbackResult = new UkprnFeedback();
+                    feedbackResult.Ukprn = ukprn;
+
+                    foreach (var rating in ratings)
                     {
-                        result.ProviderRating.Add(rating.Rating, rating.Count);
+                        if (!string.IsNullOrEmpty(rating.Rating))
+                        {
+                            feedbackResult.ProviderRating.Add(rating.Rating, rating.Count);
+                        }
                     }
-                }
 
-                // @ToDo: a more elegant way of doing this ?
-                foreach(var a in attributes)
-                {
-                    result.ProviderAttribute.Add(new Domain.Entities.AttributeResult() 
-                    { 
-                        Name = a.AttributeName,
-                        Category = a.Category,
-                        Agree = providerAttributeResults.Where(par => par.AttributeId == a.AttributeId && par.AttributeValue == 1).Count(),
-                        Disagree = providerAttributeResults.Where(par => par.AttributeId == a.AttributeId && par.AttributeValue == 0).Count()
-                    });
+                    // @ToDo: a more elegant way of doing this ?
+                    var apprenticeFeedbackResultIds = sprocResult.Where(r => r.Ukprn == ukprn).Select(sr => sr.ApprenticeFeedbackResultId).Distinct();
+                    var providerAttributeResults = _providerAttributeContext.Entities.Where(a => apprenticeFeedbackResultIds.Contains(a.ApprenticeFeedbackResultId)).ToList();
+
+                    foreach (var a in attributes)
+                    {
+                        feedbackResult.ProviderAttribute.Add(new Domain.Entities.AttributeResult()
+                        {
+                            Name = a.AttributeName,
+                            Category = a.Category,
+                            Agree = providerAttributeResults.Where(par => par.AttributeId == a.AttributeId && par.AttributeValue == 1).Count(),
+                            Disagree = providerAttributeResults.Where(par => par.AttributeId == a.AttributeId && par.AttributeValue == 0).Count()
+                        });
+                    }
+
+                    result.UkprnFeedbacks.Add(feedbackResult);
                 }
             }
 
