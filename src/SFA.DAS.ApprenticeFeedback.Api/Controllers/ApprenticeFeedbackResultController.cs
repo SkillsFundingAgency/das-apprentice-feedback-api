@@ -50,9 +50,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         }
 
         [HttpPost("request")]
-        public async Task<IActionResult> PostUkprns([FromBody] long[] ukprns)
+        public async Task<IActionResult> PostUkprns([FromBody] GetApprenticeFeedbackResultsQuery request)
         {
-            var result = await _mediator.Send(new GetApprenticeFeedbackResultsQuery { Ukprns = ukprns });
+            var result = await _mediator.Send(request);
             if (null == result.UkprnFeedbacks || !result.UkprnFeedbacks.Any())
             {
                 return new StatusCodeResult(204);
