@@ -8,12 +8,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
         public class UkprnFeedback
         {
             public long Ukprn { get; set; }
-            public Dictionary<string, int> ProviderRating { get; set; }
+            public List<RatingResult> ProviderRating { get; set; }
             public List<AttributeResult> ProviderAttribute { get; set; }
 
             public UkprnFeedback()
             {
-                ProviderRating = new Dictionary<string, int>();
+                ProviderRating = new List<RatingResult>();
                 ProviderAttribute = new List<AttributeResult>();
             }
         }

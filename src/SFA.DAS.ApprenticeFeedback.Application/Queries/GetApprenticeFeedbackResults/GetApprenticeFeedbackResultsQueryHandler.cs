@@ -54,7 +54,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
                     {
                         if (!string.IsNullOrEmpty(rating.Rating))
                         {
-                            feedbackResult.ProviderRating.Add(rating.Rating, rating.Count);
+                            feedbackResult.ProviderRating.Add(new RatingResult()
+                            {
+                                Rating = rating.Rating,
+                                Count = rating.Count
+                            });
                         }
                     }
 
