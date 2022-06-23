@@ -175,7 +175,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             SetStatusAndEligibility(learner, appSettings, dateTimeHelper);
         }
 
-        public async Task UpdateFrom(ApprenticeFeedbackTarget apprenticeFeedbackTarget)
+        public void UpdateFrom(ApprenticeFeedbackTarget apprenticeFeedbackTarget)
         {
             if (apprenticeFeedbackTarget == null)
             {
