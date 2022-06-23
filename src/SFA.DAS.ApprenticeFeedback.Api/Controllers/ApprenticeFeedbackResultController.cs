@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackResult;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
@@ -41,22 +42,22 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         public async Task<IActionResult> GetUkprn(long ukprn)
         {
             var result = await _mediator.Send(new GetApprenticeFeedbackResultsQuery { Ukprns = new long[]{ ukprn } });
-            if(null == result.Ukprns || 0 == result.Ukprns.Length)
+            if (null == result.UkprnFeedbacks || !result.UkprnFeedbacks.Any())
             {
                 return new StatusCodeResult(204);
             }
-            return Ok(result);
+            return Ok(result.UkprnFeedbacks);
         }
 
         [HttpPost("request")]
         public async Task<IActionResult> PostUkprns([FromBody] long[] ukprns)
         {
             var result = await _mediator.Send(new GetApprenticeFeedbackResultsQuery { Ukprns = ukprns });
-            if (null == result.Ukprns || 0 == result.Ukprns.Length)
+            if (null == result.UkprnFeedbacks || !result.UkprnFeedbacks.Any())
             {
                 return new StatusCodeResult(204);
             }
-            return Ok(result);
+            return Ok(result.UkprnFeedbacks);
         }
     }
 }
