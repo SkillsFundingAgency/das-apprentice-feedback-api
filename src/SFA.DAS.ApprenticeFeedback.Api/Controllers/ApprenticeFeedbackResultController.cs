@@ -37,18 +37,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             }
         }
 
-
-        [HttpGet("{ukprn}")]
-        public async Task<IActionResult> GetUkprn(long ukprn)
-        {
-            var result = await _mediator.Send(new GetApprenticeFeedbackResultsQuery { Ukprns = new long[]{ ukprn } });
-            if (null == result.UkprnFeedbacks || !result.UkprnFeedbacks.Any())
-            {
-                return new StatusCodeResult(204);
-            }
-            return Ok(result.UkprnFeedbacks);
-        }
-
         [HttpPost("request")]
         public async Task<IActionResult> PostUkprns([FromBody] GetApprenticeFeedbackResultsQuery request)
         {
