@@ -7,14 +7,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
     {
         DbSet<T> Entities { get; }
 
-        /*
-        ValueTask<EntityEntry<T>> AddAsync(T entity, CancellationToken cancellationToken = default)
-            => Entities.AddAsync(entity, cancellationToken);
-        */
-
-        
         EntityEntry<T> Add(T entity) => Entities.Add(entity);
-
-        
     }
 }
