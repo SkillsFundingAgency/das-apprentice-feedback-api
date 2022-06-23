@@ -3,8 +3,6 @@ using System.Linq;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Moq;
-using Moq.Language.Flow;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 
 namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.DatabaseMock
 {
@@ -32,13 +30,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.DatabaseMock
 		public static DbSet<TEntity> BuildDbSet<TEntity>(this IEnumerable<TEntity> data) where TEntity : class
 		{
 			return BuildMockDbSet(data.AsQueryable()).Object;
-		}
-
-		public static IReturnsResult<IApprenticeFeedbackDataContext> ReturnsDbSet<TEntity>(
-			this ISetup<IApprenticeFeedbackDataContext, DbSet<TEntity>> setupResult,
-			IEnumerable<TEntity> entities) where TEntity : class
-		{
-			return setupResult.Returns(entities.BuildDbSet());
 		}
 
 		private static void ConfigureDbSetCalls<TEntity>(this Mock<DbSet<TEntity>> mock)
