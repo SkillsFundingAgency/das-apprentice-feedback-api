@@ -21,6 +21,6 @@ AS
         afr.ProviderRating, afr.DateTimeCompleted, pfc.ReviewCount
         FROM ApprenticeFeedbackResult_CTE afr JOIN ProviderFeedbackCount_CTE pfc
         ON afr.Ukprn = pfc.Ukprn
-        WHERE ReviewCount >= @minimumNumberOfReviews
+        WHERE ReviewCount >= @minimumNumberOfReviews AND RowNumber = 1
     END
 GO
