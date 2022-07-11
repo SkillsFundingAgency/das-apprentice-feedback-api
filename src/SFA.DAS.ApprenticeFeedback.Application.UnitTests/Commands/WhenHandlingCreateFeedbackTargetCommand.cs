@@ -1,6 +1,5 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
@@ -18,60 +17,20 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 {
     public class WhenHandlingCreateFeedbackTargetCommand
     {
-        [Test/*, RecursiveMoqAutoData*/]
+        [Test, AutoMoqData]
         public async Task And_CommandIsValid_Then_CreatesFeedback_If_It_Doesnt_Exist(
-           //CreateApprenticeFeedbackTargetCommand command,
-           //[Frozen] Mock<IApprenticeFeedbackTargetContext> mockApprenticeFeedbackTargetContext,
-           //CreateApprenticeFeedbackTargetCommandHandler handler,
-           //Guid response
+           CreateApprenticeFeedbackTargetCommand command,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+           CreateApprenticeFeedbackTargetCommandHandler handler,
+           Guid response
            )
         {
+            var result = await handler.Handle(command, CancellationToken.None);
 
-            var connection = new SqliteConnection("Filename=:memory:");
-            connection.Open();
+            result.ApprenticeFeedbackTargetId.Should().NotBeEmpty();
 
-            // These options will be used by the context instances in this test suite, including the connection opened above.
-            var contextOptions = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>()
-                .UseSqlite(connection)
-                .Options;
-
-            // Create the schema and seed some data
-            using var context = new ApprenticeFeedbackDataContext(contextOptions);
-
-            context.Database.EnsureCreated();
-
-
-
-
-
-            //mockApprenticeFeedbackTargetContext.Setup(s => s.FindByApprenticeIdAndApprenticeshipIdAndIncludeFeedbackResultsAsync(command.ApprenticeId, command.CommitmentApprenticeshipId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
-
-            /*
-            mockApprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackTarget(
-                It.Is<ApprenticeFeedbackTarget>(s => 
-                s.ApprenticeId == command.ApprenticeId &&
-                s.ApprenticeshipId == command.CommitmentApprenticeshipId &&
-                s.Status == (int)FeedbackTargetStatus.Unknown
-                ))).ReturnsAsync(response);
-            */
-
-            //mockApprenticeFeedbackTargetContext.Setup(s => s.Add(It.IsAny<Domain.Models.ApprenticeFeedbackTarget>())).Returns(new Microsoft.EntityFrameworkCore.ChangeTracking.EntityEntry<ApprenticeFeedbackTarget>(new Microsoft.EntityFrameworkCore.ChangeTracking.Internal.InternalEntityEntry()))
-
-            try
-            {
-                var handler = new CreateApprenticeFeedbackTargetCommandHandler(context);
-                var command = new CreateApprenticeFeedbackTargetCommand()
-                {
-                    ApprenticeId = Guid.NewGuid(),
-                };
-                var result = await handler.Handle(command, CancellationToken.None);
-
-                result.ApprenticeFeedbackTargetId.Should().NotBeEmpty();
-            }
-            catch(Exception ex)
-            {
-                ex = ex;
-            }
+            var feedbackResult = context.ApprenticeFeedbackResults.FirstOrDefaultAsync(s => s.ApprenticeFeedbackTargetId == result.ApprenticeFeedbackTargetId);
+            feedbackResult.Should().NotBeNull();
         }
 
         [Test, RecursiveMoqAutoData]
