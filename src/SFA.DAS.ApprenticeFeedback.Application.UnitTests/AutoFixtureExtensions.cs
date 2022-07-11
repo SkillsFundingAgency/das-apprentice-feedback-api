@@ -9,14 +9,9 @@ using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
 {
-    public class AutoMoqDataAttribute : AutoDataAttribute
+    public static class AutofixtureExtensions
     {
-        public AutoMoqDataAttribute()
-            : base(() => CreateFixture())
-        {
-        }
-
-        private static IFixture CreateFixture()
+        public static IFixture ApprenticeFeedbackFixture()
         {
             var fixture = new Fixture();
             fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
@@ -24,6 +19,23 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
             fixture.Customize(new ApprenticeFeedbackCustomization());
             fixture.Customize(new AutoMoqCustomization { ConfigureMembers = true });
             return fixture;
+        }
+    }
+
+    public class AutoMoqDataAttribute : AutoDataAttribute
+    {
+        public AutoMoqDataAttribute()
+            : base(AutofixtureExtensions.ApprenticeFeedbackFixture)
+        {
+        }
+    }
+
+    [AttributeUsage(AttributeTargets.Method, AllowMultiple = true)]
+    public class AutoMoqInlineAutoDataAttribute : InlineAutoDataAttribute
+    {
+        public AutoMoqInlineAutoDataAttribute(params object[] arguments)
+            : base(AutofixtureExtensions.ApprenticeFeedbackFixture, arguments)
+        {
         }
     }
 
