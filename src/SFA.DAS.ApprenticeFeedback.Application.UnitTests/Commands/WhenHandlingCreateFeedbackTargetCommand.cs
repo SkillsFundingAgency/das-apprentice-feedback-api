@@ -1,8 +1,10 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.Testing.AutoFixture;
@@ -15,44 +17,54 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 {
     public class WhenHandlingCreateFeedbackTargetCommand
     {
-        [Test, MoqAutoData]
-        public async Task And_CommandIsValid_Then_CreatesFeedback_If_It_Doesnt_Exist(
-           CreateApprenticeFeedbackTargetCommand command, 
-           [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
-           CreateApprenticeFeedbackTargetCommandHandler handler,
-           Guid response)
+        [Test, AutoMoqData]
+        public async Task And_CommandIsValid_Then_CreatesFeedbackTarget_If_It_Doesnt_Exist(
+           CreateApprenticeFeedbackTargetCommand command,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+           CreateApprenticeFeedbackTargetCommandHandler handler
+           )
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTarget(command.ApprenticeId, command.CommitmentApprenticeshipId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
+            //Arrange
 
-            mockApprenticeFeedbackRepository.Setup(s => s.CreateApprenticeFeedbackTarget(
-                It.Is<ApprenticeFeedbackTarget>(s => 
-                s.ApprenticeId == command.ApprenticeId &&
-                s.ApprenticeshipId == command.CommitmentApprenticeshipId &&
-                s.Status == (int)FeedbackTargetStatus.Unknown
-                ))).ReturnsAsync(response);
-
+            //Act
             var result = await handler.Handle(command, CancellationToken.None);
 
-            result.ApprenticeFeedbackTargetId.Should().Be(response);
+            result.ApprenticeFeedbackTargetId.Should().NotBeEmpty();
+
+            var feedbackTarget = await context.ApprenticeFeedbackTargets.FirstOrDefaultAsync(s => s.Id == result.ApprenticeFeedbackTargetId);
+            feedbackTarget.ApprenticeId.Should().Be(command.ApprenticeId);
+            feedbackTarget.ApprenticeshipId.Should().Be(command.CommitmentApprenticeshipId);
         }
 
-        [Test, RecursiveMoqAutoData]
-        public async Task And_CommandIsValid_Then_UpdatesFeedback_If_It_Exists(
+        [Test, AutoMoqData]
+        public async Task And_CommandIsValid_Then_UpdatesFeedbackTarget_If_It_Exists(
            CreateApprenticeFeedbackTargetCommand command,
-           [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
            ApprenticeFeedbackTarget apprenticeFeedbackTarget,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
            CreateApprenticeFeedbackTargetCommandHandler handler)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTarget(command.ApprenticeId, command.CommitmentApprenticeshipId)).ReturnsAsync(apprenticeFeedbackTarget);
+            // Arrange
+            apprenticeFeedbackTarget.ApprenticeshipId = command.CommitmentApprenticeshipId;
+            apprenticeFeedbackTarget.ApprenticeId = command.ApprenticeId;
+            apprenticeFeedbackTarget.Status = (int)FeedbackTargetStatus.Active;
+            apprenticeFeedbackTarget.FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_TooLateAfterPassing;
+            context.Add(apprenticeFeedbackTarget);
+            await context.SaveChangesAsync();
 
-            mockApprenticeFeedbackRepository.Setup(s => s.UpdateApprenticeFeedbackTarget(It.Is<ApprenticeFeedbackTarget>(s =>
-            s.StartDate == null && s.EndDate == null &&
-            s.Status == (int)FeedbackTargetStatus.Unknown &&
-            s.Id == apprenticeFeedbackTarget.Id))).ReturnsAsync(apprenticeFeedbackTarget);
-
+            //Act
             var result = await handler.Handle(command, CancellationToken.None);
 
-            result.ApprenticeFeedbackTargetId.Should().Be(apprenticeFeedbackTarget.Id);
+            //Assert
+            var feedbackTarget = await context.ApprenticeFeedbackTargets.FirstOrDefaultAsync(s => s.Id == result.ApprenticeFeedbackTargetId);
+
+            feedbackTarget.EndDate.Should().BeNull();
+            feedbackTarget.Ukprn.Should().BeNull();
+            feedbackTarget.ProviderName.Should().BeNull();
+            feedbackTarget.StandardUId.Should().BeNull();
+            feedbackTarget.StandardName.Should().BeNull();
+            feedbackTarget.EligibilityCalculationDate.Should().BeNull();
+            feedbackTarget.Status.Should().Be((int)FeedbackTargetStatus.Unknown);
+            feedbackTarget.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Unknown);
         }
     }
 }

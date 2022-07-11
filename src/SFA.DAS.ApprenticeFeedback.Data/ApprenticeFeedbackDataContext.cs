@@ -9,19 +9,33 @@ using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using System.Threading.Tasks;
 using System.Threading;
 using System;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using System.Linq;
+using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
-    public class ApprenticeFeedbackDataContext : DbContext, IApprenticeFeedbackDataContext
+    public class ApprenticeFeedbackDataContext : DbContext, 
+        IApprenticeFeedbackTargetContext,
+        IApprenticeFeedbackResultContext,
+        IProviderAttributeContext,
+        IAttributeContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
-        public DbSet<Domain.Entities.Attribute> Attributes { get; set; }
-        public DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
-        public DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
-        public DbSet<ProviderAttribute> ProviderAttributes { get; set; }
+        public virtual DbSet<Domain.Entities.Attribute> Attributes { get; set; }
+        public virtual DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
+        public virtual DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; } = null!;
+        public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; } = null!;
+
+
+        DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
+        DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
+        DbSet<Domain.Entities.Attribute> IEntityContext<Domain.Entities.Attribute>.Entities => Attributes;
+        DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
+
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
         {
@@ -54,6 +68,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackTargetConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
+            modelBuilder.Entity<FeedbackForProvidersResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
 
@@ -104,6 +119,34 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
                 }
             }
+        }
+
+        public async Task<IEnumerable<FeedbackForProvidersResult>> GetFeedbackForProvidersAsync(long[] ukPrns, int minimumNumberOfResponses, int reportingFeedbackCutoffMonths )
+        {
+            var parameterRecentFeedbackMonths = new SqlParameter
+            {
+                ParameterName = "recentFeedbackMonths",
+                SqlDbType = System.Data.SqlDbType.Int,
+                Value = reportingFeedbackCutoffMonths,
+            };
+
+            var parameterMinimumNumberOfReviews = new SqlParameter
+            {
+                ParameterName = "minimumNumberOfReviews",
+                SqlDbType = System.Data.SqlDbType.Int,
+                Value = minimumNumberOfResponses,
+            };
+
+            var result = await Set<FeedbackForProvidersResult>()
+                .FromSqlRaw("EXEC [dbo].[GetFeedbackForProviders] @recentFeedbackMonths, @minimumNumberOfReviews", parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews)
+                .ToListAsync();
+
+            if(null != ukPrns && ukPrns.Length > 0)
+            {
+                result = result.Where(sr => ukPrns.Contains(sr.Ukprn)).ToList();
+            }
+
+            return result;
         }
     }
 }

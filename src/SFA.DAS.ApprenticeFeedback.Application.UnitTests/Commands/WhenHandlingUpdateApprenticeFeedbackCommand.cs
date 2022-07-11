@@ -1,52 +1,52 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
-using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using SFA.DAS.Testing.AutoFixture;
 using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using static SFA.DAS.ApprenticeFeedback.Domain.Models.ApprenticeFeedbackTarget;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 {
     public class WhenHandlingUpdateApprenticeFeedbackCommand
     {
-        [Test, MoqAutoData]
+        [Test, AutoMoqData]
         public async Task And_CommandIsValid_Then_Errors_If_FeedbackTarget_Doesnt_Exist(
-           UpdateApprenticeFeedbackTargetCommand command, 
-           [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
+           UpdateApprenticeFeedbackTargetCommand command,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
            UpdateApprenticeFeedbackTargetCommandHandler handler)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId)).ReturnsAsync((ApprenticeFeedbackTarget)null);
-
             Func<Task> action = async () => await handler.Handle(command, CancellationToken.None);
 
             await action.Should().ThrowAsync<InvalidOperationException>().
                 WithMessage($"Unable to retrieve ApprenticeFeedbackTarget with Id: {command.ApprenticeFeedbackTargetId}");
         }
 
-        [Test, RecursiveMoqAutoData]
+        [Test, AutoMoqData]
         public async Task And_CommandIsValid_Then_UpdatesFeedback_If_It_Exists(
            UpdateApprenticeFeedbackTargetCommand command,
-           [Frozen] Mock<IApprenticeFeedbackRepository> mockApprenticeFeedbackRepository,
            ApprenticeFeedbackTarget apprenticeFeedbackTarget,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
            UpdateApprenticeFeedbackTargetCommandHandler handler)
         {
-            mockApprenticeFeedbackRepository.Setup(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId)).ReturnsAsync(apprenticeFeedbackTarget);
-            mockApprenticeFeedbackRepository.Setup(s => s.UpdateApprenticeFeedbackTarget(It.IsAny<ApprenticeFeedbackTarget>())).ReturnsAsync(apprenticeFeedbackTarget);
+            // Arrange
+            apprenticeFeedbackTarget.Id = command.ApprenticeFeedbackTargetId;
+            apprenticeFeedbackTarget.Status = (int)FeedbackTargetStatus.Active;
+            context.Add(apprenticeFeedbackTarget);
+            await context.SaveChangesAsync();
 
             var result = await handler.Handle(command, CancellationToken.None);
 
-            result.UpdatedApprenticeFeedbackTarget.Id.Should().Be(apprenticeFeedbackTarget.Id);
-            mockApprenticeFeedbackRepository.Verify(s => s.GetApprenticeFeedbackTargetById(command.ApprenticeFeedbackTargetId), Times.Once());
-            mockApprenticeFeedbackRepository.Verify(s => s.UpdateApprenticeFeedbackTarget(It.IsAny<ApprenticeFeedbackTarget>()),Times.Once());
+            result.UpdatedApprenticeFeedbackTarget.Should().NotBeNull();
+            result.UpdatedApprenticeFeedbackTarget.ProviderName.Should().Be(command.Learner.ProviderName);
+            result.UpdatedApprenticeFeedbackTarget.Ukprn.Should().Be(command.Learner.Ukprn);
+            result.UpdatedApprenticeFeedbackTarget.StandardName.Should().Be(command.Learner.StandardName);
+            result.UpdatedApprenticeFeedbackTarget.StandardUId.Should().Be(command.Learner.StandardUId);
+            result.UpdatedApprenticeFeedbackTarget.LarsCode.Should().Be(command.Learner.StandardCode);
+            result.UpdatedApprenticeFeedbackTarget.StartDate.Should().Be(command.Learner.LearnStartDate);
         }
     }
 }

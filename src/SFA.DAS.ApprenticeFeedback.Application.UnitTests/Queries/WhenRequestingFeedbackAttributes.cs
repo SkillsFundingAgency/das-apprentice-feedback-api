@@ -1,10 +1,8 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetAttributes;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using SFA.DAS.Testing.AutoFixture;
+using SFA.DAS.ApprenticeFeedback.Data;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,14 +11,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 {
     public class WhenRequestingFeedbackAttributes
     {
-        [Test, RecursiveMoqAutoData]
+        [Test, AutoMoqData]
         public async Task ThenAttributesAreReturned(
             GetAttributesQuery query,
-            [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
+            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
             GetAttributesQueryHandler handler,
             List<Domain.Entities.Attribute> response)
         {
-            mockRepository.Setup( s => s.GetAttributes()).ReturnsAsync(response);
+            context.Attributes.AddRange(response);
+            context.SaveChanges();
 
             var result = await handler.Handle(query, CancellationToken.None);
 

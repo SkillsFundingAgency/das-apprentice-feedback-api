@@ -1,11 +1,9 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
-using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders;
+using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using SFA.DAS.Testing.AutoFixture;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -17,44 +15,43 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
     public class WhenRequestingProvidersByApprenticeId
     {
         [Test]
-        [RecursiveMoqInlineAutoData(true)]
-        [RecursiveMoqInlineAutoData(false)]
+        [AutoMoqData]
         public async Task AndNoTargets_ThenShouldReturnNull(
-            bool IsNullResponse,
             GetAllProvidersForApprenticeQuery query,
-            [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
+            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
             GetAllProvidersForApprenticeQueryHandler handler)
         {
-            // Arrange
-            var targets = IsNullResponse ? null : new List<ApprenticeFeedbackTarget>();
-            mockRepository.Setup(s => s.GetApprenticeFeedbackTargets(query.ApprenticeId)).ReturnsAsync(targets);
-
-            // Act
+            //Arrange
+                        
+            //Act
             var result = await handler.Handle(query, CancellationToken.None);
 
-            // Assert
+            //Assert
             result.Should().BeNull();
         }
 
-        [Test, RecursiveMoqAutoData]
+        [Test, AutoMoqData]
         public async Task ThenAllProvidersAreReturned(
             GetAllProvidersForApprenticeQuery query,
-            [Frozen] Mock<IApprenticeFeedbackRepository> mockRepository,
+            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
             GetAllProvidersForApprenticeQueryHandler handler,
             IEnumerable<ApprenticeFeedbackTarget> targets)
         {
-            // Arrange
+
+            //Arrange
             foreach (var target in targets)
             {
+                target.ApprenticeId = query.ApprenticeId;
                 target.Status = (int)FeedbackTargetStatus.Active;
                 target.FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently;
             }
-            mockRepository.Setup(s => s.GetApprenticeFeedbackTargets(query.ApprenticeId)).ReturnsAsync(targets);
+            await context.AddRangeAsync(targets);
+            await context.SaveChangesAsync();
 
-            // Act
+            //Act
             var result = await handler.Handle(query, CancellationToken.None);
 
-            // Assert
+            //Assert
             var targetsArray = targets.ToArray();
             result.TrainingProviders.Should().BeEquivalentTo(new[]
             {

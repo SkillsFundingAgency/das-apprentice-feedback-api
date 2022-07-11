@@ -7,18 +7,28 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback
 {
     public class CreateApprenticeFeedbackHandler : IRequestHandler<CreateApprenticeFeedbackCommand, CreateApprenticeFeedbackResponse>
     {
-        public readonly IApprenticeFeedbackRepository _apprenticeFeedbackRepository;
-        public readonly ILogger<CreateApprenticeFeedbackHandler> _logger;
-        public readonly IDateTimeHelper _timeHelper;
+        private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetContext;
+        private readonly IApprenticeFeedbackResultContext _apprenticeFeedbackResultContext;
+        private readonly IAttributeContext _attributeContext;
+        private readonly ILogger<CreateApprenticeFeedbackHandler> _logger;
+        private readonly IDateTimeHelper _timeHelper;
 
-        public CreateApprenticeFeedbackHandler(IApprenticeFeedbackRepository apprenticeFeedbackRepository, IDateTimeHelper timeHelper, ILogger<CreateApprenticeFeedbackHandler> logger)
+        public CreateApprenticeFeedbackHandler(
+            IApprenticeFeedbackTargetContext apprenticeFeedbackTargetContext,
+            IApprenticeFeedbackResultContext apprenticeFeedbackResultContext,
+            IAttributeContext attributeContext,
+            IDateTimeHelper timeHelper, 
+            ILogger<CreateApprenticeFeedbackHandler> logger)
         {
-            _apprenticeFeedbackRepository = apprenticeFeedbackRepository;
+            _apprenticeFeedbackTargetContext = apprenticeFeedbackTargetContext;
+            _apprenticeFeedbackResultContext = apprenticeFeedbackResultContext;
+            _attributeContext = attributeContext;
             _timeHelper = timeHelper;
             _logger = logger;
         }
@@ -26,7 +36,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public async Task<CreateApprenticeFeedbackResponse> Handle(CreateApprenticeFeedbackCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Fetch ApprenticeFeedbackTarget record by Id. Id used: {request.ApprenticeFeedbackTargetId}");
-            ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackRepository.GetApprenticeFeedbackTargetById(request.ApprenticeFeedbackTargetId);
+            ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackTargetContext.FindByIdAndIncludeFeedbackResultsAsync(request.ApprenticeFeedbackTargetId);
 
             if (apprenticeFeedbackTarget == null)
             {
@@ -48,19 +58,51 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                     Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList(),
                 AllowContact = request.AllowContact
             };
-            feedback = await _apprenticeFeedbackRepository.CreateApprenticeFeedbackResult(feedback);
+
+            _apprenticeFeedbackResultContext.Add(feedback);
+            await _apprenticeFeedbackResultContext.SaveChangesAsync();
 
             // Update Feedback Target with new status
             apprenticeFeedbackTarget.UpdateTargetAfterFeedback(now);
-            await _apprenticeFeedbackRepository.UpdateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
+
+            await UpdateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
 
             _logger.LogDebug($"Successfully created feedback object with Id: {feedback.Id}");
             return new CreateApprenticeFeedbackResponse() { ApprenticeFeedbackResultId = feedback.Id };
         }
 
+        private async Task<Domain.Entities.ApprenticeFeedbackTarget> UpdateApprenticeFeedbackTarget(Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget)
+        {
+            var feedbackTarget = await _apprenticeFeedbackTargetContext.Entities.FirstOrDefaultAsync(s => s.Id == apprenticeFeedbackTarget.Id);
+            if (feedbackTarget == null)
+            {
+                return null;
+            }
+
+            feedbackTarget.StartDate = apprenticeFeedbackTarget.StartDate;
+            feedbackTarget.EndDate = apprenticeFeedbackTarget.EndDate;
+            feedbackTarget.Ukprn = apprenticeFeedbackTarget.Ukprn;
+            feedbackTarget.ProviderName = apprenticeFeedbackTarget.ProviderName;
+            feedbackTarget.StandardName = apprenticeFeedbackTarget.StandardName;
+            feedbackTarget.StandardUId = apprenticeFeedbackTarget.StandardUId;
+            feedbackTarget.LarsCode = apprenticeFeedbackTarget.LarsCode;
+
+            if (feedbackTarget.FeedbackEligibility != apprenticeFeedbackTarget.FeedbackEligibility ||
+                feedbackTarget.Status != apprenticeFeedbackTarget.Status)
+            {
+                feedbackTarget.Status = apprenticeFeedbackTarget.Status;
+                feedbackTarget.FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility;
+                feedbackTarget.EligibilityCalculationDate = apprenticeFeedbackTarget.EligibilityCalculationDate;
+            }
+
+            await _apprenticeFeedbackTargetContext.SaveChangesAsync();
+
+            return feedbackTarget;
+        }
+
         private async Task ValidateProviderAttributes(CreateApprenticeFeedbackCommand request)
         {
-            var validAttributes = await _apprenticeFeedbackRepository.GetAttributes();
+            var validAttributes = await _attributeContext.Entities.ToListAsync();
             var validAttributesIds = validAttributes.Select(a => a.AttributeId).ToList();
             var providedAttributesIds = request.FeedbackAttributes.Select(a => a.Id).ToList();
             var invalidAttributesIds = providedAttributesIds.Except(validAttributesIds).ToList();

@@ -74,24 +74,24 @@ This utility uses the standard Apprenticeship Service configuration. All configu
 AppSettings.Development.json file
 ```json
 {
-    "Logging": {
-      "LogLevel": {
-        "Default": "Information",
-        "Microsoft": "Warning",
-        "Microsoft.Hosting.Lifetime": "Information"
-      }
-    },
-    "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true;",
-    "ConfigNames": "SFA.DAS.Tools.Servicebus.Support,SFA.DAS.AuditApiClient",
-    "EnvironmentName": "LOCAL",
-    "Version": "1.0",
-    "APPINSIGHTS_INSTRUMENTATIONKEY": ""
-  }  
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConfigurationStorageConnectionString": "UseDevelopmentStorage=true",
+  "ConfigNames": "SFA.DAS.ApprenticeFeedback.Api",
+  "EnvironmentName": "LOCAL",
+  "Version": "1.0"
+}  
 ```
 
 Azure Table Storage config
 
-Row Key: SFA.DAS.Tools.Servicebus.Support_1.0
+Row Key: SFA.DAS.ApprenticeFeedback.Api_1.0
 
 Partition Key: LOCAL
 
@@ -99,31 +99,20 @@ Data:
 
 ```json
 {
-  "BaseUrl": "localhost:5001",
-  "UserIdentitySettings":{
-    "RequiredRole": "Servicebus Admin", 
-    "UserSessionExpiryHours": 24,
-    "UserRefreshSessionIntervalMinutes": 5,
-    "NameClaim": "name"
+  "ApplicationSettings": {
+    "DbConnectionString": "Data Source=HOSTNAME;Initial Catalog=SFA.DAS.ApprenticeFeedback.Database;Integrated Security=True;Pooling=False;Connect Timeout=30",
+    "NServiceBusConnectionString": "UseLearningEndpoint=true",
+    "NServiceBusLicense": "",
+    "InitialDenyPeriodDays": 92,
+    "FinalAllowedPeriodDays": 61,
+    "RecentDenyPeriodDays": 14,
+    "MinimumActiveApprenticeshipCount": 10,
+    "ReportingFeedbackCutoffMonths": 12,
+    "ReportingMinNumberOfResponses": 1
   },
-  "ServiceBusSettings":{
-    "ServiceBusConnectionString": "",
-    "QueueSelectionRegex": "[-,_]+error",
-    "PeekMessageBatchSize": 10,
-    "MaxRetrievalSize": 250,
-    "ErrorQueueRegex": "[-,_]error[s]*$",
-    "RedactPatterns": [
-      "(.*SharedAccessKey=)([\\s\\S]+=)(.*)"
-    ]
-  },
-  "CosmosDbSettings":{
-    "Url": "",
-    "AuthKey": "",
-    "DatabaseName": "QueueExplorer",
-    "CollectionName": "Session",
-    "Throughput": 400,
-    "DefaultCosmosOperationTimeout": 55,
-    "DefaultCosmosInterimRequestTimeout": 2
+  "AzureAd": {
+    "tenant": "TENANT.onmicrosoft.com",
+    "identifier": "https://IDENTIFIER.onmicrosoft.com/ENVIRONMENT"
   }
 }
 ```

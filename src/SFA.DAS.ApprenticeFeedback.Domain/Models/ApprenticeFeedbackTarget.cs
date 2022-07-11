@@ -26,7 +26,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         
         public DateTime CreatedOn { get; private set; }
         public DateTime UpdatedOn { get; private set; }
-
+        
         public static implicit operator ApprenticeFeedbackTarget(Entities.ApprenticeFeedbackTarget source)
         {
             if (source == null)
@@ -54,6 +54,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 UpdatedOn = source.UpdatedOn,
             };
         }
+        
 
         public bool IsActive() => Status == FeedbackTargetStatus.Active;
         public bool IsInactive() => Status == FeedbackTargetStatus.NotYetActive;
@@ -172,6 +173,30 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
             };
 
             SetStatusAndEligibility(learner, appSettings, dateTimeHelper);
+        }
+
+        public void UpdateFrom(ApprenticeFeedbackTarget apprenticeFeedbackTarget)
+        {
+            if (apprenticeFeedbackTarget == null)
+            {
+                return;
+            }
+
+            StartDate = apprenticeFeedbackTarget.StartDate;
+            EndDate = apprenticeFeedbackTarget.EndDate;
+            Ukprn = apprenticeFeedbackTarget.Ukprn;
+            ProviderName = apprenticeFeedbackTarget.ProviderName;
+            StandardName = apprenticeFeedbackTarget.StandardName;
+            StandardUId = apprenticeFeedbackTarget.StandardUId;
+            LarsCode = apprenticeFeedbackTarget.LarsCode;
+
+            if (FeedbackEligibility != apprenticeFeedbackTarget.FeedbackEligibility ||
+                Status != apprenticeFeedbackTarget.Status)
+            {
+                Status = apprenticeFeedbackTarget.Status;
+                FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility;
+                EligibilityCalculationDate = apprenticeFeedbackTarget.EligibilityCalculationDate;
+            }
         }
 
         /// <summary>

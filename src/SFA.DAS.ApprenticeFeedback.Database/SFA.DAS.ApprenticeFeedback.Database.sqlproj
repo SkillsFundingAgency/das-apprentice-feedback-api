@@ -60,6 +60,7 @@
     <Folder Include="Tables" />
     <Folder Include="Scripts" />
     <Folder Include="Views" />
+    <Folder Include="StoredProcedures" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\ApprenticeFeedbackResult.sql" />
@@ -77,5 +78,6 @@
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment1.sql" />
+    <Build Include="StoredProcedures\GetFeedbackForProviders.sql" />
   </ItemGroup>
 </Project>
