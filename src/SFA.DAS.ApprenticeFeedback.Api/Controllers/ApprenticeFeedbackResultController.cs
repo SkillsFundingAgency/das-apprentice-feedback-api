@@ -43,7 +43,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             var result = await _mediator.Send(request);
             if (null == result.UkprnFeedbacks || !result.UkprnFeedbacks.Any())
             {
-                return new StatusCodeResult(204);
+                return NoContent();
             }
             return Ok(result.UkprnFeedbacks);
         }
