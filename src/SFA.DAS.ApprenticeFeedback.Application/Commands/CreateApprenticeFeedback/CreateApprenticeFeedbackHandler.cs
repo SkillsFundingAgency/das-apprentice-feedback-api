@@ -36,7 +36,16 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public async Task<CreateApprenticeFeedbackResponse> Handle(CreateApprenticeFeedbackCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Fetch ApprenticeFeedbackTarget record by Id. Id used: {request.ApprenticeFeedbackTargetId}");
-            ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackTargetContext.FindByIdAndIncludeFeedbackResultsAsync(request.ApprenticeFeedbackTargetId);
+            ApprenticeFeedbackTarget apprenticeFeedbackTarget = null;
+            
+            try
+            {
+                apprenticeFeedbackTarget = await _apprenticeFeedbackTargetContext.FindByIdAndIncludeFeedbackResultsAsync(request.ApprenticeFeedbackTargetId);
+            }
+            catch(Exception ex)
+            {
+                ex = ex;
+            }
 
             if (apprenticeFeedbackTarget == null)
             {
