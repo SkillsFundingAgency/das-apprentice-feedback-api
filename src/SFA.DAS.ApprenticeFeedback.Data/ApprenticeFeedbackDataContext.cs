@@ -12,6 +12,7 @@ using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq;
 using System.Collections.Generic;
+using System.Data;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -137,14 +138,21 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 Value = minimumNumberOfResponses,
             };
 
-            var result = await Set<FeedbackForProvidersResult>()
-                .FromSqlRaw("EXEC [dbo].[GetFeedbackForProviders] @recentFeedbackMonths, @minimumNumberOfReviews", parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews)
-                .ToListAsync();
-
-            if(null != ukPrns && ukPrns.Length > 0)
+            var ukprnList = new DataTable();
+            ukprnList.Columns.Add(new DataColumn("Ukprn", typeof(long)));
+            foreach (var ukprn in ukPrns)
+                ukprnList.Rows.Add(ukprn);
+            var parameterUkprnList = new SqlParameter
             {
-                result = result.Where(sr => ukPrns.Contains(sr.Ukprn)).ToList();
-            }
+                ParameterName = "ukprns",
+                Value = ukprnList,
+                SqlDbType = SqlDbType.Structured,
+                TypeName = "dbo.UkprnList"
+            };
+
+            var result = await Set<FeedbackForProvidersResult>()
+                .FromSqlRaw("EXEC [dbo].[GetFeedbackForProviders] @ukprns, @recentFeedbackMonths, @minimumNumberOfReviews", parameterUkprnList, parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews)
+                .ToListAsync();
 
             return result;
         }
