@@ -7,3 +7,11 @@
 	[ProviderRating] NVARCHAR(10), 
     [AllowContact] BIT NULL DEFAULT 0
 )
+
+GO
+
+CREATE NONCLUSTERED INDEX [IX_ApprenticeFeedbackResult_ApprenticeFeedbackTarget]
+    ON [dbo].[ApprenticeFeedbackResult]
+	(		[ApprenticeFeedbackTargetId],[DateTimeCompleted]	) INCLUDE ( [ProviderRating] ) 
+
+GO
