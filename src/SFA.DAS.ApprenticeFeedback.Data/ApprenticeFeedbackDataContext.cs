@@ -154,11 +154,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 .FromSqlRaw("EXEC [dbo].[GetFeedbackForProviders] @ukprns, @recentFeedbackMonths, @minimumNumberOfReviews", parameterUkprnList, parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews)
                 .ToListAsync();
 
-            if(null != ukPrns && ukPrns.Length > 0)
-            {
-                result = result.Where(sr => ukPrns.Contains(sr.Ukprn)).ToList();
-            }
-
             return result;
         }
     }
