@@ -28,3 +28,9 @@ CREATE UNIQUE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_ApprenticeIdAppren
 	);
 
 GO
+
+CREATE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_Ukprn]
+    ON [dbo].[ApprenticeFeedbackTarget]	( [Ukprn] )
+	INCLUDE ( [Id], [Status], [FeedbackEligibility]);
+
+GO
