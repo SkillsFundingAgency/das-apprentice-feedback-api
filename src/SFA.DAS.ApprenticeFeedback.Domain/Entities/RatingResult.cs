@@ -3,6 +3,6 @@
     public class RatingResult
     {
         public string Rating { get; set; }
-        public int Count { get; set; }
+        public long Count { get; set; }
     }
 }

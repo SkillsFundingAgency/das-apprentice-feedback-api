@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,44 +39,31 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
 
             var sprocResult = await _apprenticeFeedbackResultContext.GetFeedbackForProvidersAsync(request.Ukprns, _settings.ReportingMinNumberOfResponses, _settings.ReportingFeedbackCutoffMonths);
 
-            if (sprocResult.Any())
+            if (sprocResult.Any())  
             {
-                var ukprns = sprocResult.Select(u => u.Ukprn).Distinct().ToArray();
-                var attributes = _attributeContext.Entities.ToList();
-
-                foreach (var ukprn in ukprns)
+                var providers = sprocResult.GroupBy(grp => grp.Ukprn);
+                
+                foreach (var providerGrouping in providers)
                 {
-                    var ratings = sprocResult.Where(r => r.Ukprn == ukprn).GroupBy(grp => grp.ProviderRating).Select(grp => new { Rating = grp.Key, Count = grp.Count() });
+                    var ratings = providerGrouping.GroupBy(grp => grp.ProviderRating, (k,v) => v.FirstOrDefault())
+                        .Select(r => new RatingResult { Rating = r.ProviderRating, Count = r.ProviderRatingCount })
+                        .ToList();
 
-                    var feedbackResult = new UkprnFeedback();
-                    feedbackResult.Ukprn = ukprn;
-
-                    foreach (var rating in ratings)
-                    {
-                        if (!string.IsNullOrEmpty(rating.Rating))
-                        {
-                            feedbackResult.ProviderRating.Add(new RatingResult()
-                            {
-                                Rating = rating.Rating,
-                                Count = rating.Count
-                            });
-                        }
-                    }
-
-                    // @ToDo: a more elegant way of doing this ?
-                    var apprenticeFeedbackResultIds = sprocResult.Where(r => r.Ukprn == ukprn).Select(sr => sr.ApprenticeFeedbackResultId).Distinct();
-                    var providerAttributeResults = _providerAttributeContext.Entities.Where(a => apprenticeFeedbackResultIds.Contains(a.ApprenticeFeedbackResultId)).ToList();
-
-                    foreach (var a in attributes)
-                    {
-                        feedbackResult.ProviderAttribute.Add(new Domain.Entities.AttributeResult()
+                    var attributes = providerGrouping.GroupBy(grp => grp.AttributeName, (k, v) => v.FirstOrDefault())
+                        .Select(a => new AttributeResult
                         {
                             Name = a.AttributeName,
                             Category = a.Category,
-                            Agree = providerAttributeResults.Count(par => par.AttributeId == a.AttributeId && par.AttributeValue == 1),
-                            Disagree = providerAttributeResults.Count(par => par.AttributeId == a.AttributeId && par.AttributeValue == 0)
-                        });
-                    }
+                            Agree = a.ProviderAttributeAgree,
+                            Disagree = a.ProviderAttributeDisagree
+                        }).ToList();
+
+                    var feedbackResult = new UkprnFeedback
+                    {
+                        Ukprn = providerGrouping.Key,
+                        ProviderRating = ratings,
+                        ProviderAttribute = attributes
+                    };
 
                     result.UkprnFeedbacks.Add(feedbackResult);
                 }
