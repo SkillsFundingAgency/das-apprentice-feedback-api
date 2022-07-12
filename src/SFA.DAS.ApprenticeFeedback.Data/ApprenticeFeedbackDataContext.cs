@@ -12,6 +12,7 @@ using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq;
 using System.Collections.Generic;
+using System.Data;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -137,8 +138,20 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 Value = minimumNumberOfResponses,
             };
 
+            var ukprnList = new DataTable();
+            ukprnList.Columns.Add(new DataColumn("Ukprn", typeof(long)));
+            foreach (var ukprn in ukPrns)
+                ukprnList.Rows.Add(ukprn);
+            var parameterUkprnList = new SqlParameter
+            {
+                ParameterName = "ukprns",
+                Value = ukprnList,
+                SqlDbType = SqlDbType.Structured,
+                TypeName = "dbo.UkprnList"
+            };
+
             var result = await Set<FeedbackForProvidersResult>()
-                .FromSqlRaw("EXEC [dbo].[GetFeedbackForProviders] @recentFeedbackMonths, @minimumNumberOfReviews", parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews)
+                .FromSqlRaw("EXEC [dbo].[GetFeedbackForProviders] @ukprns, @recentFeedbackMonths, @minimumNumberOfReviews", parameterUkprnList, parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews)
                 .ToListAsync();
 
             if(null != ukPrns && ukPrns.Length > 0)
