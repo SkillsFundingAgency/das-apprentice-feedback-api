@@ -6,12 +6,11 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
     public class FeedbackForProvidersResult
     {
         public long Ukprn { get; set; }
-        public string ProviderName { get; set; }
-        public Guid ApprenticeFeedbackTargetId { get; set; }
-        public Guid ApprenticeFeedbackResultId { get; set; }
-        public Guid ApprenticeId { get; set; }
         public string ProviderRating { get; set; }
-        public DateTime DateTimeCompleted { get; set; }
-        public int ReviewCount { get; set; }
+        public long ProviderRatingCount { get; set; }
+        public string AttributeName { get; set; }
+        public string Category { get; set; }
+        public int ProviderAttributeAgree { get; set; }
+        public int ProviderAttributeDisagree { get; set; }
     }
 }

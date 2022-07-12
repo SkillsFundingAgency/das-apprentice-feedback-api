@@ -12,24 +12,42 @@ CREATE PROCEDURE [GetFeedbackForProviders]
 AS
     BEGIN
         DECLARE @feedbackCutOff DATE = DATEADD(month, -@recentFeedbackMonths, GETUTCDATE());
-        WITH 
-        ApprenticeFeedbackResult_CTE As(
-            SELECT ROW_NUMBER() OVER (PARTITION BY afr.ApprenticeFeedbackTargetId ORDER BY afr.DateTimeCompleted DESC) as RowNumber,
-            aft.Ukprn, aft.ProviderName, afr.ProviderRating,
-            afr.Id as ApprenticeFeedbackResultId, aft.ApprenticeId, aft.Id as ApprenticeFeedbackTargetId, afr.DateTimeCompleted
-              FROM ApprenticeFeedbackTarget aft JOIN ApprenticeFeedbackResult afr
-              ON aft.Id = afr.ApprenticeFeedbackTargetId
-        ),
-        ProviderFeedbackCount_CTE As(
-            SELECT Ukprn, Count(Ukprn) as ReviewCount FROM ApprenticeFeedbackResult_CTE
-            WHERE RowNumber = 1 AND DateTimeCompleted > @feedbackCutOff
-            GROUP BY Ukprn
-        )
-        SELECT afr.Ukprn, afr.ProviderName, afr.ApprenticeFeedbackTargetId, afr.ApprenticeFeedbackResultId, afr.ApprenticeId,
-        afr.ProviderRating, afr.DateTimeCompleted, pfc.ReviewCount
-        FROM ApprenticeFeedbackResult_CTE afr JOIN ProviderFeedbackCount_CTE pfc
-        ON afr.Ukprn = pfc.Ukprn
-        WHERE ReviewCount >= @minimumNumberOfReviews AND RowNumber = 1 
-        AND afr.Ukprn in (SELECT Ukprn FROM @ukprns)
-    END
+
+	WITH LatestResults 
+	AS (
+	SELECT ar1.[ApprenticeFeedbackTargetId]
+	,ar1.ProviderRating
+	,pa1.AttributeId, pa1.AttributeValue, at1.AttributeName, at1.Category, aft.Status ApprenticeFeedbackStatus, aft.Ukprn
+	   FROM (
+		  -- get latest feedback for each feedback target
+			SELECT * FROM (
+				SELECT ROW_NUMBER() OVER (PARTITION BY [ApprenticeFeedbackTargetId] ORDER BY [DateTimeCompleted] DESC) seq, * FROM [dbo].[ApprenticeFeedbackResult]
+			) ab1 WHERE seq = 1 
+			) ar1
+			JOIN [dbo].[ProviderAttribute] pa1 on pa1.ApprenticeFeedbackResultId = ar1.Id
+			JOIN Attribute at1 on at1.AttributeId = pa1.AttributeId 
+			JOIN [dbo].[ApprenticeFeedbackTarget] aft on ar1.ApprenticeFeedbackTargetId = aft.Id
+	WHERE FeedbackEligibility != 0 AND DatetimeCompleted >= @feedbackCutOff
+	AND Ukprn in (SELECT Ukprn FROM @ukprns))
+	SELECT 
+	Ukprn, ProviderRating, ProviderRatingCount, AttributeName, Category
+	, ProviderAttributeAgree 
+	, ProviderAttributeDisagree 
+	FROM (
+	--
+	select *, count(ProviderRating) OVER (PARTITION BY Ukprn, ProviderRating, Attributeid) ProviderRatingCount
+	, SUM(AttributeValue) OVER (PARTITION BY Ukprn, AttributeId) ProviderAttributeAgree 
+	, SUM(CASE WHEN AttributeValue = 1 THEN 0 ELSE 1 END)OVER (PARTITION BY Ukprn, AttributeId) ProviderAttributeDisagree 
+	--
+	FROM (
+	select *, count(*) OVER (PARTITION BY Ukprn, Attributeid) ReviewCount
+	FROM LatestResults
+	) ab1
+	WHERE ReviewCount >= @minimumNumberOfReviews
+	) ab2
+	GROUP BY Ukprn, ProviderRating, ProviderRatingCount, AttributeName, Category
+	, ProviderAttributeAgree 
+	, ProviderAttributeDisagree 
+	ORDER BY Ukprn, ProviderRating, AttributeName
+END
 GO
