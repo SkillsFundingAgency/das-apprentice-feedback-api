@@ -1,4 +1,12 @@
-﻿CREATE PROCEDURE [GetFeedbackForProviders]
+﻿CREATE TYPE dbo.UkprnList
+AS TABLE
+(
+  Ukprn BIGINT
+);
+GO
+
+CREATE PROCEDURE [GetFeedbackForProviders]
+    @ukprns As dbo.UkprnList READONLY,
     @recentFeedbackMonths INT,
     @minimumNumberOfReviews INT
 AS
@@ -21,6 +29,7 @@ AS
         afr.ProviderRating, afr.DateTimeCompleted, pfc.ReviewCount
         FROM ApprenticeFeedbackResult_CTE afr JOIN ProviderFeedbackCount_CTE pfc
         ON afr.Ukprn = pfc.Ukprn
-        WHERE ReviewCount >= @minimumNumberOfReviews AND RowNumber = 1
+        WHERE ReviewCount >= @minimumNumberOfReviews AND RowNumber = 1 
+        AND afr.Ukprn in (SELECT Ukprn FROM @ukprns)
     END
 GO
