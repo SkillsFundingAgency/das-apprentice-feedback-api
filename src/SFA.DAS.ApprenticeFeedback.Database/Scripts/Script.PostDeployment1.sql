@@ -11,4 +11,4 @@ Post-Deployment Script Template
 */
 
 :r .\AddDefaultProviderAttributes.sql
-
+:r .\FeedbackTransactionChanges.sql

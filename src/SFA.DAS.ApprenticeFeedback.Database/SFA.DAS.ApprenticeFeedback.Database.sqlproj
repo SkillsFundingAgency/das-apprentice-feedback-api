@@ -68,6 +68,7 @@
     <Build Include="Tables\FeedbackTransaction.sql" />
     <Build Include="Tables\ProviderAttribute.sql" />
     <Build Include="Tables\ApprenticeFeedbackTarget.sql" />
+    <None Include="Scripts\FeedbackTransactionChanges.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
