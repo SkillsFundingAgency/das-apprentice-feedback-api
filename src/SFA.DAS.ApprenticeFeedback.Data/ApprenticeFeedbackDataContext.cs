@@ -20,7 +20,10 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IApprenticeFeedbackTargetContext,
         IApprenticeFeedbackResultContext,
         IProviderAttributeContext,
-        IAttributeContext
+        IAttributeContext,
+        IProviderRatingSummaryContext,
+        IProviderAttributeSummaryContext,
+        IProviderStarsSummaryContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -30,12 +33,18 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public virtual DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
         public virtual DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; } = null!;
         public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; } = null!;
+        public virtual DbSet<ProviderRatingSummary> ProviderRatingSummary { get; set; } = null!;
+        public virtual DbSet<ProviderAttributeSummary> ProviderAttributeSummary { get; set; } = null!;
+        public virtual DbSet<ProviderStarsSummary> ProviderStarsSummary { get; set; } = null!;
 
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
         DbSet<Domain.Entities.Attribute> IEntityContext<Domain.Entities.Attribute>.Entities => Attributes;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
+        DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummary;
+        DbSet<ProviderAttributeSummary> IEntityContext<ProviderAttributeSummary>.Entities => ProviderAttributeSummary;
+        DbSet<ProviderStarsSummary> IEntityContext<ProviderStarsSummary>.Entities => ProviderStarsSummary;
 
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
@@ -69,6 +78,9 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackTargetConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderAttributeSummaryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration());
             modelBuilder.Entity<FeedbackForProvidersResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
@@ -81,7 +93,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
         public override async Task<int> SaveChangesAsync(
            bool acceptAllChangesOnSuccess,
-           CancellationToken cancellationToken = default(CancellationToken)
+           CancellationToken cancellationToken = default
         )
         {
             OnBeforeSaving();

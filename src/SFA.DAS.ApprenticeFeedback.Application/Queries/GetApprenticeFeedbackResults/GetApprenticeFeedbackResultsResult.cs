@@ -8,8 +8,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
         public class UkprnFeedback
         {
             public long Ukprn { get; set; }
-            public List<RatingResult> ProviderRating { get; set; }
-            public List<AttributeResult> ProviderAttribute { get; set; }
+            public IEnumerable<RatingResult> ProviderRating { get; set; }
+            public IEnumerable<AttributeResult> ProviderAttribute { get; set; }
 
             public UkprnFeedback()
             {

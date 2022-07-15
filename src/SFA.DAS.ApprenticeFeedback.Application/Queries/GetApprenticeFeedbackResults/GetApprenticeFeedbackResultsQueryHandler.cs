@@ -13,60 +13,54 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRe
 {
     public class GetApprenticeFeedbackResultsQueryHandler : IRequestHandler<GetApprenticeFeedbackResultsQuery, GetApprenticeFeedbackResultsResult>
     {
-        private readonly IApprenticeFeedbackResultContext _apprenticeFeedbackResultContext;
-        private readonly IProviderAttributeContext _providerAttributeContext;
-        private readonly IAttributeContext _attributeContext;
-        private readonly ApplicationSettings _settings;
+        private readonly IProviderRatingSummaryContext _providerRatingSummaryContext;
+        private readonly IProviderAttributeSummaryContext _providerAttributeSummaryContext;
+        private readonly IProviderStarsSummaryContext _providerStarsSummaryContext;
 
         public GetApprenticeFeedbackResultsQueryHandler(
-            IApprenticeFeedbackTargetContext apprenticeFeedbackTargetContext,
-            IApprenticeFeedbackResultContext apprenticeFeedbackResultContext,
-            IProviderAttributeContext providerAttributeContext,
-            IAttributeContext attributeContext,
-            IDateTimeHelper dateTimeHelper,
-            ApplicationSettings settings
-            )
+            IProviderRatingSummaryContext providerRatingSummaryContext,
+            IProviderAttributeSummaryContext providerAttributeSummaryContext,
+            IProviderStarsSummaryContext providerStarsSummaryContext)
         {
-            _apprenticeFeedbackResultContext = apprenticeFeedbackResultContext;
-            _providerAttributeContext = providerAttributeContext;
-            _attributeContext = attributeContext;
-            _settings = settings;
+            _providerRatingSummaryContext = providerRatingSummaryContext;
+            _providerAttributeSummaryContext = providerAttributeSummaryContext;
+            _providerStarsSummaryContext = providerStarsSummaryContext;
         }
 
         public async Task<GetApprenticeFeedbackResultsResult> Handle(GetApprenticeFeedbackResultsQuery request, CancellationToken cancellationToken)
         {
             var result = new GetApprenticeFeedbackResultsResult();
 
-            var sprocResult = await _apprenticeFeedbackResultContext.GetFeedbackForProvidersAsync(request.Ukprns, _settings.ReportingMinNumberOfResponses, _settings.ReportingFeedbackCutoffMonths);
-
-            if (sprocResult.Any())  
+            if (request.Ukprns == null || !request.Ukprns.Any())
             {
-                var providers = sprocResult.GroupBy(grp => grp.Ukprn);
-                
-                foreach (var providerGrouping in providers)
-                {
-                    var ratings = providerGrouping.GroupBy(grp => grp.ProviderRating, (k,v) => v.FirstOrDefault())
-                        .Select(r => new RatingResult { Rating = r.ProviderRating, Count = r.ProviderRatingCount })
-                        .ToList();
+                return result;
+            }
 
-                    var attributes = providerGrouping.GroupBy(grp => grp.AttributeName, (k, v) => v.FirstOrDefault())
-                        .Select(a => new AttributeResult
-                        {
-                            Name = a.AttributeName,
-                            Category = a.Category,
-                            Agree = a.ProviderAttributeAgree,
-                            Disagree = a.ProviderAttributeDisagree
-                        }).ToList();
+            var providerRatingSummaries = _providerRatingSummaryContext.Entities.Where(s => request.Ukprns.Contains(s.Ukprn));
+            var providerAttributeSummaries = await _providerAttributeSummaryContext.FindProviderAttributeSummaryAndIncludeAttributes(request.Ukprns);
+            var providerStarsSummaries = _providerStarsSummaryContext.Entities.Where(u => request.Ukprns.Contains(u.Ukprn));
 
-                    var feedbackResult = new UkprnFeedback
+            foreach (var ukprn in request.Ukprns)
+            {
+                result.UkprnFeedbacks.Add(
+                    new UkprnFeedback
                     {
-                        Ukprn = providerGrouping.Key,
-                        ProviderRating = ratings,
-                        ProviderAttribute = attributes
-                    };
-
-                    result.UkprnFeedbacks.Add(feedbackResult);
-                }
+                        Ukprn = ukprn,
+                        ProviderRating = providerRatingSummaries.Where(x => x.Ukprn == ukprn).Select(a =>
+                            new RatingResult
+                            {
+                                Count = a.RatingCount,
+                                Rating = a.Rating
+                            }),
+                        ProviderAttribute = providerAttributeSummaries.Where(x => x.Ukprn == ukprn).Select(b =>
+                            new AttributeResult
+                            {
+                                Name = b.Attribute.AttributeName,
+                                Category = b.Attribute.Category,
+                                Agree = b.Agree,
+                                Disagree = b.Disagree
+                            })
+                    });
             }
 
             return result;
