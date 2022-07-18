@@ -83,6 +83,5 @@
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment1.sql" />
-    <Build Include="StoredProcedures\GetFeedbackForProviders.sql" />
   </ItemGroup>
 </Project>
