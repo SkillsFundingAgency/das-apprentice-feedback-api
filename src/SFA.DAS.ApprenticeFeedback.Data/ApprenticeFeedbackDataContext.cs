@@ -81,7 +81,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration());
-            modelBuilder.Entity<FeedbackForProvidersResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
 
@@ -134,7 +133,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             }
         }
 
-        public async Task<IEnumerable<FeedbackForProvidersResult>> GetFeedbackForProvidersAsync(long[] ukPrns, int minimumNumberOfResponses, int reportingFeedbackCutoffMonths )
+        public async Task GenerateFeedbackSummaries(int minimumNumberOfResponses, int reportingFeedbackCutoffMonths)
         {
             var parameterRecentFeedbackMonths = new SqlParameter
             {
@@ -150,23 +149,13 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 Value = minimumNumberOfResponses,
             };
 
-            var ukprnList = new DataTable();
-            ukprnList.Columns.Add(new DataColumn("Ukprn", typeof(long)));
-            foreach (var ukprn in ukPrns)
-                ukprnList.Rows.Add(ukprn);
-            var parameterUkprnList = new SqlParameter
-            {
-                ParameterName = "ukprns",
-                Value = ukprnList,
-                SqlDbType = SqlDbType.Structured,
-                TypeName = "dbo.UkprnList"
-            };
+            await Database.ExecuteSqlRawAsync(
+                "EXEC [dbo].[GenerateProviderAttributesSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
+                parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
 
-            var result = await Set<FeedbackForProvidersResult>()
-                .FromSqlRaw("EXEC [dbo].[GetFeedbackForProviders] @ukprns, @recentFeedbackMonths, @minimumNumberOfReviews", parameterUkprnList, parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews)
-                .ToListAsync();
-
-            return result;
+            await Database.ExecuteSqlRawAsync(
+                "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
+                parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
         }
     }
 }
