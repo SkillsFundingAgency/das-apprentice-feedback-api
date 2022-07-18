@@ -21,7 +21,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             _logger = logger;
         }
 
-        [HttpPost("GenerateFeedbackSummaries")]
+        [HttpPost("generate-feedback-summaries")]
         public async Task<IActionResult> GenerateFeedbackSummaries()
         {
             try
