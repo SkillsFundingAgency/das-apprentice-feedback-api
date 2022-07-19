@@ -8,10 +8,7 @@ CREATE PROCEDURE [dbo].[GenerateProviderAttributesSummary]
 AS
 BEGIN
 
-BEGIN TRANSACTION; 
-
-    TRUNCATE TABLE [dbo].[ProviderAttributeSummary];
-    
+   
     WITH LatestResults 
     AS (
     SELECT ar1.ApprenticeFeedbackTargetId, pa1.AttributeId, pa1.AttributeValue, aft.Ukprn
@@ -27,7 +24,8 @@ BEGIN TRANSACTION;
     WHERE FeedbackEligibility != 0 AND DatetimeCompleted >= DATEADD(MONTH,-@recentFeedbackMonths,GETUTCDATE())
     )
     -- Get the ratings for all eligble results for each UKPRNS
-    INSERT INTO [dbo].[ProviderAttributeSummary]  (Ukprn, AttributeId, Agree, Disagree, UpdatedOn)    
+    MERGE INTO [dbo].[ProviderAttributeSummary] pas 
+    USING (    
     SELECT Ukprn, AttributeId
     , SUM(AttributeValue) Agree 
     , SUM(CASE WHEN AttributeValue = 1 THEN 0 ELSE 1 END) Disagree 
@@ -38,8 +36,18 @@ BEGIN TRANSACTION;
     ) ab1
     WHERE ReviewCount >= @minimumNumberOfReviews
     GROUP BY Ukprn, AttributeId
+    ) upd
+    ON pas.Ukprn = upd.Ukprn AND pas.AttributeId = upd.AttributeId
+    WHEN MATCHED THEN 
+        UPDATE SET pas.Agree = upd.Agree, 
+                   pas.Disagree = upd.Disagree,
+                   pas.UpdatedOn = upd.UpdatedOn
+    WHEN NOT MATCHED BY TARGET THEN 
+        INSERT (Ukprn, AttributeId, Agree, Disagree, UpdatedOn) 
+        VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, upd.UpdatedOn)
+    WHEN NOT MATCHED BY SOURCE THEN
+        DELETE;
 
-COMMIT TRANSACTION; 
     
 END
 GO
