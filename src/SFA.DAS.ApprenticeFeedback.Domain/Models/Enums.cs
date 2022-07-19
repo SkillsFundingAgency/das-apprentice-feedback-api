@@ -8,6 +8,7 @@
             NotYetActive = 1,
             Active = 2,
             Complete = 3,
+            Withdrawn = 4
         }
 
         public enum FeedbackEligibilityStatus

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTarget;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargets;
+using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargetsForUpdate;
 using System;
 using System.Threading.Tasks;
 
@@ -66,6 +67,21 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             {
                 _logger.LogError(e, $"Error attempting to update apprentice feedback target for ApprenticeFeedbackTargetId: {request.ApprenticeFeedbackTargetId}");
                 return BadRequest();
+            }
+        }
+
+        [HttpGet("RequiresUpdate")]
+        public async Task<IActionResult> GetFeedbackTargetsForUpdate([FromQuery] GetApprenticeFeedbackTargetsForUpdateQuery request)
+        {
+            try
+            {
+                var result = await _mediator.Send(request);
+                return Ok(result.ApprenticeFeedbackTargets);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error attempting to retrieve apprentice feedback targets for update.");
+                throw;
             }
         }
     }
