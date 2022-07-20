@@ -216,7 +216,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 }
             }
 
-            public class FeedbackEligibilityNotCalulcatedRecently
+            public class FeedbackEligibilityNotCalculatedRecently
             {
                 [Test]
                 [AutoMoqData]
@@ -233,7 +233,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
-                                        .FeedbackEligibilityNotCalulcatedRecently(dateTimeHelper, appSettings)
+                                        .FeedbackEligibilityNotCalculatedRecently(dateTimeHelper, appSettings)
                                     .ToList();
 
                     apprenticeFeedbackTargets.Should().BeEmpty();
@@ -254,7 +254,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
-                                        .FeedbackEligibilityNotCalulcatedRecently(dateTimeHelper, appSettings)
+                                        .FeedbackEligibilityNotCalculatedRecently(dateTimeHelper, appSettings)
                                     .ToList();
 
                     apprenticeFeedbackTargets.Should().HaveCount(1);

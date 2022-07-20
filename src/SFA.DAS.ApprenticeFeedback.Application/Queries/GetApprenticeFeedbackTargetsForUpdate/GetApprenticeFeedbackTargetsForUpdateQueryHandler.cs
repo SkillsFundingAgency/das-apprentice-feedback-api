@@ -19,7 +19,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
         {
             return afts.Where(aft => aft.Status != (int)FeedbackTargetStatus.Complete && aft.Status != (int)FeedbackTargetStatus.Withdrawn);
         }
-        public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> FeedbackEligibilityNotCalulcatedRecently(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts, IDateTimeHelper dateTimeHelper, ApplicationSettings appSettings)
+        public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> FeedbackEligibilityNotCalculatedRecently(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts, IDateTimeHelper dateTimeHelper, ApplicationSettings appSettings)
         {
             return afts.Where(aft => !(aft.EligibilityCalculationDate.HasValue && aft.EligibilityCalculationDate.Value.Date.AddDays(appSettings.EligibilityCalculationThrottleDays) > dateTimeHelper.Now.Date));
         }
@@ -55,7 +55,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
                 .Entities
                     .HasStarted(_dateTimeHelper)
                     .StatusNotCompletedOrPermanentlyWithdrawn()
-                    .FeedbackEligibilityNotCalulcatedRecently(_dateTimeHelper, _appSettings)
+                    .FeedbackEligibilityNotCalculatedRecently(_dateTimeHelper, _appSettings)
                     .NotGivenFeedbackRecently(_dateTimeHelper, _appSettings)
                 .OrderByDescending(aft => aft.CreatedOn)
                 .Take(request.BatchSize)
