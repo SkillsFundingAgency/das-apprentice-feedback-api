@@ -48,6 +48,17 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             };
         }
 
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_NotCompletedOrWithdrawn(string providerName)
+        {
+            return new Domain.Entities.ApprenticeFeedbackTarget()
+            {
+                ProviderName = providerName,
+                StartDate = DateTime.UtcNow.AddMonths(-6),
+                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active
+            };
+        }
+        
+
         private static Domain.Entities.ApprenticeFeedbackTarget AFT_EligibilityCalculatedRecently(string providerName)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
@@ -193,7 +204,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context
                     )
                 {
-                    context.Add(AFT_EligibilityCalculatedRecently("Provider Name"));
+                    context.Add(AFT_NotCompletedOrWithdrawn("Provider Name"));
                     context.SaveChanges();
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
