@@ -81,7 +81,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error attempting to retrieve apprentice feedback targets for update.");
-                throw;
+                return BadRequest();
             }
         }
     }
