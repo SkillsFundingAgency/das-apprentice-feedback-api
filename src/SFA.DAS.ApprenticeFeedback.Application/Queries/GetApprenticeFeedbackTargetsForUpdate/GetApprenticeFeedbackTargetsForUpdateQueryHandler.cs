@@ -27,7 +27,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
         {
             return afts.Where(aft => aft.ApprenticeFeedbackResults.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault() == null? 
                 false 
-                : !( aft.ApprenticeFeedbackResults.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault().DateTimeCompleted.Value.Date.AddDays(appSettings.EligibilityCalculationThrottleDays) > dateTimeHelper.Now.Date));
+                : !( aft.ApprenticeFeedbackResults.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault().DateTimeCompleted.Value.Date.AddDays(appSettings.RecentDenyPeriodDays) > dateTimeHelper.Now.Date));
         }
     }
 
