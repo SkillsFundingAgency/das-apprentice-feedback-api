@@ -263,7 +263,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     context.Add(AFT_NoFeedback("Provider Name"));
                     context.SaveChanges();
 
-                    appSettings.EligibilityCalculationThrottleDays = 7;
+                    appSettings.RecentDenyPeriodDays = 7;
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
@@ -284,7 +284,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     context.Add(AFT_FeedbackGivenRecently("Provider Name"));
                     context.SaveChanges();
 
-                    appSettings.EligibilityCalculationThrottleDays = 7;
+                    appSettings.RecentDenyPeriodDays = 7;
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
@@ -305,7 +305,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     context.Add(AFT_EligibleToGiveFeedback("Provider Name"));
                     context.SaveChanges();
 
-                    appSettings.EligibilityCalculationThrottleDays = 7;
+                    appSettings.RecentDenyPeriodDays = 7;
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
@@ -423,7 +423,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
             var query = new GetApprenticeFeedbackTargetsForUpdateQuery() { BatchSize = (int)FeedbackTargetTestData[testCaseIndex].Arguments[1] };
 
-            var handler = new GetApprenticeFeedbackTargetsForUpdateQueryHandler(context, new ApplicationSettings() { EligibilityCalculationThrottleDays = 7 }, new UtcTimeProvider());
+            var handler = new GetApprenticeFeedbackTargetsForUpdateQueryHandler(context, new ApplicationSettings() { RecentDenyPeriodDays = 7 }, new UtcTimeProvider());
             
             // Act
 
