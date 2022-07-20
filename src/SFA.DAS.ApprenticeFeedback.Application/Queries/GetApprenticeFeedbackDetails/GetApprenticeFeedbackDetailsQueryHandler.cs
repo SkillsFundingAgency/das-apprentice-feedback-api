@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,11 +23,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDe
 
         public async Task<GetApprenticeFeedbackDetailsResult> Handle(GetApprenticeFeedbackDetailsQuery request, CancellationToken cancellationToken)
         {
-            var result = new GetApprenticeFeedbackDetailsResult();
-
             if (request.Ukprn == 0)
             {
-                return result;
+                return new GetApprenticeFeedbackDetailsResult
+                {
+                    ProviderAttribute = new List<AttributeResult>()
+                };
             }
 
             var providerAttributeSummaries = await _providerAttributeSummaryContext.FindProviderAttributeSummaryAndIncludeAttributes(request.Ukprn);

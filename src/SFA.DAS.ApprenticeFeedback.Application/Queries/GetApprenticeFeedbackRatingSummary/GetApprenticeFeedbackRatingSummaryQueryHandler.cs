@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRatingSummary
 {
-    public class GetApprenticeFeedbackRatingSummaryHandler : IRequestHandler<GetApprenticeFeedbackRatingSummaryQuery, GetApprenticeFeedbackRatingSummaryResult>
+    public class GetApprenticeFeedbackRatingSummaryQueryHandler : IRequestHandler<GetApprenticeFeedbackRatingSummaryQuery, GetApprenticeFeedbackRatingSummaryResult>
     {
         private readonly IProviderStarsSummaryContext _providerStarsSummaryContext;
 
-        public GetApprenticeFeedbackRatingSummaryHandler(IProviderStarsSummaryContext providerStarsSummaryContext)
+        public GetApprenticeFeedbackRatingSummaryQueryHandler(IProviderStarsSummaryContext providerStarsSummaryContext)
         {
             _providerStarsSummaryContext = providerStarsSummaryContext;
         }
