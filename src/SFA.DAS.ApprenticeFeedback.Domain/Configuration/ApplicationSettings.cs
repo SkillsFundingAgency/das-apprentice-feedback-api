@@ -30,5 +30,10 @@
         /// at least this number of responses within a certain number of months 
         /// </summary>
         public int ReportingMinNumberOfResponses { get; set; }
+        /// <summary>
+        /// Number of days since last calculating feedback eligibility before we
+        /// allow the calculation to happen again
+        /// </summary>
+        public int EligibilityCalculationThrottleDays { get; set; }
     }
 }

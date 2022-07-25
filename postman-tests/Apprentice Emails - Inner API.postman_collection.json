@@ -1,0 +1,134 @@
+{
+	"info": {
+		"_postman_id": "9a0a22f7-b4e1-4a6c-866c-e8334a9f8660",
+		"name": "Apprentice Emails - Inner API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6727995"
+	},
+	"item": [
+		{
+			"name": "Get FeedbackTargets for Update",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET request\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});\r",
+							"\r",
+							"pm.test('Response is array of apprentice feedback targets', function () {\r",
+							"\r",
+							"    var schema = {\r",
+							"\r",
+							"        \"$schema\": \"http://json-schema.org/draft-04/schema#\",\r",
+							"        \"type\": \"array\",\r",
+							"        \"items\": [\r",
+							"            {\r",
+							"            \"type\": \"object\",\r",
+							"            \"properties\": {\r",
+							"                \"id\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"apprenticeId\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"apprenticeshipId\": {\r",
+							"                \"type\": \"integer\"\r",
+							"                },\r",
+							"                \"status\": {\r",
+							"                \"type\": \"integer\"\r",
+							"                },\r",
+							"                \"startDate\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"endDate\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"ukprn\": {\r",
+							"                \"type\": \"integer\"\r",
+							"                },\r",
+							"                \"providerName\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"standardUId\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"larsCode\": {\r",
+							"                \"type\": \"integer\"\r",
+							"                },\r",
+							"                \"standardName\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"feedbackEligibility\": {\r",
+							"                \"type\": \"integer\"\r",
+							"                },\r",
+							"                \"eligibilityCalculationDate\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"lastFeedbackSubmittedDate\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"createdOn\": {\r",
+							"                \"type\": \"string\"\r",
+							"                },\r",
+							"                \"updatedOn\": {\r",
+							"                \"type\": \"string\"\r",
+							"                }\r",
+							"            },\r",
+							"            \"required\": [\r",
+							"                \"id\",\r",
+							"                \"apprenticeId\",\r",
+							"                \"apprenticeshipId\",\r",
+							"                \"status\",\r",
+							"                \"startDate\",\r",
+							"                \"endDate\",\r",
+							"                \"ukprn\",\r",
+							"                \"providerName\",\r",
+							"                \"standardUId\",\r",
+							"                \"larsCode\",\r",
+							"                \"standardName\",\r",
+							"                \"feedbackEligibility\",\r",
+							"                \"eligibilityCalculationDate\",\r",
+							"                \"lastFeedbackSubmittedDate\",\r",
+							"                \"createdOn\",\r",
+							"                \"updatedOn\"\r",
+							"            ]\r",
+							"        }]\r",
+							"    };\r",
+							"\r",
+							"    const responseJson = pm.response.json();\r",
+							"    pm.expect(responseJson).to.be.an('array').that.is.not.empty;\r",
+							"    pm.expect(tv4.validate(responseJson, schema)).to.be.true;\r",
+							"});\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{inner-api-base-url}}/api/apprenticefeedbacktarget/requiresupdate?batchSize={{batchSize}}",
+					"host": [
+						"{{inner-api-base-url}}"
+					],
+					"path": [
+						"api",
+						"apprenticefeedbacktarget",
+						"requiresupdate"
+					],
+					"query": [
+						{
+							"key": "batchSize",
+							"value": "{{batchSize}}"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
