@@ -12,6 +12,7 @@ using System;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using System.Linq;
 using System.Collections.Generic;
+using System.Data;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -19,7 +20,10 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IApprenticeFeedbackTargetContext,
         IApprenticeFeedbackResultContext,
         IProviderAttributeContext,
-        IAttributeContext
+        IAttributeContext,
+        IProviderRatingSummaryContext,
+        IProviderAttributeSummaryContext,
+        IProviderStarsSummaryContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -29,12 +33,18 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public virtual DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
         public virtual DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; } = null!;
         public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; } = null!;
+        public virtual DbSet<ProviderRatingSummary> ProviderRatingSummary { get; set; } = null!;
+        public virtual DbSet<ProviderAttributeSummary> ProviderAttributeSummary { get; set; } = null!;
+        public virtual DbSet<ProviderStarsSummary> ProviderStarsSummary { get; set; } = null!;
 
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
         DbSet<Domain.Entities.Attribute> IEntityContext<Domain.Entities.Attribute>.Entities => Attributes;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
+        DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummary;
+        DbSet<ProviderAttributeSummary> IEntityContext<ProviderAttributeSummary>.Entities => ProviderAttributeSummary;
+        DbSet<ProviderStarsSummary> IEntityContext<ProviderStarsSummary>.Entities => ProviderStarsSummary;
 
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
@@ -68,7 +78,9 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackTargetConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
-            modelBuilder.Entity<FeedbackForProvidersResult>().HasNoKey();
+            modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderAttributeSummaryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration());
             base.OnModelCreating(modelBuilder);
         }
 
@@ -80,7 +92,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
         public override async Task<int> SaveChangesAsync(
            bool acceptAllChangesOnSuccess,
-           CancellationToken cancellationToken = default(CancellationToken)
+           CancellationToken cancellationToken = default
         )
         {
             OnBeforeSaving();
@@ -121,7 +133,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             }
         }
 
-        public async Task<IEnumerable<FeedbackForProvidersResult>> GetFeedbackForProvidersAsync(long[] ukPrns, int minimumNumberOfResponses, int reportingFeedbackCutoffMonths )
+        public async Task GenerateFeedbackSummaries(int minimumNumberOfResponses, int reportingFeedbackCutoffMonths)
         {
             var parameterRecentFeedbackMonths = new SqlParameter
             {
@@ -137,16 +149,13 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 Value = minimumNumberOfResponses,
             };
 
-            var result = await Set<FeedbackForProvidersResult>()
-                .FromSqlRaw("EXEC [dbo].[GetFeedbackForProviders] @recentFeedbackMonths, @minimumNumberOfReviews", parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews)
-                .ToListAsync();
+            await Database.ExecuteSqlRawAsync(
+                "EXEC [dbo].[GenerateProviderAttributesSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
+                parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
 
-            if(null != ukPrns && ukPrns.Length > 0)
-            {
-                result = result.Where(sr => ukPrns.Contains(sr.Ukprn)).ToList();
-            }
-
-            return result;
+            await Database.ExecuteSqlRawAsync(
+                "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
+                parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
         }
     }
 }

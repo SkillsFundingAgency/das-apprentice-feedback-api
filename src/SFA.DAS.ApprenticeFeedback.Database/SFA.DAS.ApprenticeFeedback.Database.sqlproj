@@ -68,6 +68,11 @@
     <Build Include="Tables\FeedbackTransaction.sql" />
     <Build Include="Tables\ProviderAttribute.sql" />
     <Build Include="Tables\ApprenticeFeedbackTarget.sql" />
+    <Build Include="Tables\ProviderStarsSummary.sql" />
+    <Build Include="Tables\ProviderAttributeSummary.sql" />
+    <Build Include="Tables\ProviderRatingSummary.sql" />
+    <Build Include="StoredProcedures\GenerateProviderAttributesSummary.sql" />
+    <Build Include="StoredProcedures\GenerateProviderRatingAndStarsSummary.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
@@ -78,6 +83,5 @@
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment1.sql" />
-    <Build Include="StoredProcedures\GetFeedbackForProviders.sql" />
   </ItemGroup>
 </Project>

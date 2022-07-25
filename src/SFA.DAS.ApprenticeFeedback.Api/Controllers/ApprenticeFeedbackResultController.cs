@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
-using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackResult;
+using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetails;
+using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRatingSummary;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -37,15 +38,39 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             }
         }
 
-        [HttpPost("request")]
-        public async Task<IActionResult> PostUkprns([FromBody] GetApprenticeFeedbackResultsQuery request)
+        [HttpGet("{ukprn}")]
+        public async Task<IActionResult> GetApprenticeFeedbackDetails(long ukprn)
         {
-            var result = await _mediator.Send(request);
-            if (null == result.UkprnFeedbacks || !result.UkprnFeedbacks.Any())
+            try
             {
-                return NoContent();
+                var result = await _mediator.Send(new GetApprenticeFeedbackDetailsQuery { Ukprn = ukprn });
+                return Ok(result);
             }
-            return Ok(result.UkprnFeedbacks);
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error attempting to retrieve apprentice feedback results for Ukprn: {ukprn}");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("reviews")]
+        public async Task<IActionResult> GetApprenticeFeedbackRatingSummary()
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetApprenticeFeedbackRatingSummaryQuery());
+                if (result.RatingSummaries == null || !result.RatingSummaries.Any())
+                {
+                    return NoContent();
+                }
+
+                return Ok(result.RatingSummaries);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error attempting to retrieve apprentice feedback rating summaries");
+                return BadRequest();
+            }
         }
     }
 }

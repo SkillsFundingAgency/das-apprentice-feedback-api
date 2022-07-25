@@ -10,5 +10,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string AttributeName { get; set; }
         public string Category { get; set; }
         public ICollection<ProviderAttribute> ProviderAttributes { get; set; }
+        public ICollection<ProviderAttributeSummary> ProviderAttributeSummaries { get; set; }
     }
 }
