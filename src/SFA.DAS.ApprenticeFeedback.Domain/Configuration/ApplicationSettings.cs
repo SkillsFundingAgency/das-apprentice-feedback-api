@@ -30,5 +30,9 @@
         /// at least this number of responses within a certain number of months 
         /// </summary>
         public int ReportingMinNumberOfResponses { get; set; }
+        /// <summary>
+        /// How many feedback transactions should be generated each API call
+        /// </summary>
+        public int FeedbackTransactionQuantity { get; set; }
     }
 }

@@ -23,7 +23,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IAttributeContext,
         IProviderRatingSummaryContext,
         IProviderAttributeSummaryContext,
-        IProviderStarsSummaryContext
+        IProviderStarsSummaryContext,
+        IFeedbackTransactionContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -36,6 +37,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public virtual DbSet<ProviderRatingSummary> ProviderRatingSummary { get; set; } = null!;
         public virtual DbSet<ProviderAttributeSummary> ProviderAttributeSummary { get; set; } = null!;
         public virtual DbSet<ProviderStarsSummary> ProviderStarsSummary { get; set; } = null!;
+        public virtual DbSet<FeedbackTransaction> FeedbackTransactions { get; set; }
 
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
@@ -45,6 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummary;
         DbSet<ProviderAttributeSummary> IEntityContext<ProviderAttributeSummary>.Entities => ProviderAttributeSummary;
         DbSet<ProviderStarsSummary> IEntityContext<ProviderStarsSummary>.Entities => ProviderStarsSummary;
+        DbSet<FeedbackTransaction> IEntityContext<FeedbackTransaction>.Entities => FeedbackTransactions;
 
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
@@ -81,6 +84,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration());
+            modelBuilder.ApplyConfiguration(new FeedbackTransactionConfiguration());
             base.OnModelCreating(modelBuilder);
         }
 
