@@ -5,7 +5,7 @@
 	[ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER, 
 	[EmailAddress] NCHAR(256),
 	[FirstName] NCHAR(256),
-	[EmailTemplateId] UNIQUEIDENTIFIER,
+	[TemplateId] UNIQUEIDENTIFIER,
 	[StandardName] NVARCHAR(100),
 	[ProviderName] NVARCHAR(12),
 	[CreatedOn] DATETIME NOT NULL,

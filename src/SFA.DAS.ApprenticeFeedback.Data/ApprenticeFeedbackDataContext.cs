@@ -19,6 +19,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IApprenticeFeedbackTargetContext,
         IApprenticeFeedbackResultContext,
         IProviderAttributeContext,
+        IFeedbackTransactionContext,
         IAttributeContext
     {
         private const string AzureResource = "https://database.windows.net/";
@@ -29,12 +30,14 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public virtual DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
         public virtual DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; } = null!;
         public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; } = null!;
+        public virtual DbSet<FeedbackTransaction> FeedbackTransactions { get; set; }
 
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
         DbSet<Domain.Entities.Attribute> IEntityContext<Domain.Entities.Attribute>.Entities => Attributes;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
+        DbSet<FeedbackTransaction> IEntityContext<FeedbackTransaction>.Entities => FeedbackTransactions;
 
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
@@ -68,6 +71,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackTargetConfiguration());
             modelBuilder.ApplyConfiguration(new ApprenticeFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
+            modelBuilder.ApplyConfiguration(new FeedbackTransactionConfiguration());
             modelBuilder.Entity<FeedbackForProvidersResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
