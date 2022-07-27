@@ -9,8 +9,10 @@ using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetail
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRatingSummary;
 using SFA.DAS.Testing.AutoFixture;
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbackResult
 {
@@ -27,8 +29,20 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
 
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(summaryResult.RatingSummaries);
         }
+        
+        [Test, MoqAutoData]
+        public async Task And_MediatorCommandIsSuccessful_With_No_Results_Then_ReturnOk(
+            [Frozen] Mock<IMediator> mediator,
+            GetApprenticeFeedbackRatingSummaryResult summaryResult,
+            [Greedy] ApprenticeFeedbackResultController controller)
+        {
+            mediator.Setup(m => m.Send(It.IsAny<GetApprenticeFeedbackRatingSummaryQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetApprenticeFeedbackRatingSummaryResult(new List<ProviderStarsSummary>()));
+            var result = await controller.GetApprenticeFeedbackRatingSummary();
 
-
+            result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(new List<GetApprenticeFeedbackRatingSummaryResult.RatingSummary>());
+        }
+        
         [Test, MoqAutoData]
         public async Task And_MediatorCommandIsUnsuccessful_Then_ReturnBadRequest
             ([Frozen] Mock<IMediator> mediator,
