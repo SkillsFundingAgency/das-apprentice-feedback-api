@@ -59,11 +59,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             try
             {
                 var result = await _mediator.Send(new GetApprenticeFeedbackRatingSummaryQuery());
-                if (result.RatingSummaries == null || !result.RatingSummaries.Any())
-                {
-                    return NoContent();
-                }
-
+                
                 return Ok(result.RatingSummaries);
             }
             catch (Exception e)
