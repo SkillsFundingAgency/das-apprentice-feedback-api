@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 {
@@ -12,6 +13,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public DateTime CreatedOn { get; set; }
         public DateTime? SendAfter { get; set; }
         public DateTime? SentDate { get; set; }
+        public ApprenticeFeedbackTarget ApprenticeFeedbackTarget { get; set; }
 
         public static implicit operator FeedbackTransaction(Models.FeedbackTransaction source)
         {

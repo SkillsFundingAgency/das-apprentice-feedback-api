@@ -4,14 +4,14 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MediatR;
-using SFA.DAS.ApprenticeFeedback.Application.Queries.GetEmailTransactions;
-
+using SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransactions;
+using Microsoft.AspNetCore.Http;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]/")]
-    public class FeedbackTransactionController : Controller
+    public class FeedbackTransactionController : ControllerBase
     {
         private readonly IMediator _mediator;
         private readonly ILogger<FeedbackTransactionController> _log;
@@ -28,13 +28,13 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             try
             {
                 _log.LogInformation("Starting FeedbackTransaction");
-                var result = await _mediator.Send(new GetEmailTransactionsQuery());
+                var result = await _mediator.Send(new GenerateFeedbackTransactionsCommand());
                 return Ok(result);
             }
             catch (Exception e)
             {
-                _log.LogError(e, "Error attempting to retrieve feedback transactions");
-                return null;
+                _log.LogError(e, "Error attempting to generate feedback transactions");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error generating feedback transactions: {e.Message}");
             }
         }
     }
