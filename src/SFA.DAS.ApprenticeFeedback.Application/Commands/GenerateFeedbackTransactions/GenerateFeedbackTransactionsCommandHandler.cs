@@ -28,38 +28,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransa
 
         public async Task<GenerateFeedbackTransactionsCommandResponse> Handle(GenerateFeedbackTransactionsCommand request, CancellationToken cancellationToken)
         {
-            DateTime createdOn = DateTime.Now;
-            IEnumerable<FeedbackTransaction> test = _targetContext.GetIncludedFeedbackTransactions();
+            IEnumerable<GenerateFeedbackTransactionsResult> result = await _transactionContext.GenerateFeedbackTransactionsAsync();
 
-            IEnumerable<FeedbackTransaction> ineligibleTargetIds =
-                test.Where(x => x.SentDate > DateTime.Now.AddMonths(-3) ||
-                                x.SentDate == null ||
-                                x.ApprenticeFeedbackTargetId == null);
-
-            IEnumerable<ApprenticeFeedbackTarget> allTargets =
-                _targetContext.Entities.Where(x => x.Status == (int)FeedbackTargetStatus.Active &&
-                                              x.FeedbackEligibility == (int)FeedbackEligibilityStatus.Allow);
-
-            IEnumerable<FeedbackTransaction> transactions =
-                from ApprenticeFeedbackTarget aft in allTargets
-                join ft in ineligibleTargetIds on aft.Id equals ft.ApprenticeFeedbackTargetId into combined
-                from ft in combined.DefaultIfEmpty()
-                select new FeedbackTransaction()
-                {
-                    Id = Guid.NewGuid(),
-                    ApprenticeFeedbackTargetId = aft.Id,
-                    CreatedOn = createdOn
-                };
-
-            transactions = transactions.ToList();
-
-            _transactionContext.Entities.AddRange(transactions);
-            await _transactionContext.SaveChangesAsync();
+            if (result == null || !result.Any())
+                return null;
 
             return new GenerateFeedbackTransactionsCommandResponse
             {
-                Count = transactions.Count(),
-                CreatedOn = createdOn
+                Count = result.First().Count,
+                CreatedOn = result.First().CreatedOn
             };
         }
     }

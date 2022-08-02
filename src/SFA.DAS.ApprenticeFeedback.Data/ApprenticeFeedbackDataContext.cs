@@ -73,6 +73,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new FeedbackTransactionConfiguration());
             modelBuilder.Entity<FeedbackForProvidersResult>().HasNoKey();
+            modelBuilder.Entity<GenerateFeedbackTransactionsResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
 
@@ -149,6 +150,15 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             {
                 result = result.Where(sr => ukPrns.Contains(sr.Ukprn)).ToList();
             }
+
+            return result;
+        }
+
+        public async Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync()
+        {
+            var result = await Set<GenerateFeedbackTransactionsResult>()
+                .FromSqlRaw("EXEC [dbo].[GenerateFeedbackTransactions]")
+                .ToListAsync();
 
             return result;
         }

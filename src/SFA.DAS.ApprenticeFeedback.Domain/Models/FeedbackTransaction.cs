@@ -9,8 +9,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
     public class FeedbackTransaction
     {
-        public Guid Id { get; set; }
-        public Guid? ApprenticeFeedbackTargetId { get; set; }
+        public int Id { get; set; }
+        public Guid ApprenticeFeedbackTargetId { get; set; }
         public string EmailAddress { get; set; }
         public string FirstName { get; set; }
         public Guid? TemplateId { get; set; }
