@@ -85,6 +85,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ProviderAttributeSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new FeedbackTransactionConfiguration());
+            modelBuilder.Entity<GenerateFeedbackTransactionsResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
 
@@ -160,6 +161,15 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             await Database.ExecuteSqlRawAsync(
                 "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
                 parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
+        }
+
+        public async Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync()
+        {
+            var result = await Set<GenerateFeedbackTransactionsResult>()
+                .FromSqlRaw("EXEC [dbo].[GenerateFeedbackTransactions]")
+                .ToListAsync();
+
+            return result;
         }
     }
 }
