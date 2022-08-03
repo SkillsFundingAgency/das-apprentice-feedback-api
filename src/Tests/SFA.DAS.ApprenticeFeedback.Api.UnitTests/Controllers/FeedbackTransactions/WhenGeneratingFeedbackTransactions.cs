@@ -14,7 +14,7 @@ using SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransactio
 using SFA.DAS.Testing.AutoFixture;
 using Microsoft.AspNetCore.Http;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbackTarget
+namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.FeedbackTransaction
 {
     public class WhenGeneratingFeedbackTransactions
     {
