@@ -31,8 +31,8 @@
         /// </summary>
         public int ReportingMinNumberOfResponses { get; set; }
         /// <summary>
-        /// How many feedback transactions should be generated each API call
+        /// How long after Sent Date has passed feedback transactions should be generated for
         /// </summary>
-        public int FeedbackTransactionQuantity { get; set; }
+        public int FeedbackTransactionSentDateAgeDays { get; set; }
     }
 }

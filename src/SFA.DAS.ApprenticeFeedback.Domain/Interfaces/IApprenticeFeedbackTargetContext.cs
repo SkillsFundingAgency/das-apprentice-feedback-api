@@ -26,14 +26,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
             => await Entities.Include(s => s.ApprenticeFeedbackResults)
                 .Where(aft => aft.ApprenticeId == apprenticeId && aft.Ukprn == ukprn).ToListAsync();
 
-        public IEnumerable<FeedbackTransaction> GetIncludedFeedbackTransactions()
-        {
-            return Entities.Include(s => s.FeedbackTransactions)
-                           .SelectMany(x => x.FeedbackTransactions)
-                           .AsEnumerable();
-        }
-
-
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

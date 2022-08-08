@@ -10,6 +10,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
     public interface IFeedbackTransactionContext : IEntityContext<FeedbackTransaction>
     {
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-        Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync();
+        Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync(int feedbackTransactionQuantity);
     }
 }

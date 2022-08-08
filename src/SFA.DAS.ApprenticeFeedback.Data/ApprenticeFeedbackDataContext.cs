@@ -1,18 +1,21 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.Data.Common;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Options;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Data.Configuration;
-using Microsoft.Extensions.Options;
-using Microsoft.Data.SqlClient;
-using Microsoft.Azure.Services.AppAuthentication;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
-using System.Threading.Tasks;
-using System.Threading;
-using System;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using System.Linq;
-using System.Collections.Generic;
-using System.Data;
+
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -143,14 +146,14 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             var parameterRecentFeedbackMonths = new SqlParameter
             {
                 ParameterName = "recentFeedbackMonths",
-                SqlDbType = System.Data.SqlDbType.Int,
+                SqlDbType = SqlDbType.Int,
                 Value = reportingFeedbackCutoffMonths,
             };
 
             var parameterMinimumNumberOfReviews = new SqlParameter
             {
                 ParameterName = "minimumNumberOfReviews",
-                SqlDbType = System.Data.SqlDbType.Int,
+                SqlDbType = SqlDbType.Int,
                 Value = minimumNumberOfResponses,
             };
 
@@ -163,12 +166,19 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
         }
 
-        public async Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync()
+        public async Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays)
         {
-            var result = await Set<GenerateFeedbackTransactionsResult>()
-                .FromSqlRaw("EXEC [dbo].[GenerateFeedbackTransactions]")
-                .ToListAsync();
+            DbParameter parameterFeedbackTransactionSentDateAgeDays = new SqlParameter
+            {
+                ParameterName = "SentDateAgeDays",
+                SqlDbType = SqlDbType.Int,
+                Value = feedbackTransactionSentDateAgeDays
+            };
 
+            IEnumerable<GenerateFeedbackTransactionsResult> result =
+                await Set<GenerateFeedbackTransactionsResult>().FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @SentDateAgeDays",
+                                                                           new[] { parameterFeedbackTransactionSentDateAgeDays })
+                                                               .ToListAsync();
             return result;
         }
     }

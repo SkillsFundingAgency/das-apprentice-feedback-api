@@ -1,4 +1,6 @@
-﻿CREATE PROCEDURE [dbo].[GenerateFeedbackTransactions]
+﻿CREATE PROCEDURE dbo.GenerateFeedbackTransactions 
+
+	@SentDateAgeDays int
 
 AS
 
@@ -10,7 +12,7 @@ SELECT aft.Id, @CreatedOn
 FROM [dbo].[ApprenticeFeedbackTarget] aft
 LEFT JOIN (SELECT ApprenticeFeedbackTargetId
            FROM [dbo].[FeedbackTransaction] 
-           WHERE SentDate IS NULL OR (SentDate IS NOT NULL AND SentDate >= DATEADD(day,-90,GETDATE())) ) ft1
+           WHERE SentDate IS NULL OR (SentDate IS NOT NULL AND SentDate >= DATEADD(day, 0 - @SentDateAgeDays, GETDATE())) ) ft1
     on ft1.ApprenticeFeedbackTargetId = aft.Id
 WHERE Status = 2 -- "active"
 AND FeedbackEligibility = 1 -- "allow"

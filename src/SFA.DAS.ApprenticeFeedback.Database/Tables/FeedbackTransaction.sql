@@ -2,7 +2,7 @@
 (
 	[Id] int NOT NULL IDENTITY PRIMARY KEY,
 	[ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER NOT NULL,
-	[EmailAddress] NVARCHAR(200),
+	[EmailAddress] NVARCHAR(256),
 	[FirstName] NVARCHAR(200),
 	[TemplateId] UNIQUEIDENTIFIER,
 	[CreatedOn] DATETIME NOT NULL,
