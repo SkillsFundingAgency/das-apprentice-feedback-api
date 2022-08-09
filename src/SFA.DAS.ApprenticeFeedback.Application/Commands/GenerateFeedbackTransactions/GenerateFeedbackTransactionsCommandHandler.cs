@@ -32,13 +32,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransa
             IEnumerable<GenerateFeedbackTransactionsResult> result = await _transactionContext.GenerateFeedbackTransactionsAsync(feedbackTransactionSentDateAgeDays);
 
             if (result == null || !result.Any())
-                return null;
-
-            return new GenerateFeedbackTransactionsCommandResponse
-            {
-                Count = result.First().Count,
-                CreatedOn = result.First().CreatedOn
-            };
+                return new GenerateFeedbackTransactionsCommandResponse();
+            else
+                return new GenerateFeedbackTransactionsCommandResponse
+                {
+                    Count = result.First().Count,
+                    CreatedOn = result.First().CreatedOn
+                };
         }
     }
 }
