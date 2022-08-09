@@ -13,10 +13,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public string StandardReference { get; set; }
         public string StandardName { get; set; }
         public int? CompletionStatus { get; set; }
-        public string Outcome { get; set; }
         public DateTime? ApprovalsStopDate { get; set; }
         public DateTime? ApprovalsPauseDate { get; set; }
-        public DateTime? AchievementDate { get; set; }
+        public DateTime? LearnActEndDate { get; set; }
         public DateTime? EstimatedEndDate { get; set; }
     }
 }
