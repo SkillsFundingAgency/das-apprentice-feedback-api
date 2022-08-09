@@ -23,6 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string StandardName { get; set; }
         public int FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
+        public bool Withdrawn { get; set; }
 
         public ICollection<FeedbackTransaction> FeedbackTransactions { get; set; }
         public ICollection<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
@@ -44,6 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 StandardName = source.StandardName,
                 EligibilityCalculationDate = source.EligibilityCalculationDate,
                 FeedbackEligibility = (int)source.FeedbackEligibility,
+                Withdrawn = source.Withdrawn,
             };
         }
 
@@ -70,6 +72,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 return;
             }
 
+            var apprenticeStatus = GetApprenticeshipStatus(learner);
+
             Ukprn = learner.Ukprn;
             ProviderName = learner.ProviderName;
             StandardName = learner.StandardName;
@@ -77,10 +81,37 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             LarsCode = learner.StandardCode;
             StartDate = learner.LearnStartDate;
 
-            EndDate = GetApprenticeshipStatus(learner) switch
+            if (!Withdrawn && apprenticeStatus == ApprenticeshipStatus.Stopped)
             {
-                ApprenticeshipStatus.Passed => learner.AchievementDate,
-                ApprenticeshipStatus.Stopped => learner.ApprovalsStopDate,
+                // Not already withdrawn, but being set
+                // Need to create Feedback Transaction for trigger.
+            }
+            
+            Withdrawn = apprenticeStatus == ApprenticeshipStatus.Stopped;
+            
+            DateTime? GetApprenticeStoppedDate(Learner learner)
+            {
+                if (!learner.ApprovalsStopDate.HasValue && !learner.LearnActEndDate.HasValue)
+                {
+                    return null;
+                }
+                else if (learner.ApprovalsStopDate == null)
+                {
+                    return learner.LearnActEndDate;
+                }
+                else if (learner.LearnActEndDate == null)
+                {
+                    return learner.ApprovalsStopDate;
+                }
+                else
+                {
+                    // Return the earliest date if both set.
+                    return learner.LearnActEndDate > learner.ApprovalsStopDate ? learner.ApprovalsStopDate : learner.LearnActEndDate;
+                }
+            };
+            EndDate = apprenticeStatus switch
+            {
+                ApprenticeshipStatus.Stopped => GetApprenticeStoppedDate(learner),
                 ApprenticeshipStatus.Paused => learner.ApprovalsPauseDate,
                 _ => learner.EstimatedEndDate,
             };
@@ -90,11 +121,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 
         private ApprenticeshipStatus GetApprenticeshipStatus(Learner learner)
         {
-            if (!string.IsNullOrWhiteSpace(learner.Outcome) && learner.Outcome.Equals("Pass", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return ApprenticeshipStatus.Passed;
-            }
-            else if (learner?.CompletionStatus == 3)
+            if (learner?.CompletionStatus == 3)
             {
                 return ApprenticeshipStatus.Stopped;
             }
@@ -123,10 +150,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 if (HasProvidedFinalFeedback(LastFeedbackSubmittedDate))
                 {
                     FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
-                }
-                else if (apprenticeshipStatus == ApprenticeshipStatus.Passed)
-                {
-                    FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_TooLateAfterPassing;
                 }
                 else if (apprenticeshipStatus == ApprenticeshipStatus.Stopped)
                 {
