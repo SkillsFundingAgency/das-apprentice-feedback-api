@@ -1,7 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
-namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
+namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
     public class FeedbackTransaction
     {
@@ -13,10 +17,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public DateTime CreatedOn { get; set; }
         public DateTime? SendAfter { get; set; }
         public DateTime? SentDate { get; set; }
-        public ApprenticeFeedbackTarget ApprenticeFeedbackTarget { get; set; }
 
-        public static implicit operator FeedbackTransaction(Models.FeedbackTransaction source)
+
+        public static implicit operator FeedbackTransaction(Entities.FeedbackTransaction source)
         {
+            if (source == null)
+                return null;
+
             return new FeedbackTransaction
             {
                 Id = source.Id,

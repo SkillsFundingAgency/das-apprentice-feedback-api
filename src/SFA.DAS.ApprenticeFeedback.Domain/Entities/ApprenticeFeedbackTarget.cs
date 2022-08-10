@@ -24,7 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public int FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
 
-        public ICollection<FeedbackTransaction> EmailTransactions { get; set; }
+        public ICollection<FeedbackTransaction> FeedbackTransactions { get; set; }
         public ICollection<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
 
         public static implicit operator ApprenticeFeedbackTarget(Models.ApprenticeFeedbackTarget source)

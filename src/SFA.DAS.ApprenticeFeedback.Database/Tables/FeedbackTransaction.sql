@@ -1,14 +1,18 @@
 ﻿CREATE TABLE [dbo].[FeedbackTransaction]
 (
-	-- Update Id to a sequence
-	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY, 
-	[ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER, 
-	[EmailAddress] NCHAR(256),
-	[FirstName] NCHAR(256),
-	[EmailTemplateId] UNIQUEIDENTIFIER,
-	[StandardName] NVARCHAR(100),
-	[ProviderName] NVARCHAR(12),
+	[Id] int NOT NULL IDENTITY PRIMARY KEY,
+	[ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER NOT NULL,
+	[EmailAddress] NVARCHAR(256),
+	[FirstName] NVARCHAR(200),
+	[TemplateId] UNIQUEIDENTIFIER,
 	[CreatedOn] DATETIME NOT NULL,
 	[SendAfter] DATETIME,
 	[SentDate] DATETIME
 )
+GO
+
+CREATE NONCLUSTERED INDEX [IX_FeedbackTransaction_ApprenticeFeedbackTarget]
+ON [dbo].[FeedbackTransaction] ( [ApprenticeFeedbackTargetId] )
+INCLUDE ( [SentDate] );
+
+GO

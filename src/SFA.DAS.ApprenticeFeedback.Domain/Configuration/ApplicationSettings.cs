@@ -30,5 +30,9 @@
         /// at least this number of responses within a certain number of months 
         /// </summary>
         public int ReportingMinNumberOfResponses { get; set; }
+        /// <summary>
+        /// How long after Sent Date has passed feedback transactions should be generated for
+        /// </summary>
+        public int FeedbackTransactionSentDateAgeDays { get; set; }
     }
 }
