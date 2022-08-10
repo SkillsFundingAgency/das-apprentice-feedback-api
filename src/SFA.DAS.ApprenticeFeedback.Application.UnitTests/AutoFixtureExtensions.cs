@@ -5,6 +5,7 @@ using AutoFixture.NUnit3;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.ApprenticeFeedback.Data;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
@@ -49,6 +50,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
             }
 
             fixture.Customizations.Add(new ApprenticeFeedbackDataContextBuilder());
+            fixture.Customizations.Add(new DateTimeHelperBuilder());
         }
     }
 
@@ -77,5 +79,18 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
             return new NoSpecimen();
         }
     }
- 
+
+    // Handy for unit testing - make sure any IDateTimeHelper instances are "now"
+    public class DateTimeHelperBuilder : ISpecimenBuilder
+    {
+        public object Create(object request, ISpecimenContext context)
+        {
+            if (request is Type type && type == typeof(IDateTimeHelper))
+            {
+                return new UtcTimeProvider();
+            }
+
+            return new NoSpecimen();
+        }
+    }
 }

@@ -1,9 +1,7 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
-
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 {
