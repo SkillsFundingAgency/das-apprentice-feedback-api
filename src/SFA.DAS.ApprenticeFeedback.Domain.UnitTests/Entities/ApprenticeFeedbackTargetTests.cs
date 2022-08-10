@@ -243,20 +243,43 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         }
 
         [Test, RecursiveMoqAutoData]
-        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_SetsStoppedDate(
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_SetsApprovalsStoppedDateAsEndDate(
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
             Domain.Entities.ApprenticeFeedbackTarget target)
         {
             // Arrange
+            target.Withdrawn = false;
             learner.CompletionStatus = 3;
+            learner.ApprovalsStopDate = learner.LearnActEndDate.Value.AddDays(-7);
 
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.ApprovalsStopDate);
+            target.Withdrawn.Should().BeTrue();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_SetsLearnActEndDateAsEndDate(
+            Learner learner,
+            ApplicationSettings settings,
+            Mock<IDateTimeHelper> dateTimeHelper,
+            Domain.Entities.ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.Withdrawn = false;
+            learner.CompletionStatus = 3;
+            learner.LearnActEndDate = learner.ApprovalsStopDate.Value.AddDays(-7);
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+
+            // Assert
+            target.EndDate.Should().Be(learner.LearnActEndDate);
+            target.Withdrawn.Should().BeTrue();
         }
 
         [Test, RecursiveMoqAutoData]
@@ -339,6 +362,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.EstimatedEndDate = dateTimeHelper.Now;
             learner.ApprovalsPauseDate = dateTimeHelper.Now;
             learner.ApprovalsStopDate = dateTimeHelper.Now;
+            learner.LearnActEndDate = dateTimeHelper.Now;
             // Setup for feedback
             appFeedbackResult.DateTimeCompleted = recentFeedbackToEndDate ? now.AddDays(1) : now.AddDays(-1);
             target.ApprenticeFeedbackResults.Clear();
@@ -391,6 +415,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.EstimatedEndDate = dateTimeHelper.Now;
             learner.ApprovalsPauseDate = dateTimeHelper.Now;
             learner.ApprovalsStopDate = dateTimeHelper.Now;
+            learner.LearnActEndDate = dateTimeHelper.Now;
 
             // Set start date to now as well
             learner.LearnStartDate = dateTimeHelper.Now;
@@ -428,6 +453,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.EstimatedEndDate = dateTimeHelper.Now;
             learner.ApprovalsPauseDate = dateTimeHelper.Now;
             learner.ApprovalsStopDate = dateTimeHelper.Now;
+            learner.LearnActEndDate = dateTimeHelper.Now;
 
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
@@ -466,6 +492,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.EstimatedEndDate = dateTimeHelper.Now;
             learner.ApprovalsPauseDate = dateTimeHelper.Now;
             learner.ApprovalsStopDate = dateTimeHelper.Now;
+            learner.LearnActEndDate = dateTimeHelper.Now;
 
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
