@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SFA.DAS.ApprenticeFeedback.Domain;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
@@ -23,14 +24,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetProvider
         public async Task<GetProviderByUkprnResult> Handle(GetProviderByUkprnQuery request, CancellationToken cancellationToken)
         {
             var apprenticeFeedbackTargets = await _apprenticeFeedbackTargetDbContext.GetAllForApprenticeIdAndUkprnAndIncludeFeedbackResultsAsync(request.ApprenticeId, request.Ukprn);
-                        
+
             if (apprenticeFeedbackTargets == null || !apprenticeFeedbackTargets.Any())
             {
                 return null;
             }
 
             var apprenticeFeedbackTarget = apprenticeFeedbackTargets
-                .Select(r => (ApprenticeFeedbackTarget)r)
                 .FilterForEligibleActiveApprenticeFeedbackTargets()
                 .Select(s => TrainingProvider.Create(s, _appSettings))
                 .SingleOrDefault();

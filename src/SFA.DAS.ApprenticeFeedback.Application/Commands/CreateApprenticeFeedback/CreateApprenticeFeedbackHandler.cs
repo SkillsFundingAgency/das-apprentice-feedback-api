@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback
@@ -36,7 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public async Task<CreateApprenticeFeedbackResponse> Handle(CreateApprenticeFeedbackCommand request, CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Fetch ApprenticeFeedbackTarget record by Id. Id used: {request.ApprenticeFeedbackTargetId}");
-            ApprenticeFeedbackTarget apprenticeFeedbackTarget = await _apprenticeFeedbackTargetContext.FindByIdAndIncludeFeedbackResultsAsync(request.ApprenticeFeedbackTargetId);
+            var apprenticeFeedbackTarget = await _apprenticeFeedbackTargetContext.FindByIdAndIncludeFeedbackResultsAsync(request.ApprenticeFeedbackTargetId);
 
             if (apprenticeFeedbackTarget == null)
             {
@@ -50,7 +49,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             var now = _timeHelper.Now;
             var feedback = new Domain.Entities.ApprenticeFeedbackResult()
             {
-                ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id.Value,
+                ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id,
                 StandardUId = apprenticeFeedbackTarget.StandardUId,
                 DateTimeCompleted = now,
                 ProviderRating = request.OverallRating.ToString(),

@@ -1,11 +1,11 @@
-﻿using System;
+﻿using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
-namespace SFA.DAS.ApprenticeFeedback.Domain.Models
+namespace SFA.DAS.ApprenticeFeedback.Domain
 {
-    public static class ModelExtensions
+    public static class EntityExtensions
     {
         /// <summary>
         /// Filter for populated apprentice feedback targets that have valid data in their records
@@ -15,12 +15,11 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         /// <returns></returns>
         public static IEnumerable<ApprenticeFeedbackTarget> FilterForEligibleActiveApprenticeFeedbackTargets(this IEnumerable<ApprenticeFeedbackTarget> source) =>
             source.Where(aft =>
-                aft.Id.HasValue &&
                 aft.StartDate.HasValue
                 && aft.Ukprn > 0
-                && aft.Status != FeedbackTargetStatus.Unknown
-                && aft.FeedbackEligibility != FeedbackEligibilityStatus.Unknown
-                && aft.FeedbackEligibility != FeedbackEligibilityStatus.Deny_Complete)
+                && aft.Status != (int)FeedbackTargetStatus.Unknown
+                && aft.FeedbackEligibility != (int)FeedbackEligibilityStatus.Unknown
+                && aft.FeedbackEligibility != (int)FeedbackEligibilityStatus.Deny_Complete)
             .FilterForLatestValidApprenticeshipFeedbackTargetPerTrainingProvider();
 
         /// <summary>
@@ -35,7 +34,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         private static ApprenticeFeedbackTarget LatestValidApprenticeship(this IEnumerable<ApprenticeFeedbackTarget> source)
         {
             var orderedTargets = source.OrderByDescending(s => s.StartDate);
-            
+
             // If any are Active and Eligible then prioritise those
             if (orderedTargets.Any(s => s.IsActiveAndEligible()))
             {
