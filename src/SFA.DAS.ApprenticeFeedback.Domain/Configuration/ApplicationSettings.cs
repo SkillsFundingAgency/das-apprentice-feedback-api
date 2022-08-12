@@ -34,5 +34,9 @@
         /// How long after Sent Date has passed feedback transactions should be generated for
         /// </summary>
         public int FeedbackTransactionSentDateAgeDays { get; set; }
+        /// Number of days since last calculating feedback eligibility before we
+        /// allow the calculation to happen again
+        /// </summary>
+        public int EligibilityCalculationThrottleDays { get; set; }
     }
 }
