@@ -3,13 +3,11 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using SFA.DAS.Notifications.Api.Client;
-using SFA.DAS.Notifications.Api.Types;
+using SFA.DAS.Notifications.Messages.Commands;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransaction
 {
@@ -19,21 +17,21 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
         private readonly ApplicationSettings _appSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ILogger<ProcessEmailTransactionCommandHandler> _logger;
-        private readonly INotificationsApi _notificationsApi;
+        private readonly ICommandPublisher _commandPublisher;
 
         public ProcessEmailTransactionCommandHandler(
             IFeedbackTransactionContext context
             , ApplicationSettings appSettings
             , IDateTimeHelper dateTimeHelper
             , ILogger<ProcessEmailTransactionCommandHandler> logger
-            , INotificationsApi notificationsApi
+            , ICommandPublisher commandPublisher
             )
         {
             _context = context;
             _appSettings = appSettings;
             _dateTimeHelper = dateTimeHelper;
             _logger = logger;
-            _notificationsApi = notificationsApi;
+            _commandPublisher = commandPublisher;
         }
 
         public async Task<ProcessEmailTransactionResponse> Handle(ProcessEmailTransactionCommand request, CancellationToken cancellationToken)
@@ -90,7 +88,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                 if(request.IsEmailContactAllowed)
                 {
                     // Send the email
-                    await SendEmailViaNotificationsApi(
+                    await SendEmailViaNserviceBus(
                         request.ApprenticeEmailAddress,
                         emailTemplateId.ToString(),
                         "Active",
@@ -115,7 +113,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             else if (emailTemplateId == _appSettings.WithdrawnFeedbackEmailTemplateId)
             {
                 // Requirement is to always send the email regardless of contact preference
-                await SendEmailViaNotificationsApi(
+                await SendEmailViaNserviceBus(
                     request.ApprenticeEmailAddress,
                     emailTemplateId.ToString(),
                     "Withdrawn",
@@ -152,21 +150,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             return templateId;
         }
 
-        private async Task SendEmailViaNotificationsApi(string toAddress, string templateId, string templateName, Dictionary<string, string> personalisationTokens)
+        private async Task SendEmailViaNserviceBus(string toAddress, string templateId, string templateName, Dictionary<string, string> personalisationTokens)
         {
-            var email = new Email
-            {
-                RecipientsAddress = toAddress,
-                TemplateId = templateId,
-                //Subject = ,    // @ToDo: set this
-                //SystemId = ,  // @ToDo: set this
-                Tokens = personalisationTokens
-            };
-
             try
             {
+                var emailCommand = new SendEmailCommand(templateId, toAddress, personalisationTokens);
                 _logger.LogInformation($"Sending {templateName} email ({templateId}) to {toAddress}");
-                await _notificationsApi.SendEmail(email);
+                await _commandPublisher.Publish(emailCommand);
             }
             catch (Exception ex)
             {
