@@ -8,12 +8,17 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 using SFA.DAS.ApprenticeFeedback.Api.Authorization;
 using SFA.DAS.ApprenticeFeedback.Api.Configuration;
+using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
+using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
+using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
+using System;
 using System.IO;
 
 namespace SFA.DAS.ApprenticeFeedback.Api
@@ -60,13 +65,15 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             services.Configure<AzureActiveDirectoryApiConfiguration>(Configuration.GetSection("AzureAd"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value);
             var azureAdConfiguration = Configuration.GetSection("AzureAd").Get<AzureActiveDirectoryApiConfiguration>();
-            
+
             var isDevelopment = Environment.IsDevelopment();
             services.AddApiAuthentication(azureAdConfiguration, isDevelopment)
                 .AddApiAuthorization(isDevelopment);
 
             var environmentName = Environment.EnvironmentName == "IntegrationTests" ? "IntegrationTests" : Configuration["EnvironmentName"];
-            services.AddDatabaseRegistration(appSettings, environmentName);
+            services.AddEntityFrameworkApprenticeFeedback(appSettings, environmentName)
+                .AddEntityFrameworkUnitOfWork<ApprenticeFeedbackDataContext>()
+                .AddNServiceBusClientUnitOfWork();
 
             services.AddHealthChecks()
                 .AddCheck<ApprenticeFeedbackHealthCheck>(nameof(ApprenticeFeedbackHealthCheck));
@@ -103,6 +110,14 @@ namespace SFA.DAS.ApprenticeFeedback.Api
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/ping");
             });
+        }
+
+        public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
+        {
+            var appSettings = Configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
+
+            if (!Configuration["EnvironmentName"].Equals("IntegrationTests", StringComparison.CurrentCultureIgnoreCase))
+                serviceProvider.StartNServiceBus(appSettings).GetAwaiter().GetResult();
         }
     }
 }
