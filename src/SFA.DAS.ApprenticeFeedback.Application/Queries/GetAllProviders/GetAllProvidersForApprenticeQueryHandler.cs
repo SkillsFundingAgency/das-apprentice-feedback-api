@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SFA.DAS.ApprenticeFeedback.Domain;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
@@ -30,7 +31,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
             }
 
             var trainingProviders = afts
-                .Select(r => (ApprenticeFeedbackTarget)r)
                 .FilterForEligibleActiveApprenticeFeedbackTargets()
                 .Select(s => TrainingProvider.Create(s, _appSettings));
 

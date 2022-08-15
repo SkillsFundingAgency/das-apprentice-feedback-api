@@ -23,6 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string StandardName { get; set; }
         public int FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
+        public bool Withdrawn { get; set; }
 
         public ICollection<FeedbackTransaction> FeedbackTransactions { get; set; }
         public ICollection<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
@@ -44,6 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 StandardName = source.StandardName,
                 EligibilityCalculationDate = source.EligibilityCalculationDate,
                 FeedbackEligibility = (int)source.FeedbackEligibility,
+                Withdrawn = source.Withdrawn,
             };
         }
 
@@ -70,6 +72,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 return;
             }
 
+            var apprenticeStatus = GetApprenticeshipStatus(learner);
+
             Ukprn = learner.Ukprn;
             ProviderName = learner.ProviderName;
             StandardName = learner.StandardName;
@@ -77,10 +81,37 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             LarsCode = learner.StandardCode;
             StartDate = learner.LearnStartDate;
 
-            EndDate = GetApprenticeshipStatus(learner) switch
+            if (!Withdrawn && apprenticeStatus == ApprenticeshipStatus.Stopped)
             {
-                ApprenticeshipStatus.Passed => learner.AchievementDate,
-                ApprenticeshipStatus.Stopped => learner.ApprovalsStopDate,
+                // Not already withdrawn, but being set
+                // Need to create Feedback Transaction for trigger.
+            }
+            
+            Withdrawn = apprenticeStatus == ApprenticeshipStatus.Stopped;
+            
+            DateTime? GetApprenticeStoppedDate(Learner learner)
+            {
+                if (!learner.ApprovalsStopDate.HasValue && !learner.LearnActEndDate.HasValue)
+                {
+                    return null;
+                }
+                else if (learner.ApprovalsStopDate == null)
+                {
+                    return learner.LearnActEndDate;
+                }
+                else if (learner.LearnActEndDate == null)
+                {
+                    return learner.ApprovalsStopDate;
+                }
+                else
+                {
+                    // Return the earliest date if both set.
+                    return learner.LearnActEndDate > learner.ApprovalsStopDate ? learner.ApprovalsStopDate : learner.LearnActEndDate;
+                }
+            };
+            EndDate = apprenticeStatus switch
+            {
+                ApprenticeshipStatus.Stopped => GetApprenticeStoppedDate(learner),
                 ApprenticeshipStatus.Paused => learner.ApprovalsPauseDate,
                 _ => learner.EstimatedEndDate,
             };
@@ -90,11 +121,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 
         private ApprenticeshipStatus GetApprenticeshipStatus(Learner learner)
         {
-            if (!string.IsNullOrWhiteSpace(learner.Outcome) && learner.Outcome.Equals("Pass", StringComparison.InvariantCultureIgnoreCase))
-            {
-                return ApprenticeshipStatus.Passed;
-            }
-            else if (learner?.CompletionStatus == 3)
+            if (learner?.CompletionStatus == 3)
             {
                 return ApprenticeshipStatus.Stopped;
             }
@@ -112,7 +139,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         /// <param name="learner">Latest Learner information as supplied from the Assessors Service</param>
         /// <param name="appSettings">App Settings to provide configurable date time values for feedback rules</param>
         /// <param name="dateTimeHelper">DateTimeHelper interface to allow easier mocking for unit tests.</param>
-        private void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper)
+        public void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper)
         {
             if (HasApprenticeshipFinishedForFeedback(appSettings, dateTimeHelper))
             {
@@ -123,10 +150,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 if (HasProvidedFinalFeedback(LastFeedbackSubmittedDate))
                 {
                     FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
-                }
-                else if (apprenticeshipStatus == ApprenticeshipStatus.Passed)
-                {
-                    FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_TooLateAfterPassing;
                 }
                 else if (apprenticeshipStatus == ApprenticeshipStatus.Stopped)
                 {
@@ -176,19 +199,58 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             EligibilityCalculationDate = dateTimeHelper.Now;
         }
 
-        private DateTime? LastFeedbackSubmittedDate => ApprenticeFeedbackResults?.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault()?.DateTimeCompleted;
+        public void ResetFeedbackTarget()
+        {
+            StartDate = null;
+            EndDate = null;
+            Ukprn = null;
+            ProviderName = null;
+            StandardUId = null;
+            StandardName = null;
+            EligibilityCalculationDate = null;
+            FeedbackEligibility = (int)FeedbackEligibilityStatus.Unknown;
+            Status = (int)FeedbackTargetStatus.Unknown;
+        }
 
+        /// <summary>
+        /// After feedback has been given, we need to update the target
+        /// to reflect the recently given feedback.
+        /// </summary>
+        /// <param name="now"></param>
+        public void UpdateTargetAfterFeedback(DateTime now)
+        {
+            // After Feedback has been created for a given target, we need to update it
+            // to either still allow + deny for recent feedback or mark it as final feedback.
 
-        private bool HasApprenticeshipStartedForFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
+            if (HasProvidedFinalFeedback(now))
+            {
+                Status = (int)FeedbackTargetStatus.Complete;
+                FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
+                EligibilityCalculationDate = now;
+            }
+            else
+            {
+                FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently;
+                EligibilityCalculationDate = now;
+            }
+        }
+
+        public DateTime? LastFeedbackSubmittedDate => ApprenticeFeedbackResults?.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault()?.DateTimeCompleted;
+
+        public bool IsActive() => (FeedbackTargetStatus)Status == FeedbackTargetStatus.Active;
+        public bool IsInactive() => (FeedbackTargetStatus)Status == FeedbackTargetStatus.NotYetActive;
+        public bool IsComplete() => (FeedbackTargetStatus)Status == FeedbackTargetStatus.Complete;
+        public bool IsActiveAndEligible() => IsActive() && (FeedbackEligibilityStatus)FeedbackEligibility == FeedbackEligibilityStatus.Allow;
+
+        public bool HasApprenticeshipStartedForFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
             StartDate.HasValue && StartDate.Value.AddDays(appSettings.InitialDenyPeriodDays).Date <= dateTimeHelper.Now.Date;
 
-
-        private bool HasApprenticeshipFinishedForFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
+        public bool HasApprenticeshipFinishedForFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
             EndDate.HasValue && EndDate.Value.AddDays(appSettings.FinalAllowedPeriodDays).Date < dateTimeHelper.Now.Date;
 
-        private bool HasProvidedFinalFeedback(DateTime? lastFeedbackCompletedDate) => EndDate.HasValue && lastFeedbackCompletedDate.HasValue && lastFeedbackCompletedDate.Value.Date >= EndDate.Value.Date;
+        public bool HasProvidedFinalFeedback(DateTime? lastFeedbackCompletedDate) => EndDate.HasValue && lastFeedbackCompletedDate.HasValue && lastFeedbackCompletedDate.Value.Date >= EndDate.Value.Date;
 
-        private bool HasRecentlyProvidedFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
+        public bool HasRecentlyProvidedFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
             LastFeedbackSubmittedDate.HasValue && LastFeedbackSubmittedDate.Value.AddDays(appSettings.RecentDenyPeriodDays).Date > dateTimeHelper.Now.Date;
 
     }

@@ -51,7 +51,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                     trainingProvider.TimeWindow = TimeSpan.FromDays(appSettings.InitialDenyPeriodDays);
                     trainingProvider.SignificantDate = trainingProvider.StartDate.Date.AddDays(appSettings.InitialDenyPeriodDays);
                     break;
-                case FeedbackEligibilityStatus.Deny_TooLateAfterPassing:
                 case FeedbackEligibilityStatus.Deny_TooLateAfterPausing:
                 case FeedbackEligibilityStatus.Deny_TooLateAfterWithdrawing:
                     trainingProvider.TimeWindow = TimeSpan.FromDays(appSettings.FinalAllowedPeriodDays);
