@@ -94,7 +94,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                         "Active",
                         new Dictionary<string, string>() 
                             {
-                                { "Name", $"{request.ApprenticeName}" }   // @ToDo: set email template tokens
+                                { "Contact", $"{request.ApprenticeName}" }
                             }
                         );
 
@@ -119,7 +119,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                     "Withdrawn",
                     new Dictionary<string, string>()
                         {
-                            { "Name", $"{request.ApprenticeName}" }   // @ToDo: set email template tokens
+                            { "Contact", $"{request.ApprenticeName}" }
                         }
                     );
 
