@@ -252,5 +252,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 
         public bool HasRecentlyProvidedFeedback(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper) =>
             LastFeedbackSubmittedDate.HasValue && LastFeedbackSubmittedDate.Value.AddDays(appSettings.RecentDenyPeriodDays).Date > dateTimeHelper.Now.Date;
+
+        public bool IsWithdrawn() => Withdrawn == true;
     }
 }
