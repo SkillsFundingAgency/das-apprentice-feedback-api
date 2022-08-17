@@ -70,8 +70,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             services.AddApiAuthentication(azureAdConfiguration, isDevelopment)
                 .AddApiAuthorization(isDevelopment);
 
-            var environmentName = Environment.EnvironmentName == "IntegrationTests" ? "IntegrationTests" : Configuration["EnvironmentName"];
-            services.AddEntityFrameworkApprenticeFeedback(appSettings, environmentName)
+            services.AddEntityFrameworkApprenticeFeedback(appSettings, Configuration)
                 .AddEntityFrameworkUnitOfWork<ApprenticeFeedbackDataContext>()
                 .AddNServiceBusClientUnitOfWork();
 
