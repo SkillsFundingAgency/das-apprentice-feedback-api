@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
@@ -26,22 +27,17 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddEntityFrameworkApprenticeFeedback(this IServiceCollection services, ApplicationSettings config, string environmentName)
+        public static IServiceCollection AddEntityFrameworkApprenticeFeedback(this IServiceCollection services, ApplicationSettings applicationSettings, IConfiguration configuration)
         {
             return services.AddScoped(p =>
             {
-                var unitOfWorkContext = p.GetService<IUnitOfWorkContext>();
+                var unitOfWorkContext = p.GetRequiredService<IUnitOfWorkContext>();
+                var connectionFactory = p.GetRequiredService<IConnectionFactory>();
+                var loggerFactory = p.GetRequiredService<ILoggerFactory>();
                 ApprenticeFeedbackDataContext dbContext;
                 try
                 {
-                    if (environmentName.Equals("LOCAL", StringComparison.CurrentCultureIgnoreCase))
-                    {
-                        var localDbOptions = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>()
-                        .UseSqlServer(config.DbConnectionString)
-                        .EnableSensitiveDataLogging();
-                        dbContext = new ApprenticeFeedbackDataContext(localDbOptions.Options);
-                    }
-                    else if (environmentName.Equals("IntegrationTests", StringComparison.CurrentCultureIgnoreCase))
+                    if (configuration.IsIntegrationTests())
                     {
                         var integrationTestOptions =
                             new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>()
@@ -53,15 +49,22 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
                     {
                         var synchronizedStorageSession = unitOfWorkContext.Get<SynchronizedStorageSession>();
                         var sqlStorageSession = synchronizedStorageSession.GetSqlStorageSession();
-                        var optionsBuilder = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>().UseSqlServer(sqlStorageSession.Connection);
+                        var optionsBuilder = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>()
+                            .UseDataStorage(connectionFactory, sqlStorageSession.Connection)
+                            .UseLocalSqlLogger(loggerFactory, configuration);
+                        if (configuration.IsLocalAcceptanceOrDev())
+                        {
+                            optionsBuilder.EnableSensitiveDataLogging().UseLoggerFactory(loggerFactory);
+                        }
                         dbContext = new ApprenticeFeedbackDataContext(optionsBuilder.Options);
                         dbContext.Database.UseTransaction(sqlStorageSession.Transaction);
                     }
                 }
                 catch (KeyNotFoundException)
                 {
-                    var settings = p.GetService<IOptions<ApplicationSettings>>();
-                    var optionsBuilder = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>().UseSqlServer(settings.Value.DbConnectionString);
+                    var optionsBuilder = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>()
+                        .UseDataStorage(connectionFactory, applicationSettings.DbConnectionString)
+                        .UseLocalSqlLogger(loggerFactory, configuration);
                     dbContext = new ApprenticeFeedbackDataContext(optionsBuilder.Options);
                 }
 
@@ -72,9 +75,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
 
         public static async Task<UpdateableServiceProvider> StartNServiceBus(this UpdateableServiceProvider serviceProvider, ApplicationSettings appSettings)
         {
-            var endpointName = "SFA.DAS.ApprenticeFeedback.Api";
-            
-            var endpointConfiguration = new EndpointConfiguration(endpointName)
+            var endpointConfiguration = new EndpointConfiguration("SFA.DAS.ApprenticeFeedback.Api")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
                 .UseOutbox(true)
