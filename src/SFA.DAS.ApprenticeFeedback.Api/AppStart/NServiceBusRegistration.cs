@@ -28,9 +28,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             var endpointConfiguration = new EndpointConfiguration("SFA.DAS.ApprenticeFeedback.Api")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
-                .UseOutbox(true)
                 .UseServicesBuilder(serviceProvider)
-                .UseSqlServerPersistence(() => CreateSqlConnection(configuration, appSettings));
+                .UseSqlServerPersistence(() => CreateSqlConnection(configuration, appSettings))
+                .UseSendOnly();
 
             if (appSettings.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
             {
