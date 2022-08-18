@@ -7,7 +7,7 @@
   <ItemGroup>
     <PackageReference Include="MediatR" Version="10.0.1" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
-    <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.20" />
+    <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21" />
   </ItemGroup>
 
   <ItemGroup>

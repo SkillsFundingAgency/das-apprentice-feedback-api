@@ -4,7 +4,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
+namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
 {
     public class ApprenticeFeedbackHealthCheck : IHealthCheck
     {

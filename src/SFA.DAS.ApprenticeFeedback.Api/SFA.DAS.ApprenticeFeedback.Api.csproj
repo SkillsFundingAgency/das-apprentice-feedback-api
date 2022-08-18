@@ -16,11 +16,8 @@
     <PackageReference Include="SFA.DAS.Configuration.AzureTableStorage" Version="3.0.84" />
     <PackageReference Include="SFA.DAS.NLog.Targets.Redis" Version="1.2.1" />
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
-    <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.20" />
-    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.20" />
-    <PackageReference Include="SFA.DAS.UnitOfWork" Version="9.0.28" />
-    <PackageReference Include="SFA.DAS.UnitOfWork.EntityFrameworkCore" Version="9.0.28" />
-    <PackageReference Include="SFA.DAS.UnitOfWork.NServiceBus" Version="9.0.24" />
+    <PackageReference Include="SFA.DAS.NServiceBus" Version="16.0.21" />
+    <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="16.0.21" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
     <PackageReference Include="System.Text.Json" Version="6.0.2" />
   </ItemGroup>

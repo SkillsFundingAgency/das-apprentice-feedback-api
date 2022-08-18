@@ -4,7 +4,7 @@ using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
 using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
+namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
 {
     public static class AddServiceRegistration
     {
@@ -20,8 +20,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
             services.AddScoped<IProviderStarsSummaryContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IFeedbackTransactionContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IDateTimeHelper, UtcTimeProvider>();
-            services.AddSingleton<IManagedIdentityTokenProvider, ManagedIdentityTokenProvider>();
-            services.AddTransient<IConnectionFactory, SqlServerConnectionFactory>();
         }
     }
 }
