@@ -16,10 +16,10 @@ using SFA.DAS.ApprenticeFeedback.Api.Configuration;
 using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
-using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
 using SFA.DAS.UnitOfWork.NServiceBus.Features.ClientOutbox.DependencyResolution.Microsoft;
 using System;
 using System.IO;
+using SFA.DAS.UnitOfWork.EntityFrameworkCore.DependencyResolution.Microsoft;
 
 namespace SFA.DAS.ApprenticeFeedback.Api
 {
