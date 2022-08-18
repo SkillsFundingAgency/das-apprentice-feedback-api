@@ -74,12 +74,14 @@ namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
 
         public static async Task<UpdateableServiceProvider> StartNServiceBus(this UpdateableServiceProvider serviceProvider, ApplicationSettings appSettings)
         {
+            var connectionFactory = serviceProvider.GetRequiredService<IConnectionFactory>();
+
             var endpointConfiguration = new EndpointConfiguration("SFA.DAS.ApprenticeFeedback.Api")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
                 .UseOutbox(true)
                 .UseServicesBuilder(serviceProvider)
-                .UseSqlServerPersistence(() => new SqlConnection(appSettings.DbConnectionString))
+                .UseSqlServerPersistence(() => connectionFactory.CreateConnection(appSettings.DbConnectionString))
                 .UseUnitOfWork();
 
             if (appSettings.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
