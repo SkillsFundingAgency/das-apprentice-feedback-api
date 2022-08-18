@@ -1,7 +1,8 @@
 ﻿using System.Threading.Tasks;
 using Microsoft.Azure.Services.AppAuthentication;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.UoW
+namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
 {
     public class ManagedIdentityTokenProvider : IManagedIdentityTokenProvider
     {

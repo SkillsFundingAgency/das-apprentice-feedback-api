@@ -18,21 +18,21 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
         private readonly ApplicationSettings _appSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ILogger<ProcessEmailTransactionCommandHandler> _logger;
-        private readonly ICommandPublisher _commandPublisher;
+        private readonly IEventPublisher _eventPublisher;
 
         public ProcessEmailTransactionCommandHandler(
             IFeedbackTransactionContext context
             , ApplicationSettings appSettings
             , IDateTimeHelper dateTimeHelper
             , ILogger<ProcessEmailTransactionCommandHandler> logger
-            , ICommandPublisher commandPublisher
+            , IEventPublisher eventPublisher
             )
         {
             _context = context;
             _appSettings = appSettings;
             _dateTimeHelper = dateTimeHelper;
             _logger = logger;
-            _commandPublisher = commandPublisher;
+            _eventPublisher = eventPublisher;
         }
 
         public async Task<ProcessEmailTransactionResponse> Handle(ProcessEmailTransactionCommand request, CancellationToken cancellationToken)
@@ -139,7 +139,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             {
                 var emailCommand = new SendEmailCommand(templateId, toAddress, personalisationTokens);
                 _logger.LogInformation($"Sending {templateName} email ({templateId}) to {toAddress}");
-                await _commandPublisher.Publish(emailCommand);
+                await _eventPublisher.Publish(emailCommand);
             }
             catch (Exception ex)
             {

@@ -3,8 +3,9 @@ using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.UoW
+namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
 {
     public static class DbContextBuilderExtensions
     {

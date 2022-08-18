@@ -1,12 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using SFA.DAS.ApprenticeFeedback.Api.UoW;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
-using SFA.DAS.ApprenticeFeedback.Application.NServiceBus;
 using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
+namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
 {
     public static class AddServiceRegistration
     {
@@ -22,7 +20,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             services.AddScoped<IProviderStarsSummaryContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IFeedbackTransactionContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IDateTimeHelper, UtcTimeProvider>();
-            services.AddScoped<ICommandPublisher, CommandPublisher>();
             services.AddSingleton<IManagedIdentityTokenProvider, ManagedIdentityTokenProvider>();
             services.AddTransient<IConnectionFactory, SqlServerConnectionFactory>();
         }

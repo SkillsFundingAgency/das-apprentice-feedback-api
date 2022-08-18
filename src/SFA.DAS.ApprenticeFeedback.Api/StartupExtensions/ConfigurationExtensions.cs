@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.Configuration;
 using System;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.UoW
+namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
 {
     public static class ConfigurationExtensions
     {

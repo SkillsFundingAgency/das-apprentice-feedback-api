@@ -2,8 +2,9 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.UoW
+namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
 {
     public class SqlServerConnectionFactory : IConnectionFactory
     {

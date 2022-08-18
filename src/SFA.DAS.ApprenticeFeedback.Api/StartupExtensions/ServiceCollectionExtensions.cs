@@ -3,13 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NServiceBus;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using NServiceBus.Persistence;
-using SFA.DAS.ApprenticeFeedback.Api.UoW;
 using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.NServiceBus.Configuration;
 using SFA.DAS.NServiceBus.Configuration.AzureServiceBus;
 using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
@@ -21,10 +20,9 @@ using SFA.DAS.UnitOfWork.Context;
 using SFA.DAS.UnitOfWork.NServiceBus.Configuration;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
+namespace SFA.DAS.ApprenticeFeedback.Api.StartupExtensions
 {
     public static class ServiceCollectionExtensions
     {
@@ -82,8 +80,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
                 .UseOutbox(true)
                 .UseServicesBuilder(serviceProvider)
                 .UseSqlServerPersistence(() => new SqlConnection(appSettings.DbConnectionString))
-                .UseUnitOfWork()
-                .UseSendOnly();
+                .UseUnitOfWork();
 
             if (appSettings.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
             {

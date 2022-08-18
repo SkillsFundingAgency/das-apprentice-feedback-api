@@ -1,7 +1,7 @@
 ﻿using System.Data.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace SFA.DAS.ApprenticeFeedback.Api.UoW
+namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 {
     public interface IConnectionFactory
     {
