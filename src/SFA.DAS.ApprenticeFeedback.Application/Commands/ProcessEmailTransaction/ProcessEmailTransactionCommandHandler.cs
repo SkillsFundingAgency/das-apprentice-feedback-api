@@ -139,7 +139,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             {
                 var emailCommand = new SendEmailCommand(templateId, toAddress, personalisationTokens);
                 _logger.LogInformation($"Sending {templateName} email ({templateId}) to {toAddress}");
-                await _messageSession.Publish(emailCommand);
+                await _messageSession.Send(emailCommand);
             }
             catch (Exception ex)
             {
