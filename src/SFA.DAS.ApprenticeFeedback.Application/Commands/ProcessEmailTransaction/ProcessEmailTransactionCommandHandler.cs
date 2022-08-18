@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
+using NServiceBus;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.Notifications.Messages.Commands;
-using SFA.DAS.NServiceBus.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -18,21 +18,21 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
         private readonly ApplicationSettings _appSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ILogger<ProcessEmailTransactionCommandHandler> _logger;
-        private readonly ICommandPublisher _commandPublisher;
+        private readonly IMessageSession _messageSession;
 
         public ProcessEmailTransactionCommandHandler(
             IFeedbackTransactionContext context
             , ApplicationSettings appSettings
             , IDateTimeHelper dateTimeHelper
             , ILogger<ProcessEmailTransactionCommandHandler> logger
-            , ICommandPublisher commandPublisher
+            , IMessageSession messageSession
             )
         {
             _context = context;
             _appSettings = appSettings;
             _dateTimeHelper = dateTimeHelper;
             _logger = logger;
-            _commandPublisher = commandPublisher;
+            _messageSession = messageSession;
         }
 
         public async Task<ProcessEmailTransactionResponse> Handle(ProcessEmailTransactionCommand request, CancellationToken cancellationToken)
@@ -139,7 +139,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             {
                 var emailCommand = new SendEmailCommand(templateId, toAddress, personalisationTokens);
                 _logger.LogInformation($"Sending {templateName} email ({templateId}) to {toAddress}");
-                await _commandPublisher.Publish(emailCommand);
+                await _messageSession.Send(emailCommand);
             }
             catch (Exception ex)
             {
