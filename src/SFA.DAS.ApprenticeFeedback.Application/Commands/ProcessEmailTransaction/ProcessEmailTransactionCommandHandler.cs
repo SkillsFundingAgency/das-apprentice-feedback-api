@@ -4,6 +4,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.Notifications.Messages.Commands;
+using SFA.DAS.NServiceBus.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -36,7 +37,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
 
         public async Task<ProcessEmailTransactionResponse> Handle(ProcessEmailTransactionCommand request, CancellationToken cancellationToken)
         {
-            /*                              
+            /*      
+             Logic from JIRA QF-577:      
                 If the email template is the feedback template then:
 
                     if the preference is set to false, 
@@ -64,90 +66,71 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             var feedbackTransaction = await _context.FindByIdIncludeFeedbackTargetAsync(request.FeedbackTransactionId);
             if (null == feedbackTransaction) return null;
 
-            // if it has already sent do nothing and return a successful state.
+            // If it has already sent, do nothing and return a successful state.
             if(feedbackTransaction.SentDate.HasValue)
             {
-                // @ToDo: Q. do we need an "Already Sent" state? Does it matter?
                 return new ProcessEmailTransactionResponse(feedbackTransaction.Id, EmailSentStatus.Successful);
             }
 
-            // determines email template to send based on target status
-            Guid? emailTemplateId = GetEmailTemplateIdForTransaction(feedbackTransaction);
-            if(null == emailTemplateId)
+            // Determine which email template to send based on target status.
+            var emailTemplate = GetEmailTemplateIdForTransaction(feedbackTransaction);
+            if(null == emailTemplate.Id)
             {
-                // @ToDo: set send date to some future date and move on
                 return new ProcessEmailTransactionResponse(feedbackTransaction.Id, EmailSentStatus.Successful);
             }
 
-            var emailSentStatus = EmailSentStatus.Failed; // assume the worst, unless we find out otherwise.
+            // Begin sending process.
+            EmailSentStatus sendStatus = EmailSentStatus.Failed;
 
             // If the email template is the feedback template then
             // decide whether to send email based on preference
-            if(emailTemplateId == _appSettings.ActiveFeedbackEmailTemplateId)
+            if (emailTemplate.Id == _appSettings.ActiveFeedbackEmailTemplateId && !request.IsEmailContactAllowed)
             {
-                if(request.IsEmailContactAllowed)
-                {
-                    // Send the email
-                    await SendEmailViaNserviceBus(
-                        request.ApprenticeEmailAddress,
-                        emailTemplateId.ToString(),
-                        "Active",
-                        new Dictionary<string, string>() 
-                            {
-                                { "Contact", $"{request.ApprenticeName}" }
-                            }
-                        );
-
-                    feedbackTransaction.TemplateId = emailTemplateId;
-                    feedbackTransaction.EmailAddress = request.ApprenticeEmailAddress;
-                    feedbackTransaction.FirstName = request.ApprenticeName;
-                    feedbackTransaction.SentDate = _dateTimeHelper.Now;
-                    emailSentStatus = EmailSentStatus.Successful;
-                }
-                else
-                {
-                    feedbackTransaction.SendAfter = _dateTimeHelper.Now.AddDays(_appSettings.FeedbackEmailProcessingRetryWaitDays);
-                    emailSentStatus = EmailSentStatus.NotAllowed;
-                }
+                sendStatus = EmailSentStatus.NotAllowed;
+                feedbackTransaction.SendAfter = _dateTimeHelper.Now.AddDays(_appSettings.FeedbackEmailProcessingRetryWaitDays);
             }
-            else if (emailTemplateId == _appSettings.WithdrawnFeedbackEmailTemplateId)
+            else if(emailTemplate.Id.HasValue)
             {
-                // Requirement is to always send the email regardless of contact preference
+                feedbackTransaction.TemplateId = emailTemplate.Id;
+                feedbackTransaction.EmailAddress = request.ApprenticeEmailAddress;
+                feedbackTransaction.FirstName = request.ApprenticeName;
+                feedbackTransaction.SentDate = _dateTimeHelper.Now;
+                sendStatus = EmailSentStatus.Successful;
+            }
+            await _context.SaveChangesAsync();
+
+            if(sendStatus == EmailSentStatus.Successful)
+            {
                 await SendEmailViaNserviceBus(
-                    request.ApprenticeEmailAddress,
-                    emailTemplateId.ToString(),
-                    "Withdrawn",
-                    new Dictionary<string, string>()
+                    request.ApprenticeEmailAddress
+                    , emailTemplate.Id.ToString()
+                    , emailTemplate.Name
+                    , new Dictionary<string, string>()
                         {
                             { "Contact", $"{request.ApprenticeName}" }
                         }
                     );
-
-                feedbackTransaction.TemplateId = emailTemplateId;
-                feedbackTransaction.EmailAddress = request.ApprenticeEmailAddress;
-                feedbackTransaction.FirstName = request.ApprenticeName;
-                feedbackTransaction.SentDate = _dateTimeHelper.Now;
-                emailSentStatus = EmailSentStatus.Successful;
             }
 
-            await _context.SaveChangesAsync();
-
-            return new ProcessEmailTransactionResponse(feedbackTransaction.Id, emailSentStatus);
+            return new ProcessEmailTransactionResponse(feedbackTransaction.Id, sendStatus);
         }
 
-        private Guid? GetEmailTemplateIdForTransaction(FeedbackTransaction feedbackTransaction)
+        private (Guid? Id,string Name) GetEmailTemplateIdForTransaction(FeedbackTransaction feedbackTransaction)
         {
             Guid? templateId = null;
+            string templateName = null;
             if(feedbackTransaction.ApprenticeFeedbackTarget.IsActiveAndEligible())
             {
                 templateId = _appSettings.ActiveFeedbackEmailTemplateId;
+                templateName = "Active";
             }
             else if (feedbackTransaction.ApprenticeFeedbackTarget.IsWithdrawn())
             {
                 templateId = _appSettings.WithdrawnFeedbackEmailTemplateId;
+                templateName = "Withdrawn";
             }
 
-            return templateId;
+            return (templateId, templateName);
         }
 
         private async Task SendEmailViaNserviceBus(string toAddress, string templateId, string templateName, Dictionary<string, string> personalisationTokens)

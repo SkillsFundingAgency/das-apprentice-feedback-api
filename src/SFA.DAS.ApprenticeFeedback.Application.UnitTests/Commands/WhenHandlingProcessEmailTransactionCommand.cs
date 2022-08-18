@@ -3,8 +3,10 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransaction;
 using SFA.DAS.ApprenticeFeedback.Data;
+using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using System.Threading;
 using System.Threading.Tasks;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 {
@@ -26,37 +28,144 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             result.Should().BeNull();
         }
 
-        /*
         [Test, AutoMoqData]
-        public async Task And_CommandIsValid_Then_UpdatesFeedbackTarget_If_It_Exists(
-           CreateApprenticeFeedbackTargetCommand command,
-           ApprenticeFeedbackTarget apprenticeFeedbackTarget,
+        public async Task And_TransactionAlreadySent_Then_ReturnSuccessful(
+           ProcessEmailTransactionCommand command,  
            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
-           CreateApprenticeFeedbackTargetCommandHandler handler)
+           ProcessEmailTransactionCommandHandler handler
+           )
         {
             // Arrange
-            apprenticeFeedbackTarget.ApprenticeshipId = command.CommitmentApprenticeshipId;
-            apprenticeFeedbackTarget.ApprenticeId = command.ApprenticeId;
-            apprenticeFeedbackTarget.Status = (int)FeedbackTargetStatus.Active;
-            apprenticeFeedbackTarget.FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_TooLateAfterPassing;
-            context.Add(apprenticeFeedbackTarget);
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Status = (int)FeedbackTargetStatus.Active,
+                FeedbackEligibility = (int)FeedbackEligibilityStatus.Allow,
+            };
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                EmailAddress = command.ApprenticeEmailAddress,
+                FirstName = command.ApprenticeName,
+                SentDate = System.DateTime.Now,
+                ApprenticeFeedbackTarget = feedbackTarget
+            };
+            context.Add(feedbackTarget);
+            context.Add(feedbackTransaction);
             await context.SaveChangesAsync();
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEmailContactAllowed = true;
 
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
 
-            //Assert
-            var feedbackTarget = await context.ApprenticeFeedbackTargets.FirstOrDefaultAsync(s => s.Id == result.ApprenticeFeedbackTargetId);
-
-            feedbackTarget.EndDate.Should().BeNull();
-            feedbackTarget.Ukprn.Should().BeNull();
-            feedbackTarget.ProviderName.Should().BeNull();
-            feedbackTarget.StandardUId.Should().BeNull();
-            feedbackTarget.StandardName.Should().BeNull();
-            feedbackTarget.EligibilityCalculationDate.Should().BeNull();
-            feedbackTarget.Status.Should().Be((int)FeedbackTargetStatus.Unknown);
-            feedbackTarget.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Unknown);
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
         }
-        */
+
+        [Test, AutoMoqData]
+        public async Task And_EmailTemplateNotFound_Then_ReturnSuccessful(
+           ProcessEmailTransactionCommand command,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+           ProcessEmailTransactionCommandHandler handler
+           )
+        {
+            // Arrange
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Status = (int)FeedbackTargetStatus.NotYetActive, // no email template for this
+                FeedbackEligibility = (int)FeedbackEligibilityStatus.Allow,
+            };
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                EmailAddress = command.ApprenticeEmailAddress,
+                FirstName = command.ApprenticeName,
+                SentDate = null,
+                ApprenticeFeedbackTarget = feedbackTarget
+            };
+            context.Add(feedbackTarget);
+            context.Add(feedbackTransaction);
+            await context.SaveChangesAsync();
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEmailContactAllowed = true;
+
+            //Act
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
+        }
+
+        [Test, AutoMoqData]
+        public async Task And_NoEmailContactAllowed_Then_ReturnNotAllowed(
+           ProcessEmailTransactionCommand command,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+           ProcessEmailTransactionCommandHandler handler
+           )
+        {
+            // Arrange
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Status = (int)FeedbackTargetStatus.Active,
+                FeedbackEligibility = (int)FeedbackEligibilityStatus.Allow,
+            };
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                EmailAddress = command.ApprenticeEmailAddress,
+                FirstName = command.ApprenticeName,
+                SentDate = null,
+                ApprenticeFeedbackTarget = feedbackTarget,
+            };
+            context.Add(feedbackTarget);
+            context.Add(feedbackTransaction);
+            await context.SaveChangesAsync();
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEmailContactAllowed = false;
+
+            //Act
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.NotAllowed);
+        }
+
+        [Test, AutoMoqData]
+        public async Task And_ValidStateAndEmailContactAllowed_Then_ReturnSuccess(
+           ProcessEmailTransactionCommand command,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+           ProcessEmailTransactionCommandHandler handler
+           )
+        {
+            // Arrange
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Status = (int)FeedbackTargetStatus.Active,
+                FeedbackEligibility = (int)FeedbackEligibilityStatus.Allow,
+            };
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                EmailAddress = command.ApprenticeEmailAddress,
+                FirstName = command.ApprenticeName,
+                SentDate = null,
+                ApprenticeFeedbackTarget = feedbackTarget,
+            };
+            context.Add(feedbackTarget);
+            context.Add(feedbackTransaction);
+            await context.SaveChangesAsync();
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEmailContactAllowed = false;
+
+            //Act
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.NotAllowed);
+        }
     }
 }
