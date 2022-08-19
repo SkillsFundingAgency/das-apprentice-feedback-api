@@ -17,7 +17,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
 
         public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> StatusNotCompletedOrPermanentlyWithdrawn(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts)
         {
-            return afts.Where(aft => aft.Status != (int)FeedbackTargetStatus.Complete && aft.Status != (int)FeedbackTargetStatus.Withdrawn);
+            return afts.Where(aft => aft.Status != (int)FeedbackTargetStatus.Complete);
         }
         public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> FeedbackEligibilityNotCalculatedRecently(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts, IDateTimeHelper dateTimeHelper, ApplicationSettings appSettings)
         {
