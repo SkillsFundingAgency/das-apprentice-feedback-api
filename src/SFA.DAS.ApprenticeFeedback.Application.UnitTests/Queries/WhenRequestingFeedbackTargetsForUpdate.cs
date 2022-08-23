@@ -38,16 +38,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             };
         }
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_Withdrawn(string providerName)
-        {
-            return new Domain.Entities.ApprenticeFeedbackTarget()
-            {
-                ProviderName = providerName,
-                StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Withdrawn
-            };
-        }
-
         private static Domain.Entities.ApprenticeFeedbackTarget AFT_NotCompletedOrWithdrawn(string providerName)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
@@ -162,7 +152,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 }
             }
 
-            public class StatusNotCompletedOrPermanentlyWithdrawn
+            public class StatusNotCompleted
             {            
                 [Test]
                 [AutoMoqData]
@@ -175,24 +165,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
-                                        .StatusNotCompletedOrPermanentlyWithdrawn()
-                                    .ToList();
-
-                    apprenticeFeedbackTargets.Should().BeEmpty();
-                }
-
-                [Test]
-                [AutoMoqData]
-                public void When_ApprenticeshipStatusWithdrawn_Then_ReturnEmpty(
-                    [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context
-                    )
-                {
-                    context.Add(AFT_Withdrawn("Provider Name"));
-                    context.SaveChanges();
-
-                    var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
-                                    .Entities
-                                        .StatusNotCompletedOrPermanentlyWithdrawn()
+                                        .StatusNotCompleted()
                                     .ToList();
 
                     apprenticeFeedbackTargets.Should().BeEmpty();
@@ -209,7 +182,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
-                                        .StatusNotCompletedOrPermanentlyWithdrawn()
+                                        .StatusNotCompleted()
                                     .ToList();
 
                     apprenticeFeedbackTargets.Should().HaveCount(1);

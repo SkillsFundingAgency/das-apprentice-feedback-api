@@ -1,8 +1,12 @@
-﻿namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
+﻿using System;
+
+namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
 {
     public class ApplicationSettings
     {
         public string DbConnectionString { get; set; }
+        public string NServiceBusConnectionString { get; set; }
+        public string NServiceBusLicense { get; set; }
         
         /// <summary>
         /// How soon since the last feedback given by an apprentice they are able to give feedback again
@@ -38,5 +42,17 @@
         /// allow the calculation to happen again
         /// </summary>
         public int EligibilityCalculationThrottleDays { get; set; }
+        /// <summary>
+        /// Email template id for feedback emails for an active apprenticeship
+        /// </summary>
+        public Guid ActiveFeedbackEmailTemplateId { get; set; }
+        /// <summary>
+        /// Email template id for feedback emails for a withdrawn apprenticeship
+        /// </summary>
+        public Guid WithdrawnFeedbackEmailTemplateId { get; set; }
+        /// <summary>
+        /// Number of days to wait before reprocessing a feedback transaction email (eg. 90)
+        /// </summary>
+        public int FeedbackEmailProcessingRetryWaitDays { get; set; }
     }
 }
