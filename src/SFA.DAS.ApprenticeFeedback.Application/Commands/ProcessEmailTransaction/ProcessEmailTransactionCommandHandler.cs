@@ -127,11 +127,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                 templateId = _appSettings.ActiveFeedbackEmailTemplateId;
                 templateName = "Active";
             }
+            /*
+             * QF-577 we don't yet have the withdrawn template
             else if (feedbackTransaction.ApprenticeFeedbackTarget.IsWithdrawn())
             {
                 templateId = _appSettings.WithdrawnFeedbackEmailTemplateId;
                 templateName = "Withdrawn";
             }
+            */
 
             return (templateId, templateName);
         }
