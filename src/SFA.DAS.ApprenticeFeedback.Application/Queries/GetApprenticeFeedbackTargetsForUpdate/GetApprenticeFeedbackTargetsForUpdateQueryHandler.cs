@@ -15,7 +15,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
             return afts.Where(aft => aft.StartDate.HasValue && aft.StartDate.Value.Date < dateTimeHelper.Now.Date);
         }
 
-        public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> StatusNotCompletedOrPermanentlyWithdrawn(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts)
+        public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> StatusNotCompleted(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts)
         {
             return afts.Where(aft => aft.Status != (int)FeedbackTargetStatus.Complete);
         }
@@ -54,7 +54,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
             var apprenticeFeedbackTargets = _apprenticeFeedbackTargetDataContext
                 .Entities
                     .HasStarted(_dateTimeHelper)
-                    .StatusNotCompletedOrPermanentlyWithdrawn()
+                    .StatusNotCompleted()
                     .FeedbackEligibilityNotCalculatedRecently(_dateTimeHelper, _appSettings)
                     .NotGivenFeedbackRecently(_dateTimeHelper, _appSettings)
                 .OrderByDescending(aft => aft.CreatedOn)

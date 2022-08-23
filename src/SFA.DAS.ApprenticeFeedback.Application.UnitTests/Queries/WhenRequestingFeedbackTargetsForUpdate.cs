@@ -152,7 +152,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 }
             }
 
-            public class StatusNotCompletedOrPermanentlyWithdrawn
+            public class StatusNotCompleted
             {            
                 [Test]
                 [AutoMoqData]
@@ -165,7 +165,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
-                                        .StatusNotCompletedOrPermanentlyWithdrawn()
+                                        .StatusNotCompleted()
                                     .ToList();
 
                     apprenticeFeedbackTargets.Should().BeEmpty();
@@ -182,7 +182,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
-                                        .StatusNotCompletedOrPermanentlyWithdrawn()
+                                        .StatusNotCompleted()
                                     .ToList();
 
                     apprenticeFeedbackTargets.Should().HaveCount(1);
