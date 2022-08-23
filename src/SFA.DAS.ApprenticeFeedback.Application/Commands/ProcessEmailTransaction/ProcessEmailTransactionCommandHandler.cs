@@ -76,6 +76,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             var emailTemplate = GetEmailTemplateIdForTransaction(feedbackTransaction);
             if(null == emailTemplate.Id)
             {
+                // Per new discussion - if no email template found then bin the transaction.
+                _context.Entities.Remove(feedbackTransaction);
+                await _context.SaveChangesAsync();
                 return new ProcessEmailTransactionResponse(feedbackTransaction.Id, EmailSentStatus.Successful);
             }
 
