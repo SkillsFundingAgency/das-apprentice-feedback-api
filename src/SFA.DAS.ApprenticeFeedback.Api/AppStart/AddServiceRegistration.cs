@@ -1,5 +1,7 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using SFA.DAS.ApprenticeFeedback.Application.Behaviours;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
 using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
@@ -20,6 +22,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             services.AddScoped<IProviderStarsSummaryContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IFeedbackTransactionContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IDateTimeHelper, UtcTimeProvider>();
+
+            services.AddValidatorsFromAssembly(typeof(Application.Queries.GetFeedbackTransactionsToEmail.GetFeedbackTransactionsToEmailQueryValidator).Assembly);
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
         }
     }
 }
