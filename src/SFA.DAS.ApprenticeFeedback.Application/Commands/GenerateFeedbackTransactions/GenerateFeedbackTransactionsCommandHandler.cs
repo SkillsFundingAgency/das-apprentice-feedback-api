@@ -16,13 +16,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransa
     public class GenerateFeedbackTransactionsCommandHandler : IRequestHandler<GenerateFeedbackTransactionsCommand, GenerateFeedbackTransactionsCommandResponse>
     {
         private readonly IFeedbackTransactionContext _transactionContext;
-        private readonly IApprenticeFeedbackTargetContext _targetContext;
         private readonly ApplicationSettings _settings;
 
-        public GenerateFeedbackTransactionsCommandHandler(IFeedbackTransactionContext transactionContext, IApprenticeFeedbackTargetContext targetContext, ApplicationSettings settings)
+        public GenerateFeedbackTransactionsCommandHandler(IFeedbackTransactionContext transactionContext, ApplicationSettings settings)
         {
             _transactionContext = transactionContext;
-            _targetContext = targetContext;
             _settings = settings;
         }
 
