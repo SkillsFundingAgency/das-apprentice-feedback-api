@@ -4,7 +4,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
     public class FeedbackTransactionToEmail
     {
-        public int ApprenticeFeedbackTransactionId { get; set; }
+        public long Id { get; set; }
         public Guid ApprenticeId { get; set; }
     }
 }
