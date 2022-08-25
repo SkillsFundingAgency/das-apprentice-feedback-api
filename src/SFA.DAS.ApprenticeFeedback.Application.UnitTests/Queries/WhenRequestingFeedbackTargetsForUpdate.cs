@@ -265,7 +265,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             {
                 [Test]
                 [AutoMoqData]
-                public void When_NoFeedback_Then_ReturnEmpty(
+                public void When_NoFeedback_Then_ReturnApprenticeship(
                     [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
                     UtcTimeProvider dateTimeHelper,
                     ApplicationSettings appSettings
@@ -281,7 +281,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                                         .NotGivenFeedbackRecently(dateTimeHelper, appSettings)
                                     .ToList();
 
-                    apprenticeFeedbackTargets.Should().BeEmpty();
+                    apprenticeFeedbackTargets.Should().HaveCount(1);
                 }
 
                 [Test]
@@ -434,7 +434,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
             var query = new GetApprenticeFeedbackTargetsForUpdateQuery() { BatchSize = (int)FeedbackTargetTestData[testCaseIndex].Arguments[1] };
 
-            var handler = new GetApprenticeFeedbackTargetsForUpdateQueryHandler(context, new ApplicationSettings() { RecentDenyPeriodDays = 7 }, new UtcTimeProvider());
+            var handler = new GetApprenticeFeedbackTargetsForUpdateQueryHandler(context, 
+                new ApplicationSettings() 
+                { 
+                    RecentDenyPeriodDays = 7,
+                    EligibilityCalculationThrottleDays = 7
+                }, 
+                new UtcTimeProvider());
             
             // Act
 
