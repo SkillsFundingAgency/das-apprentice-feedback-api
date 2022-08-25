@@ -24,6 +24,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
                 ProviderName = providerName,
+                StartDate = DateTime.UtcNow.AddMonths(1),
+            };
+        }
+
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_UnknownStart(string providerName)
+        {
+            return new Domain.Entities.ApprenticeFeedbackTarget()
+            {
+                ProviderName = providerName,
                 StartDate = null,
             };
         }
@@ -113,7 +122,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
         public class IQueryableExtensionTests
         {
-            public class HasStarted
+            public class HasStartedOrUnknown
             {
                 [Test]
                 [AutoMoqData]
@@ -131,6 +140,24 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                                     .ToList();
 
                     apprenticeFeedbackTargets.Should().BeEmpty();
+                }
+
+                [Test]
+                [AutoMoqData]
+                public void When_ApprenticeshipStartUnknown_Then_ReturnApprenticeship(
+                    [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+                    UtcTimeProvider dateTimeHelper
+                    )
+                {
+                    context.Add(AFT_UnknownStart("Provider Name"));
+                    context.SaveChanges();
+
+                    var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
+                                    .Entities
+                                        .HasStartedOrUnknown(dateTimeHelper)
+                                    .ToList();
+
+                    apprenticeFeedbackTargets.Should().HaveCount(1);
                 }
 
                 [Test]
