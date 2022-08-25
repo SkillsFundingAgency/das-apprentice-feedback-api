@@ -53,7 +53,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
         {
             var apprenticeFeedbackTargets = _apprenticeFeedbackTargetDataContext
                 .Entities
-                    .HasStarted(_dateTimeHelper)
+                    .HasStartedOrUnknown(_dateTimeHelper)
                     .StatusNotCompleted()
                     .FeedbackEligibilityNotCalculatedRecently(_dateTimeHelper, _appSettings)
                     .NotGivenFeedbackRecently(_dateTimeHelper, _appSettings)

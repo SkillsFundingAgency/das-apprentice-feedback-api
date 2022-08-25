@@ -127,7 +127,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
-                                        .HasStarted(dateTimeHelper)
+                                        .HasStartedOrUnknown(dateTimeHelper)
                                     .ToList();
 
                     apprenticeFeedbackTargets.Should().BeEmpty();
@@ -145,7 +145,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
                                     .Entities
-                                        .HasStarted(dateTimeHelper)
+                                        .HasStartedOrUnknown(dateTimeHelper)
                                     .ToList();
 
                     apprenticeFeedbackTargets.Should().HaveCount(1);
