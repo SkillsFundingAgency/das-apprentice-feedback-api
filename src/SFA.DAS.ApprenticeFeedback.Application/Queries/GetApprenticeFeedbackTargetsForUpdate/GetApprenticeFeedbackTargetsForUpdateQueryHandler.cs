@@ -10,9 +10,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
 {
     public static class ApprenticeFeedbackTargetFilters
     {
-        public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> HasStarted(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts, IDateTimeHelper dateTimeHelper)
+        public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> HasStartedOrUnknown(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts, IDateTimeHelper dateTimeHelper)
         {
-            return afts.Where(aft => aft.StartDate.HasValue && aft.StartDate.Value.Date < dateTimeHelper.Now.Date);
+            return afts.Where(aft => !aft.StartDate.HasValue || (aft.StartDate.HasValue && aft.StartDate.Value.Date < dateTimeHelper.Now.Date));
         }
 
         public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> StatusNotCompleted(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts)
