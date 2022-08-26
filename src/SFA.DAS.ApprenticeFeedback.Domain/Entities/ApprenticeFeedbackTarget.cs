@@ -60,12 +60,13 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 
             if (learner == null)
             {
+                // Always update the eligibility calculation date to allow for the daily job.
+                EligibilityCalculationDate = dateTimeHelper.Now;
                 if (Status == (int)FeedbackTargetStatus.Active)
                 {
                     // If Learner is null and the current record is active, Set the target status and eligibility to complete
                     // The learner record won't be returned if it's superceded by a newer apprenticeship so we account for Null here to mark the record as complete.
                     // If it's a different status we leave it be ( e.g. if not yet active as Learner record yet to be created )
-                    EligibilityCalculationDate = dateTimeHelper.Now;
                     Status = (int)FeedbackTargetStatus.Complete;
                     FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_Complete;
                 }

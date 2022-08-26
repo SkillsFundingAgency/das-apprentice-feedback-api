@@ -59,44 +59,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             };
 
             _apprenticeFeedbackResultContext.Add(feedback);
-            await _apprenticeFeedbackResultContext.SaveChangesAsync();
-
-            // Update Feedback Target with new status
             apprenticeFeedbackTarget.UpdateTargetAfterFeedback(now);
-
-            await UpdateApprenticeFeedbackTarget(apprenticeFeedbackTarget);
+            await _apprenticeFeedbackResultContext.SaveChangesAsync();
 
             _logger.LogDebug($"Successfully created feedback object with Id: {feedback.Id}");
             return new CreateApprenticeFeedbackResponse() { ApprenticeFeedbackResultId = feedback.Id };
-        }
-
-        private async Task<Domain.Entities.ApprenticeFeedbackTarget> UpdateApprenticeFeedbackTarget(Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget)
-        {
-            var feedbackTarget = await _apprenticeFeedbackTargetContext.Entities.FirstOrDefaultAsync(s => s.Id == apprenticeFeedbackTarget.Id);
-            if (feedbackTarget == null)
-            {
-                return null;
-            }
-
-            feedbackTarget.StartDate = apprenticeFeedbackTarget.StartDate;
-            feedbackTarget.EndDate = apprenticeFeedbackTarget.EndDate;
-            feedbackTarget.Ukprn = apprenticeFeedbackTarget.Ukprn;
-            feedbackTarget.ProviderName = apprenticeFeedbackTarget.ProviderName;
-            feedbackTarget.StandardName = apprenticeFeedbackTarget.StandardName;
-            feedbackTarget.StandardUId = apprenticeFeedbackTarget.StandardUId;
-            feedbackTarget.LarsCode = apprenticeFeedbackTarget.LarsCode;
-
-            if (feedbackTarget.FeedbackEligibility != apprenticeFeedbackTarget.FeedbackEligibility ||
-                feedbackTarget.Status != apprenticeFeedbackTarget.Status)
-            {
-                feedbackTarget.Status = apprenticeFeedbackTarget.Status;
-                feedbackTarget.FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility;
-                feedbackTarget.EligibilityCalculationDate = apprenticeFeedbackTarget.EligibilityCalculationDate;
-            }
-
-            await _apprenticeFeedbackTargetContext.SaveChangesAsync();
-
-            return feedbackTarget;
         }
 
         private async Task ValidateProviderAttributes(CreateApprenticeFeedbackCommand request)
