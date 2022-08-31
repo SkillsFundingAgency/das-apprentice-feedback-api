@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[FeedbackTransaction]
 (
-	[Id] int NOT NULL IDENTITY PRIMARY KEY,
+	[Id] BIGINT NOT NULL IDENTITY PRIMARY KEY,
 	[ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER NOT NULL,
 	[EmailAddress] NVARCHAR(256),
 	[FirstName] NVARCHAR(200),
