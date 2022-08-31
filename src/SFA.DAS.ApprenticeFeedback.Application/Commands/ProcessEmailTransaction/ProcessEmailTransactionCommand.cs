@@ -4,7 +4,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
 {
     public class ProcessEmailTransactionCommand : IRequest<ProcessEmailTransactionResponse>
     {
-        public int FeedbackTransactionId { get; set; }
+        public long FeedbackTransactionId { get; set; }
         public string ApprenticeName { get; set; }
         public string ApprenticeEmailAddress { get; set; }
         public bool IsEmailContactAllowed { get; set; }
