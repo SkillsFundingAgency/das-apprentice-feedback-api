@@ -9,10 +9,10 @@
 
     public class ProcessEmailTransactionResponse
     {
-        public int FeedbackTransactionId { get; set; }
+        public long FeedbackTransactionId { get; set; }
         public EmailSentStatus EmailSentStatus { get; set; }
 
-        public ProcessEmailTransactionResponse(int id, EmailSentStatus status)
+        public ProcessEmailTransactionResponse(long id, EmailSentStatus status)
         {
             FeedbackTransactionId = id;
             EmailSentStatus = status;
