@@ -39,13 +39,18 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetFeedbackTransactions
                 .OrderBy(ft => ft.CreatedOn)
                 .AsQueryable();
 
-            if(request.BatchSize > 0)
+            if (request.BatchSize > 0)
             {
                 query = query.Take(request.BatchSize);
             }
 
-            var feedbackTransactionsToEmail = query                
-                .Select(r => new FeedbackTransactionToEmail { ApprenticeFeedbackTransactionId = r.Id, ApprenticeId = r.ApprenticeFeedbackTarget.ApprenticeId })
+            var feedbackTransactionsToEmail = query
+                .Select(r => new FeedbackTransactionToEmail
+                {
+                    ApprenticeFeedbackTransactionId = r.Id,
+                    ApprenticeId = r.ApprenticeFeedbackTarget.ApprenticeId,
+                    ApprenticeFeedbackTargetId = r.ApprenticeFeedbackTargetId
+                })
                 .ToList();
 
             return new GetFeedbackTransactionsToEmailResponse()

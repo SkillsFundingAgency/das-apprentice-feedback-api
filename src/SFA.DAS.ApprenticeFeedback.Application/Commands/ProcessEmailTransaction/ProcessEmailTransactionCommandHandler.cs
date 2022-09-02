@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransaction
 {
@@ -90,7 +91,22 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             if (emailTemplate.Id == _appSettings.ActiveFeedbackEmailTemplateId && !request.IsEmailContactAllowed)
             {
                 sendStatus = EmailSentStatus.NotAllowed;
-                feedbackTransaction.SendAfter = _dateTimeHelper.Now.AddDays(_appSettings.FeedbackEmailProcessingRetryWaitDays);
+
+                // QF-593-UnhappyPath
+                // Contact is not allowed,
+                // but only kick the can down the road if the apprenticeship is not complete
+                if(feedbackTransaction.ApprenticeFeedbackTarget.Status == (int)FeedbackTargetStatus.Complete)
+                {
+                    // Bin the transaction so it is never reprocessed
+                    _context.Entities.Remove(feedbackTransaction);
+                    await _context.SaveChangesAsync();
+                    return new ProcessEmailTransactionResponse(feedbackTransaction.Id, EmailSentStatus.Successful);
+                }
+                else
+                {
+                    // Kick the can down the road
+                    feedbackTransaction.SendAfter = _dateTimeHelper.Now.AddDays(_appSettings.FeedbackEmailProcessingRetryWaitDays);
+                }
             }
             else if(emailTemplate.Id.HasValue)
             {
