@@ -47,6 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
             }
 
             apprenticeFeedbackTarget.Status = (int)request.Status;
+            apprenticeFeedbackTarget.FeedbackEligibility = (int)request.FeedbackEligibilityStatus;
             if (apprenticeFeedbackTarget.Status == (int)FeedbackTargetStatus.Complete)
             {
                 if (null != apprenticeFeedbackTarget.FeedbackTransactions && apprenticeFeedbackTarget.FeedbackTransactions.Any())
