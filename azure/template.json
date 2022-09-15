@@ -59,7 +59,7 @@
         },
         "sharedServiceBusName": {
             "type": "string"
-          },
+        },
         "elasticPoolName": {
             "defaultValue": "",
             "type": "string"
