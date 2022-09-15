@@ -15,7 +15,6 @@
             Unknown = 0,
             Allow = 1,
             Deny_TooSoon = 2,
-            Deny_TooLateAfterPassing = 3,
             Deny_TooLateAfterWithdrawing = 4,
             Deny_TooLateAfterPausing = 5,
             Deny_HasGivenFeedbackRecently = 6,
@@ -26,9 +25,8 @@
         public enum ApprenticeshipStatus
         {
             InProgress = 0,
-            Passed = 1,
             Stopped = 2,
-            Paused = 3
+            Paused = 3,
         }
     }
 }

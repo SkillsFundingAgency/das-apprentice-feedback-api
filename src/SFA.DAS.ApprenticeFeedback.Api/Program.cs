@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using SFA.DAS.NServiceBus.Configuration.MicrosoftDependencyInjection;
 using NLog.Web;
 using System;
 
@@ -15,7 +16,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
                 logger.Info("Starting up host");
                 CreateHostBuilder(args).Build().Run();
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.Error(ex, "Could not start host");
                 throw;
@@ -28,6 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
                 {
                     webBuilder.UseStartup<Startup>();
                 })
+                .UseNServiceBusContainer()
                 .UseNLog();
     }
 }

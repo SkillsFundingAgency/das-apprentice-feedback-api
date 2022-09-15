@@ -35,9 +35,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             }
             else
             {
-                Domain.Models.ApprenticeFeedbackTarget updatedTarget = apprenticeFeedbackTarget;
-                updatedTarget.ResetFeedbackTarget();
-                apprenticeFeedbackTarget = await UpdateApprenticeFeedbackTarget(updatedTarget);
+                apprenticeFeedbackTarget.ResetFeedbackTarget();
+                await _apprenticeFeedbackTargetContext.SaveChangesAsync();
                 apprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id;
             }
 
@@ -45,35 +44,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
             {
                 ApprenticeFeedbackTargetId = apprenticeFeedbackTargetId.GetValueOrDefault(Guid.Empty)
             };
-        }
-
-        private async Task<Domain.Entities.ApprenticeFeedbackTarget> UpdateApprenticeFeedbackTarget(Domain.Entities.ApprenticeFeedbackTarget apprenticeFeedbackTarget)
-        {
-            var feedbackTarget = await _apprenticeFeedbackTargetContext.Entities.FirstOrDefaultAsync(s => s.Id == apprenticeFeedbackTarget.Id);
-            if (feedbackTarget == null)
-            {
-                return null;
-            }
-
-            feedbackTarget.StartDate = apprenticeFeedbackTarget.StartDate;
-            feedbackTarget.EndDate = apprenticeFeedbackTarget.EndDate;
-            feedbackTarget.Ukprn = apprenticeFeedbackTarget.Ukprn;
-            feedbackTarget.ProviderName = apprenticeFeedbackTarget.ProviderName;
-            feedbackTarget.StandardName = apprenticeFeedbackTarget.StandardName;
-            feedbackTarget.StandardUId = apprenticeFeedbackTarget.StandardUId;
-            feedbackTarget.LarsCode = apprenticeFeedbackTarget.LarsCode;
-
-            if (feedbackTarget.FeedbackEligibility != apprenticeFeedbackTarget.FeedbackEligibility ||
-                feedbackTarget.Status != apprenticeFeedbackTarget.Status)
-            {
-                feedbackTarget.Status = apprenticeFeedbackTarget.Status;
-                feedbackTarget.FeedbackEligibility = apprenticeFeedbackTarget.FeedbackEligibility;
-                feedbackTarget.EligibilityCalculationDate = apprenticeFeedbackTarget.EligibilityCalculationDate;
-            }
-
-            await _apprenticeFeedbackTargetContext.SaveChangesAsync();
-
-            return feedbackTarget;
         }
     }
 }

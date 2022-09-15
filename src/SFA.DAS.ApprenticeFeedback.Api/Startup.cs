@@ -8,13 +8,16 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
-using SFA.DAS.ApprenticeFeedback.Api.AppStart;
+using NServiceBus.ObjectBuilder.MSDependencyInjection;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 using SFA.DAS.ApprenticeFeedback.Api.Authorization;
 using SFA.DAS.ApprenticeFeedback.Api.Configuration;
+using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
+using System;
 using System.IO;
+using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 
 namespace SFA.DAS.ApprenticeFeedback.Api
 {
@@ -55,18 +58,16 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(s => s.GetRequiredService<IOptions<ApplicationSettings>>().Value);
-            var appSettings = Configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
-
+            
             services.Configure<AzureActiveDirectoryApiConfiguration>(Configuration.GetSection("AzureAd"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value);
             var azureAdConfiguration = Configuration.GetSection("AzureAd").Get<AzureActiveDirectoryApiConfiguration>();
-            
+
             var isDevelopment = Environment.IsDevelopment();
             services.AddApiAuthentication(azureAdConfiguration, isDevelopment)
                 .AddApiAuthorization(isDevelopment);
 
-            var environmentName = Environment.EnvironmentName == "IntegrationTests" ? "IntegrationTests" : Configuration["EnvironmentName"];
-            services.AddDatabaseRegistration(appSettings, environmentName);
+            services.AddDatabaseRegistration(Configuration);
 
             services.AddHealthChecks()
                 .AddCheck<ApprenticeFeedbackHealthCheck>(nameof(ApprenticeFeedbackHealthCheck));
@@ -103,6 +104,11 @@ namespace SFA.DAS.ApprenticeFeedback.Api
                 endpoints.MapControllers();
                 endpoints.MapHealthChecks("/ping");
             });
+        }
+
+        public void ConfigureContainer(UpdateableServiceProvider serviceProvider)
+        {
+            serviceProvider.StartNServiceBus(Configuration).GetAwaiter().GetResult();
         }
     }
 }
