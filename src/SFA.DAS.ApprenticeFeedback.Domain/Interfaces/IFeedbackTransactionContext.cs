@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -15,5 +17,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
             => await Entities
             .Include(aft => aft.ApprenticeFeedbackTarget)
             .SingleOrDefaultAsync(aft => aft.Id == feedbackTransactionid);
+
+        public async Task<IEnumerable<FeedbackTransaction>> FindByApprenticeFeedbackTargetId(Guid apprenticeFeedbackTargetId)
+            => await Entities.Where(s => s.ApprenticeFeedbackTargetId == apprenticeFeedbackTargetId).ToListAsync();
+
     }
 }

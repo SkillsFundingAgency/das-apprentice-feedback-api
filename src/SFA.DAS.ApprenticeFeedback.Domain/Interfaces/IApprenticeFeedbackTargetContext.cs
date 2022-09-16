@@ -18,6 +18,10 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
             => await Entities.Include(s => s.FeedbackTransactions)
                 .SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
 
+        public async Task<ApprenticeFeedbackTarget> FindByIdAndIncludeFeedbackTransactionsAndResultsAsync(Guid apprenticeFeedbackTargetId)
+            => await Entities.Include(s => s.FeedbackTransactions).Include(t => t.ApprenticeFeedbackResults)
+                .SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
+
         public async Task<ApprenticeFeedbackTarget> FindByApprenticeIdAndApprenticeshipIdAndIncludeFeedbackResultsAsync(Guid apprenticeId, long commitmentApprenticeshipId)
             => await Entities.Include(s => s.ApprenticeFeedbackResults)
                 .FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentApprenticeshipId);

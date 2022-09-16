@@ -85,11 +85,24 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             if (!Withdrawn && apprenticeStatus == ApprenticeshipStatus.Stopped)
             {
                 // Not already withdrawn, but being set
-                // Need to create Feedback Transaction for trigger.
+                // Need to create Feedback Transaction for trigger or update existing.
+                var recentTransaction = FeedbackTransactions.FirstOrDefault(s => s.SentDate == null);
+
+                if (recentTransaction == null)
+                {
+                    FeedbackTransactions.Add(new FeedbackTransaction { CreatedOn = dateTimeHelper.Now, ApprenticeFeedbackTargetId = Id });
+                }
+                else
+                {
+                    // Reset existing transaction for sending.
+                    recentTransaction.EmailAddress = string.Empty;
+                    recentTransaction.FirstName = string.Empty;
+                    recentTransaction.SendAfter = null;
+                }
             }
-            
+
             Withdrawn = apprenticeStatus == ApprenticeshipStatus.Stopped;
-            
+
             DateTime? GetApprenticeStoppedDate(Learner learner)
             {
                 if (!learner.ApprovalsStopDate.HasValue && !learner.LearnActEndDate.HasValue)

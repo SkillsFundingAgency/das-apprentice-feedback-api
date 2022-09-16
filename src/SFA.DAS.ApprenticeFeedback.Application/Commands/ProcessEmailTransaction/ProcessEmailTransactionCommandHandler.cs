@@ -7,6 +7,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.Notifications.Messages.Commands;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
@@ -57,7 +58,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                     different actions need to be taken to populate the das-notifications SendEmailCommand 
                     from the notifications package.)
 
-                Update the transaction with relevant information about who it was sent to,
+                Update the trans action with relevant information about who it was sent to,
                 and then send the email command by crafting the correct tokens for the template
 
                 Update feedback transaction with sent date if the email is sent. 
@@ -68,14 +69,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             if (null == feedbackTransaction) return null;
 
             // If it has already sent, do nothing and return a successful state.
-            if(feedbackTransaction.SentDate.HasValue)
+            if (feedbackTransaction.SentDate.HasValue)
             {
                 return new ProcessEmailTransactionResponse(feedbackTransaction.Id, EmailSentStatus.Successful);
             }
 
             // Determine which email template to send based on target status.
-            var emailTemplate = GetEmailTemplateIdForTransaction(feedbackTransaction);
-            if(null == emailTemplate.Id)
+            var emailTemplateInfo = await GetEmailTemplateInfoForTransaction(feedbackTransaction, request);
+            if (null == emailTemplateInfo.Id)
             {
                 // Per new discussion - if no email template found then bin the transaction.
                 _context.Entities.Remove(feedbackTransaction);
@@ -85,17 +86,17 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
 
             // Begin sending process.
             EmailSentStatus sendStatus = EmailSentStatus.Failed;
-
+            
             // If the email template is the feedback template then
             // decide whether to send email based on preference
-            if (emailTemplate.Id == _appSettings.ActiveFeedbackEmailTemplateId && !request.IsEmailContactAllowed)
+            if (emailTemplateInfo.Id == _appSettings.ActiveFeedbackEmailTemplateId && !request.IsEmailContactAllowed)
             {
                 sendStatus = EmailSentStatus.NotAllowed;
 
                 // QF-593-UnhappyPath
                 // Contact is not allowed,
                 // but only kick the can down the road if the apprenticeship is not complete
-                if(feedbackTransaction.ApprenticeFeedbackTarget.Status == (int)FeedbackTargetStatus.Complete)
+                if (feedbackTransaction.ApprenticeFeedbackTarget.Status == (int)FeedbackTargetStatus.Complete)
                 {
                     // Bin the transaction so it is never reprocessed
                     _context.Entities.Remove(feedbackTransaction);
@@ -108,9 +109,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                     feedbackTransaction.SendAfter = _dateTimeHelper.Now.AddDays(_appSettings.FeedbackEmailProcessingRetryWaitDays);
                 }
             }
-            else if(emailTemplate.Id.HasValue)
+            else if (emailTemplateInfo.Id.HasValue)
             {
-                feedbackTransaction.TemplateId = emailTemplate.Id;
+                feedbackTransaction.TemplateId = emailTemplateInfo.Id;
                 feedbackTransaction.EmailAddress = request.ApprenticeEmailAddress;
                 feedbackTransaction.FirstName = request.ApprenticeName;
                 feedbackTransaction.SentDate = _dateTimeHelper.Now;
@@ -118,41 +119,51 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             }
             await _context.SaveChangesAsync();
 
-            if(sendStatus == EmailSentStatus.Successful)
+            if (sendStatus == EmailSentStatus.Successful)
             {
                 await SendEmailViaNserviceBus(
                     request.ApprenticeEmailAddress
-                    , emailTemplate.Id.ToString()
-                    , emailTemplate.Name
-                    , new Dictionary<string, string>()
-                        {
-                            { "Contact", $"{request.ApprenticeName}" }
-                        }
+                    , emailTemplateInfo.Id.ToString()
+                    , emailTemplateInfo.Name
+                    , emailTemplateInfo.Tokens
                     );
             }
 
             return new ProcessEmailTransactionResponse(feedbackTransaction.Id, sendStatus);
         }
 
-        private (Guid? Id,string Name) GetEmailTemplateIdForTransaction(FeedbackTransaction feedbackTransaction)
+        private async Task<(Guid? Id, string Name, Dictionary<string, string> Tokens)> GetEmailTemplateInfoForTransaction(FeedbackTransaction feedbackTransaction, ProcessEmailTransactionCommand request)
         {
             Guid? templateId = null;
             string templateName = null;
-            if(feedbackTransaction.ApprenticeFeedbackTarget.IsActiveAndEligible())
+            Dictionary<string, string> tokens = 
+                new Dictionary<string, string>()
+                {
+                    { "Contact", $"{request.ApprenticeName}" }
+                };
+
+            // If the Apprentice Feedback Target is Withdrawn, that takes precedent over giving feedback.
+            if (feedbackTransaction.ApprenticeFeedbackTarget.Withdrawn == true)
+            {
+                // If a withdrawn email hasn't been sent already, send a withdrawn template
+                var targetTransactions = await _context.FindByApprenticeFeedbackTargetId(feedbackTransaction.ApprenticeFeedbackTargetId);
+                var previousWithdrawnEmailSent = targetTransactions.Any(t => t.SentDate != null && t.TemplateId == _appSettings.WithdrawnFeedbackEmailTemplateId);
+
+                if (!previousWithdrawnEmailSent)
+                {
+                    tokens.Add("ApprenticeFeedbackTargetId", feedbackTransaction.ApprenticeFeedbackTargetId.ToString());
+                    return (_appSettings.WithdrawnFeedbackEmailTemplateId, "Withdrawn", tokens);
+                }
+                // otherwise fall through to other possible templates
+            }
+
+            if (feedbackTransaction.ApprenticeFeedbackTarget.IsActiveAndEligible())
             {
                 templateId = _appSettings.ActiveFeedbackEmailTemplateId;
                 templateName = "Active";
             }
-            /*
-             * QF-577 we don't yet have the withdrawn template
-            else if (feedbackTransaction.ApprenticeFeedbackTarget.IsWithdrawn())
-            {
-                templateId = _appSettings.WithdrawnFeedbackEmailTemplateId;
-                templateName = "Withdrawn";
-            }
-            */
 
-            return (templateId, templateName);
+            return (templateId, templateName, tokens);
         }
 
         private async Task SendEmailViaNserviceBus(string toAddress, string templateId, string templateName, Dictionary<string, string> personalisationTokens)
