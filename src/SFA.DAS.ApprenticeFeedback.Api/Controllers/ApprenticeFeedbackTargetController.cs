@@ -3,7 +3,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTarget;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTargetStatusCommand;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargets;
+using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargetsForUpdate;
 using System;
 using System.Threading.Tasks;
 
@@ -65,6 +67,36 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error attempting to update apprentice feedback target for ApprenticeFeedbackTargetId: {request.ApprenticeFeedbackTargetId}");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("RequiresUpdate")]
+        public async Task<IActionResult> GetFeedbackTargetsForUpdate([FromQuery] GetApprenticeFeedbackTargetsForUpdateQuery request)
+        {
+            try
+            {
+                var result = await _mediator.Send(request);
+                return Ok(result.ApprenticeFeedbackTargets);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error attempting to retrieve apprentice feedback targets for update.");
+                return BadRequest();
+            }
+        }
+
+        [HttpPatch("{apprenticeFeedbackTargetId}")]
+        public async Task<IActionResult> UpdateStatus([FromBody] UpdateApprenticeFeedbackTargetStatusCommand request)
+        {
+            try
+            {
+                var result = await _mediator.Send(request);
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error attempting to update status for ApprenticeFeedbackTargetId: {request.ApprenticeFeedbackTargetId}");
                 return BadRequest();
             }
         }

@@ -43,7 +43,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             apprenticeFeedbackTarget.ApprenticeshipId = command.CommitmentApprenticeshipId;
             apprenticeFeedbackTarget.ApprenticeId = command.ApprenticeId;
             apprenticeFeedbackTarget.Status = (int)FeedbackTargetStatus.Active;
-            apprenticeFeedbackTarget.FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_TooLateAfterPassing;
+            apprenticeFeedbackTarget.FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_TooLateAfterPausing;
             context.Add(apprenticeFeedbackTarget);
             await context.SaveChangesAsync();
 

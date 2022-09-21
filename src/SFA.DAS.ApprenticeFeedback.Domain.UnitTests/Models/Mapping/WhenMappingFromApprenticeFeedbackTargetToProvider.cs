@@ -53,7 +53,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
         }
 
         [Test]
-        [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_TooLateAfterPassing)]
         [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_TooLateAfterPausing)]
         [MoqInlineAutoData(Enums.FeedbackEligibilityStatus.Deny_TooLateAfterWithdrawing)]
         public void AndEligibilityIsTooLateThenTimeFieldsAreSetCorrectly(Enums.FeedbackEligibilityStatus eligibility, ApprenticeFeedbackTarget source, ApplicationSettings appSettings)
