@@ -41,7 +41,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateExitSurvey
                 IncompletionFactor_Financial = request.IncompletionFactor_Financial,
                 IncompletionFactor_Mental = request.IncompletionFactor_Mental,
                 IncompletionFactor_Physical = request.IncompletionFactor_Physical,
-                IncompletionFactor_Other = request.IncompletionFactor_Other,
+                IncompletionFactor_None = request.IncompletionFactor_None,
                 ReasonForIncorrect = request.ReasonForIncorrect,
                 RemainedReason = request.RemainedReason,
                 AllowContact = request.AllowContact                
