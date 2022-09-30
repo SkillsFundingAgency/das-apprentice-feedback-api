@@ -58,7 +58,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                     different actions need to be taken to populate the das-notifications SendEmailCommand 
                     from the notifications package.)
 
-                Update the trans action with relevant information about who it was sent to,
+                Update the transaction with relevant information about who it was sent to,
                 and then send the email command by crafting the correct tokens for the template
 
                 Update feedback transaction with sent date if the email is sent. 
