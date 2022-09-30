@@ -26,7 +26,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateExitSurvey
             var apprenticeFeedbackTarget = await _apprenticeFeedbackTargetContext.FindById(request.ApprenticeFeedbackTargetId);
             if (apprenticeFeedbackTarget == null)
             {
-                return null;
+                throw new System.Exception($"Apprentice feedback target with id: {request.ApprenticeFeedbackTargetId} not found.");
             }
 
             var entity = _exitSurveyContext.Add(new Domain.Entities.ApprenticeExitSurvey

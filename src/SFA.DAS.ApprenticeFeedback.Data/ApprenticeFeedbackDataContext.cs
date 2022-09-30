@@ -1,9 +1,7 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -15,8 +13,6 @@ using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Data.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
-using SFA.DAS.ApprenticeFeedback.Domain.Models;
-
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -43,18 +39,18 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public virtual DbSet<ProviderAttributeSummary> ProviderAttributeSummary { get; set; } = null!;
         public virtual DbSet<ProviderStarsSummary> ProviderStarsSummary { get; set; } = null!;
         public virtual DbSet<Domain.Entities.ApprenticeExitSurvey> ApprenticeExitSurveys { get; set; } = null!;
-        public virtual DbSet<Domain.Entities.FeedbackTransaction> FeedbackTransactions { get; set; }
+        public virtual DbSet<FeedbackTransaction> FeedbackTransactions { get; set; }
 
 
-        DbSet<Domain.Entities.ApprenticeFeedbackTarget> IEntityContext<Domain.Entities.ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
+        DbSet<ApprenticeFeedbackTarget> IEntityContext<Domain.Entities.ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
         DbSet<Domain.Entities.Attribute> IEntityContext<Domain.Entities.Attribute>.Entities => Attributes;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
         DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummary;
         DbSet<ProviderAttributeSummary> IEntityContext<ProviderAttributeSummary>.Entities => ProviderAttributeSummary;
         DbSet<ProviderStarsSummary> IEntityContext<ProviderStarsSummary>.Entities => ProviderStarsSummary;
-        DbSet<Domain.Entities.ApprenticeExitSurvey> IEntityContext<Domain.Entities.ApprenticeExitSurvey>.Entities => ApprenticeExitSurveys;
-        DbSet<Domain.Entities.FeedbackTransaction> IEntityContext<Domain.Entities.FeedbackTransaction>.Entities => FeedbackTransactions;
+        DbSet<ApprenticeExitSurvey> IEntityContext<ApprenticeExitSurvey>.Entities => ApprenticeExitSurveys;
+        DbSet<FeedbackTransaction> IEntityContext<FeedbackTransaction>.Entities => FeedbackTransactions;
 
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)

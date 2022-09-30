@@ -29,10 +29,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             try
             {
                 var result = await _mediator.Send(request);
-                if (null == result)
-                {
-                    return NotFound();
-                }
                 return Ok(result);
             }
             catch (Exception e)
