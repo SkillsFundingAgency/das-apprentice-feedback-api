@@ -7,6 +7,8 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using SFA.DAS.Testing.AutoFixture;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
@@ -526,6 +528,57 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
             target.FeedbackEligibility.Should().Be((int)expectedEligibility);
             target.Status.Should().Be((int)expectedStatus);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsWithdrawn_SetsWithdrawnAndSendsEmail(
+            Learner learner,
+            ApplicationSettings settings,
+            Mock<IDateTimeHelper> dateTimeHelper,
+            Domain.Entities.ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.Withdrawn = false;
+            target.FeedbackTransactions = new List<Domain.Entities.FeedbackTransaction>();
+            learner.CompletionStatus = 3;
+            
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+
+            // Assert
+            target.Withdrawn.Should().BeTrue();
+            target.FeedbackTransactions.Should().HaveCount(1);
+            target.FeedbackTransactions.Single().ApprenticeFeedbackTargetId.Should().Be(target.Id);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsWithdrawn_SetsWithdrawnAndSendsEmail_ReusingExistingTransaction(
+            Learner learner,
+            ApplicationSettings settings,
+            Mock<IDateTimeHelper> dateTimeHelper,
+            Domain.Entities.FeedbackTransaction feedbackTransaction,
+            Domain.Entities.ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.Withdrawn = false;
+            target.FeedbackTransactions.Clear();
+            feedbackTransaction.ApprenticeFeedbackTargetId = target.Id;
+            feedbackTransaction.SentDate = null;
+            target.FeedbackTransactions.Add(feedbackTransaction);
+            learner.CompletionStatus = 3;
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+
+            // Assert
+            target.Withdrawn.Should().BeTrue();
+            target.FeedbackTransactions.Should().HaveCount(1);
+            var transaction = target.FeedbackTransactions.Single();
+
+            transaction.FirstName.Should().BeEmpty();
+            transaction.EmailAddress.Should().BeEmpty();
+            transaction.SendAfter.Should().BeNull();
+            transaction.ApprenticeFeedbackTargetId.Should().Be(target.Id);            
         }
     }
 }

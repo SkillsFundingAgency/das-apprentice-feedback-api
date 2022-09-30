@@ -1,9 +1,14 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
+using Moq;
+using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransaction;
 using SFA.DAS.ApprenticeFeedback.Data;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
+using SFA.DAS.Notifications.Messages.Commands;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
@@ -166,6 +171,97 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.NotAllowed);
+        }
+
+        [Test, AutoMoqData]
+        public async Task And_ApprenticeFeedbackTargetIsWithdrawn_EmailsExitSurvey(
+           ProcessEmailTransactionCommand command,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+            [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           [Frozen] ApplicationSettings appSettings,
+           ProcessEmailTransactionCommandHandler handler
+           )
+        {
+            // Arrange
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Status = (int)FeedbackTargetStatus.Active,
+                FeedbackEligibility = (int)FeedbackEligibilityStatus.Allow,
+                Withdrawn = true
+            };
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                EmailAddress = command.ApprenticeEmailAddress,
+                FirstName = command.ApprenticeName,
+                SentDate = null,
+                ApprenticeFeedbackTarget = feedbackTarget,
+            };
+            context.Add(feedbackTarget);
+            context.Add(feedbackTransaction);
+            await context.SaveChangesAsync();
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEmailContactAllowed = true;
+
+            //Act
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
+            feedbackTransaction.TemplateId.Should().Be(appSettings.WithdrawnFeedbackEmailTemplateId);
+            nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Once);
+        }
+
+        [Test, AutoMoqData]
+        public async Task And_ApprenticeFeedbackTargetIsWithdrawn_ExitSurveyEmailSent_AsksForFeedback(
+           ProcessEmailTransactionCommand command,
+           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           ProcessEmailTransactionCommandHandler handler
+           )
+        {
+            // Arrange
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Status = (int)FeedbackTargetStatus.Active,
+                FeedbackEligibility = (int)FeedbackEligibilityStatus.Allow,
+                Withdrawn = true
+            };
+            var exitSurveyfeedbackTransaction = new FeedbackTransaction()
+            {
+                EmailAddress = command.ApprenticeEmailAddress,
+                FirstName = command.ApprenticeName,
+                TemplateId = appSettings.WithdrawnFeedbackEmailTemplateId,
+                SentDate = DateTime.UtcNow,
+                ApprenticeFeedbackTarget = feedbackTarget,
+            };
+
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                EmailAddress = command.ApprenticeEmailAddress,
+                FirstName = command.ApprenticeName,
+                SentDate = null,
+                ApprenticeFeedbackTarget = feedbackTarget,
+            };
+            context.Add(feedbackTarget);
+            context.Add(feedbackTransaction);
+            context.Add(exitSurveyfeedbackTransaction);
+            await context.SaveChangesAsync();
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEmailContactAllowed = true;
+
+            //Act
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
+            feedbackTransaction.TemplateId.Should().Be(appSettings.ActiveFeedbackEmailTemplateId);
+
+            nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => !t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Once);
         }
     }
 }
