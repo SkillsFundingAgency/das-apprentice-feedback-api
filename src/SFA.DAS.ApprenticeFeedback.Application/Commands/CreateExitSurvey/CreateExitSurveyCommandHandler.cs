@@ -23,36 +23,47 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateExitSurvey
 
         public async Task<CreateExitSurveyCommandResponse> Handle(CreateExitSurveyCommand request, CancellationToken cancellationToken)
         {
+            // Validate
             var apprenticeFeedbackTarget = await _apprenticeFeedbackTargetContext.FindById(request.ApprenticeFeedbackTargetId);
             if (apprenticeFeedbackTarget == null)
             {
                 throw new System.Exception($"Apprentice feedback target with id: {request.ApprenticeFeedbackTargetId} not found.");
             }
 
-            var entity = _exitSurveyContext.Add(new Domain.Entities.ApprenticeExitSurvey
-            {
-                ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id,
-                StandardUId = apprenticeFeedbackTarget.StandardUId,
-                DateTimeCompleted = _dateTimeHelper.Now,
-                DidNotCompleteApprenticeship = request.DidNotCompleteApprenticeship,
-                IncompletionReason = request.IncompletionReason,
-                IncompletionFactor_Caring = request.IncompletionFactor_Caring,
-                IncompletionFactor_Family = request.IncompletionFactor_Family,
-                IncompletionFactor_Financial = request.IncompletionFactor_Financial,
-                IncompletionFactor_Mental = request.IncompletionFactor_Mental,
-                IncompletionFactor_Physical = request.IncompletionFactor_Physical,
-                IncompletionFactor_None = request.IncompletionFactor_None,
-                ReasonForIncorrect = request.ReasonForIncorrect,
-                RemainedReason = request.RemainedReason,
-                AllowContact = request.AllowContact                
-            });
-            await _exitSurveyContext.SaveChangesAsync();
+            var response = new CreateExitSurveyCommandResponse();
 
-            return new CreateExitSurveyCommandResponse
-            {
-                ApprenticeExitSurveyId = entity.Entity.Id
-            };
+            // If there is already an exit survey for this feedback target then return the existing one
 
+            var existingSurvey = await _exitSurveyContext.FindForFeedbackTargetAsync(apprenticeFeedbackTarget.Id);
+            if(null != existingSurvey)
+            {
+                response.ApprenticeExitSurveyId = existingSurvey.Id;
+            }
+            else
+            {
+                var entity = _exitSurveyContext.Add(new Domain.Entities.ApprenticeExitSurvey
+                {
+                    ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id,
+                    StandardUId = apprenticeFeedbackTarget.StandardUId,
+                    DateTimeCompleted = _dateTimeHelper.Now,
+                    DidNotCompleteApprenticeship = request.DidNotCompleteApprenticeship,
+                    IncompletionReason = request.IncompletionReason,
+                    IncompletionFactor_Caring = request.IncompletionFactor_Caring,
+                    IncompletionFactor_Family = request.IncompletionFactor_Family,
+                    IncompletionFactor_Financial = request.IncompletionFactor_Financial,
+                    IncompletionFactor_Mental = request.IncompletionFactor_Mental,
+                    IncompletionFactor_Physical = request.IncompletionFactor_Physical,
+                    IncompletionFactor_None = request.IncompletionFactor_None,
+                    ReasonForIncorrect = request.ReasonForIncorrect,
+                    RemainedReason = request.RemainedReason,
+                    AllowContact = request.AllowContact
+                });
+                await _exitSurveyContext.SaveChangesAsync();
+
+                response.ApprenticeExitSurveyId = entity.Entity.Id;
+            }
+
+            return response;
         }
     }
 }
