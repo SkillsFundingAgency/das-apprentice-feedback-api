@@ -10,6 +10,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Extensions
         
         public static string RemoveIllegalCharacters(this string str)
         {
+            if (null == str) return str;
             return regexLegalExitSurveyAnswerCharacters.Replace(str, string.Empty);
         }
     }
