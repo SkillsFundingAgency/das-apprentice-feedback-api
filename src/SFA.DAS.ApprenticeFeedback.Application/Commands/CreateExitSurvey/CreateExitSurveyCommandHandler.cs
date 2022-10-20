@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using SFA.DAS.ApprenticeFeedback.Application.Extensions;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,15 +48,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateExitSurvey
                     StandardUId = apprenticeFeedbackTarget.StandardUId,
                     DateTimeCompleted = _dateTimeHelper.Now,
                     DidNotCompleteApprenticeship = request.DidNotCompleteApprenticeship,
-                    IncompletionReason = request.IncompletionReason,
+                    IncompletionReason = request.IncompletionReason.RemoveIllegalCharacters(),
                     IncompletionFactor_Caring = request.IncompletionFactor_Caring,
                     IncompletionFactor_Family = request.IncompletionFactor_Family,
                     IncompletionFactor_Financial = request.IncompletionFactor_Financial,
                     IncompletionFactor_Mental = request.IncompletionFactor_Mental,
                     IncompletionFactor_Physical = request.IncompletionFactor_Physical,
                     IncompletionFactor_None = request.IncompletionFactor_None,
-                    ReasonForIncorrect = request.ReasonForIncorrect,
-                    RemainedReason = request.RemainedReason,
+                    ReasonForIncorrect = request.ReasonForIncorrect.RemoveIllegalCharacters(),
+                    RemainedReason = request.RemainedReason.RemoveIllegalCharacters(),
                     AllowContact = request.AllowContact
                 });
                 await _exitSurveyContext.SaveChangesAsync();
