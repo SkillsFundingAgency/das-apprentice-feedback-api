@@ -18,6 +18,10 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
             => await Entities.Include(s => s.FeedbackTransactions)
                 .SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
 
+        public async Task<ApprenticeFeedbackTarget> FindByIdAndIncludeFeedbackTransactionsAndResultsAsync(Guid apprenticeFeedbackTargetId)
+            => await Entities.Include(s => s.FeedbackTransactions).Include(t => t.ApprenticeFeedbackResults)
+                .SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
+
         public async Task<ApprenticeFeedbackTarget> FindByApprenticeIdAndApprenticeshipIdAndIncludeFeedbackResultsAsync(Guid apprenticeId, long commitmentApprenticeshipId)
             => await Entities.Include(s => s.ApprenticeFeedbackResults)
                 .FirstOrDefaultAsync(aft => aft.ApprenticeId == apprenticeId && aft.ApprenticeshipId == commitmentApprenticeshipId);
@@ -29,6 +33,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
         public async Task<IEnumerable<ApprenticeFeedbackTarget>> GetAllForApprenticeIdAndUkprnAndIncludeFeedbackResultsAsync(Guid apprenticeId, long ukprn)
             => await Entities.Include(s => s.ApprenticeFeedbackResults)
                 .Where(aft => aft.ApprenticeId == apprenticeId && aft.Ukprn == ukprn).ToListAsync();
+
+        public async Task<ApprenticeFeedbackTarget> FindById(Guid apprenticeFeedbackTargetId)
+            => await Entities.SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
 
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }

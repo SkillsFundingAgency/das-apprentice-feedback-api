@@ -1,9 +1,7 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -16,7 +14,6 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Data.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 
-
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
     public class ApprenticeFeedbackDataContext : DbContext, 
@@ -27,6 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IProviderRatingSummaryContext,
         IProviderAttributeSummaryContext,
         IProviderStarsSummaryContext,
+        IExitSurveyContext,
         IFeedbackTransactionContext
     {
         private const string AzureResource = "https://database.windows.net/";
@@ -34,22 +32,24 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
 
         public virtual DbSet<Domain.Entities.Attribute> Attributes { get; set; }
-        public virtual DbSet<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
+        public virtual DbSet<Domain.Entities.ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
         public virtual DbSet<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; } = null!;
         public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; } = null!;
         public virtual DbSet<ProviderRatingSummary> ProviderRatingSummary { get; set; } = null!;
         public virtual DbSet<ProviderAttributeSummary> ProviderAttributeSummary { get; set; } = null!;
         public virtual DbSet<ProviderStarsSummary> ProviderStarsSummary { get; set; } = null!;
+        public virtual DbSet<Domain.Entities.ApprenticeExitSurvey> ApprenticeExitSurveys { get; set; } = null!;
         public virtual DbSet<FeedbackTransaction> FeedbackTransactions { get; set; }
 
 
-        DbSet<ApprenticeFeedbackTarget> IEntityContext<ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
+        DbSet<ApprenticeFeedbackTarget> IEntityContext<Domain.Entities.ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
         DbSet<Domain.Entities.Attribute> IEntityContext<Domain.Entities.Attribute>.Entities => Attributes;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
         DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummary;
         DbSet<ProviderAttributeSummary> IEntityContext<ProviderAttributeSummary>.Entities => ProviderAttributeSummary;
         DbSet<ProviderStarsSummary> IEntityContext<ProviderStarsSummary>.Entities => ProviderStarsSummary;
+        DbSet<ApprenticeExitSurvey> IEntityContext<ApprenticeExitSurvey>.Entities => ApprenticeExitSurveys;
         DbSet<FeedbackTransaction> IEntityContext<FeedbackTransaction>.Entities => FeedbackTransactions;
 
 

@@ -74,6 +74,7 @@
     <Build Include="StoredProcedures\GenerateProviderAttributesSummary.sql" />
     <Build Include="StoredProcedures\GenerateProviderRatingAndStarsSummary.sql" />
     <Build Include="StoredProcedures\GenerateFeedbackTransactions.sql" />
+    <Build Include="Tables\ApprenticeExitSurvey.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />

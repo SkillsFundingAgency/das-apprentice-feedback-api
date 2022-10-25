@@ -6,6 +6,7 @@ using SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTa
 using SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTargetStatusCommand;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargets;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargetsForUpdate;
+using SFA.DAS.ApprenticeFeedback.Application.Queries.GetExitSurvey;
 using System;
 using System.Threading.Tasks;
 
@@ -100,5 +101,22 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
                 return BadRequest();
             }
         }
+
+        [HttpGet("{apprenticeFeedbackTargetId}/exitsurvey")]
+        public async Task<IActionResult> GetExitSurveyForFeedbackTarget(Guid apprenticeFeedbackTargetId)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetExitSurveyForFeedbackTargetQuery { FeedbackTargetId = apprenticeFeedbackTargetId });
+                return Ok(result.ExitSurvey);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error attempting to retrieve exit survey for feedback target id: {apprenticeFeedbackTargetId}");
+                return BadRequest();
+            }
+        }
+
+
     }
 }
