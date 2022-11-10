@@ -75,6 +75,7 @@
     <Build Include="StoredProcedures\GenerateProviderRatingAndStarsSummary.sql" />
     <Build Include="StoredProcedures\GenerateFeedbackTransactions.sql" />
     <Build Include="Tables\ApprenticeExitSurvey.sql" />
+    <Build Include="Tables\ExitSurveyAttribute.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
@@ -82,6 +83,10 @@
   <ItemGroup>
     <None Include="Scripts\AddDefaultProviderAttributes.sql" />
     <Build Include="Views\vApprenticeFeedbackResults.sql" />
+    <None Include="Scripts\BackupApprenticeExitSurvey.sql" />
+    <None Include="Scripts\SetPrimaryReasonForExistingExitSurveys.sql" />
+    <None Include="Scripts\SetAttributeTypeForExisting.sql" />
+    <None Include="Scripts\AddDefaultExitSurveyAttributes.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment1.sql" />

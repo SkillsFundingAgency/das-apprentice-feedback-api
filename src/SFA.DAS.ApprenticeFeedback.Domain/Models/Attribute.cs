@@ -5,6 +5,7 @@
         public int Id { get; set; }
         public string Name { get; set; }
         public string Category { get; set; }
+        public int Ordering { get; set; }
 
         public static implicit operator Attribute(Entities.Attribute source)
         {
@@ -17,7 +18,9 @@
             {
                 Id = source.AttributeId,
                 Name = source.AttributeName,
-                Category = source.Category
+                Category = source.Category,
+                // Attribute type is not required to be returned
+                Ordering = source.Ordering
             };
         }
     }

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using SFA.DAS.ApprenticeFeedback.Application.Extensions;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -45,20 +46,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateExitSurvey
                 var entity = _exitSurveyContext.Add(new Domain.Entities.ApprenticeExitSurvey
                 {
                     ApprenticeFeedbackTargetId = apprenticeFeedbackTarget.Id,
+                    AllowContact = request.AllowContact,
                     StandardUId = apprenticeFeedbackTarget.StandardUId,
                     DateTimeCompleted = _dateTimeHelper.Now,
                     DidNotCompleteApprenticeship = request.DidNotCompleteApprenticeship,
-                    IncompletionReason = request.IncompletionReason.RemoveIllegalCharacters(),
-                    IncompletionFactor_Caring = request.IncompletionFactor_Caring,
-                    IncompletionFactor_Family = request.IncompletionFactor_Family,
-                    IncompletionFactor_Financial = request.IncompletionFactor_Financial,
-                    IncompletionFactor_Mental = request.IncompletionFactor_Mental,
-                    IncompletionFactor_Physical = request.IncompletionFactor_Physical,
-                    IncompletionFactor_None = request.IncompletionFactor_None,
-                    ReasonForIncorrect = request.ReasonForIncorrect.RemoveIllegalCharacters(),
-                    RemainedReason = request.RemainedReason.RemoveIllegalCharacters(),
-                    AllowContact = request.AllowContact
+                    ExitSurveyAttributes = request.AttributeIds.
+                            Select(s => new Domain.Entities.ExitSurveyAttribute { AttributeId = s, AttributeValue = 1 }).ToList(),
+                    PrimaryReason = request.PrimaryReason,
                 });
+
                 await _exitSurveyContext.SaveChangesAsync();
 
                 response.ApprenticeExitSurveyId = entity.Entity.Id;

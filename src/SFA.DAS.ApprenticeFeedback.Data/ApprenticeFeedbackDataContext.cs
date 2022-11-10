@@ -88,6 +88,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ProviderAttributeSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new FeedbackTransactionConfiguration());
+            modelBuilder.ApplyConfiguration(new ExitSurveyAttributeConfiguration());
             modelBuilder.Entity<GenerateFeedbackTransactionsResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
