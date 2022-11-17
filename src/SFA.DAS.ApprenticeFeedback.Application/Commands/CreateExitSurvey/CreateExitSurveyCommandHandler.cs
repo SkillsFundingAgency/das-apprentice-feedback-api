@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using SFA.DAS.ApprenticeFeedback.Application.Extensions;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Linq;
 using System.Threading;
