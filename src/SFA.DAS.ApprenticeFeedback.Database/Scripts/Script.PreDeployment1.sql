@@ -10,5 +10,4 @@
 --------------------------------------------------------------------------------------
 */
 
-:r .\AddDefaultProviderAttributes.sql
 :r .\BackupApprenticeExitSurvey.sql
