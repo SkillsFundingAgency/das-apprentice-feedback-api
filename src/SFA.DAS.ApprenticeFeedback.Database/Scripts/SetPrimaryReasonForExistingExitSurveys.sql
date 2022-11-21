@@ -41,7 +41,7 @@ BEGIN
 			FROM [dbo].[ApprenticeExitSurvey_Backup] axb
 			JOIN [dbo].[ApprenticeExitSurvey] axs on axs.[Id] = axb.[id]
 			LEFT JOIN (SELECT *
-					 FROM [SFA.DAS.ApprenticeFeedback.Database].[dbo].[Attribute]
+					 FROM [dbo].[Attribute]
 					 WHERE AttributeType = 'ExitSurvey_v1' AND Category =  'Incompletion Reason' ) att on att.AttributeName = axb.IncompletionReason
 			WHERE att.[AttributeId] IS NOT NULL
 			AND axs.[PrimaryReason] = 0
@@ -88,7 +88,7 @@ BEGIN
 			FROM [dbo].[ApprenticeExitSurvey_Backup] axb
 			JOIN [dbo].[ApprenticeExitSurvey] axs on axs.[Id] = axb.[id]
 			LEFT JOIN (SELECT *
-					 FROM [SFA.DAS.ApprenticeFeedback.Database].[dbo].[Attribute]
+					 FROM [dbo].[Attribute]
 					 WHERE AttributeType = 'ExitSurvey_v1' AND Category =  'Reason to remain' ) att on att.AttributeName = axb.[RemainedReason]
 			WHERE att.[AttributeId] IS NOT NULL
 			AND NOT EXISTS (SELECT NULL FROM [dbo].[ExitSurveyAttribute] WHERE [ApprenticeExitSurveyId] = axb.[Id] AND [AttributeId] = att.[AttributeId] )
@@ -99,7 +99,7 @@ BEGIN
 			FROM [dbo].[ApprenticeExitSurvey_Backup] axb
 			JOIN [dbo].[ApprenticeExitSurvey] axs on axs.[Id] = axb.[id]
 			LEFT JOIN (SELECT *
-					 FROM [SFA.DAS.ApprenticeFeedback.Database].[dbo].[Attribute]
+					 FROM [dbo].[Attribute]
 					 WHERE AttributeType = 'ExitSurvey_v1' AND Category =  'Your Apprenticeship' ) att on att.AttributeName = axb.[ReasonForIncorrect]
 			WHERE att.[AttributeId] IS NOT NULL
 			AND NOT EXISTS (SELECT NULL FROM [dbo].[ExitSurveyAttribute] WHERE [ApprenticeExitSurveyId] = axb.[Id] AND [AttributeId] = att.[AttributeId] )
