@@ -120,7 +120,8 @@ INSERT INTO #ExitSurveyTempAttributes VALUES
 (137,'More information on the end-point assessment process','Reason to remain','ExitSurvey_v1',8),
 (138,'More time to undertake learning and training with my training provider','Reason to remain','ExitSurvey_v1',9),
 (139,'Outside support to tackle discrimination or other problems','Reason to remain','ExitSurvey_v1',10),
-(140,'Reasonable adjustments from my training provider','Reason to remain','ExitSurvey_v1',11);
+(140,'Reasonable adjustments from my training provider','Reason to remain','ExitSurvey_v1',11),
+(141,'None','Reason to remain','ExitSurvey_v1',12);
 
 GO
 
