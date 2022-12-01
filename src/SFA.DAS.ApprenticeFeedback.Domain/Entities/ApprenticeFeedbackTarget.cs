@@ -15,6 +15,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public long ApprenticeshipId { get; set; }
         public int Status { get; set; }
         public DateTime? StartDate { get; set; }
+        public bool IsTransfer { get; private set; }
+        public DateTime? DateTransferIdentified { get; private set; }
         public DateTime? EndDate { get; set; }
         public long? Ukprn { get; set; }
         public string ProviderName { get; set; }
@@ -81,6 +83,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             StandardUId = learner.StandardUId;
             LarsCode = learner.StandardCode;
             StartDate = learner.LearnStartDate;
+            IsTransfer = learner.IsTransfer;
+            DateTransferIdentified = learner.DateTransferIdentified;
 
             if (!Withdrawn && apprenticeStatus == ApprenticeshipStatus.Stopped)
             {
@@ -135,7 +139,14 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 
         private ApprenticeshipStatus GetApprenticeshipStatus(Learner learner)
         {
-            if (learner?.CompletionStatus == 3)
+            if(learner?.IsTransfer == true)
+            {
+                // If an IsTransfer is marked as in progress, then while the other information
+                // may indicate this is a stop, we are holding fire on actually doing anything about it
+                // Until the trasnfer is complete
+                return ApprenticeshipStatus.InProgress;
+            }
+            else if (learner?.CompletionStatus == 3)
             {
                 return ApprenticeshipStatus.Stopped;
             }

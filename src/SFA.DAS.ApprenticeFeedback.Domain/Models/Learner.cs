@@ -17,5 +17,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public DateTime? ApprovalsPauseDate { get; set; }
         public DateTime? LearnActEndDate { get; set; }
         public DateTime? EstimatedEndDate { get; set; }
+        public bool IsTransfer { get; set; }
+        public DateTime? DateTransferIdentified { get; set; }
     }
 }
