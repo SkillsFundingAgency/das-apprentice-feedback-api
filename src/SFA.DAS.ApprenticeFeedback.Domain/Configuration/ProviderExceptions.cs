@@ -6,6 +6,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
 {
     public static class ProviderExceptions
     {
-        public static List<long> IgnoredUkprns = new List<long> { 10040329 };
+        public static List<long> IgnoredUkprns = new List<long> { 10040329, 10006472 };
     }
 }
