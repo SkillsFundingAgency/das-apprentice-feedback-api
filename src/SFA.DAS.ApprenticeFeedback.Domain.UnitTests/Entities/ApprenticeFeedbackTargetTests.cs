@@ -254,6 +254,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             // Arrange
             target.Withdrawn = false;
             learner.CompletionStatus = 3;
+            learner.IsTransfer = false;
             learner.ApprovalsStopDate = learner.LearnActEndDate.Value.AddDays(-7);
 
             // Act
@@ -274,6 +275,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             // Arrange
             target.Withdrawn = false;
             learner.CompletionStatus = 3;
+            learner.IsTransfer = false;
             learner.LearnActEndDate = learner.ApprovalsStopDate.Value.AddDays(-7);
 
             // Act
@@ -285,6 +287,28 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         }
 
         [Test, RecursiveMoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_ButIsTransfer_SetInProgress_AndEstimatedEndDate(
+            Learner learner,
+            ApplicationSettings settings,
+            Mock<IDateTimeHelper> dateTimeHelper,
+            Domain.Entities.ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.Withdrawn = false;
+            learner.CompletionStatus = 3;
+            learner.IsTransfer = true;
+            learner.LearnActEndDate = learner.ApprovalsStopDate.Value.AddDays(-7);
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+
+            // Assert
+            target.EndDate.Should().Be(learner.EstimatedEndDate);
+            target.Withdrawn.Should().BeFalse();
+            target.IsTransfer.Should().BeTrue();
+        }
+
+        [Test, RecursiveMoqAutoData]
         public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsPaused_SetsPausedDate(
             Learner learner,
             ApplicationSettings settings,
@@ -293,6 +317,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         {
             // Arrange
             learner.CompletionStatus = 6;
+            learner.IsTransfer = false;
 
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
@@ -365,6 +390,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.ApprovalsPauseDate = dateTimeHelper.Now;
             learner.ApprovalsStopDate = dateTimeHelper.Now;
             learner.LearnActEndDate = dateTimeHelper.Now;
+            learner.IsTransfer = false;
             // Setup for feedback
             appFeedbackResult.DateTimeCompleted = recentFeedbackToEndDate ? now.AddDays(1) : now.AddDays(-1);
             target.ApprenticeFeedbackResults.Clear();
@@ -541,7 +567,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.Withdrawn = false;
             target.FeedbackTransactions = new List<Domain.Entities.FeedbackTransaction>();
             learner.CompletionStatus = 3;
-            
+            learner.IsTransfer = false;
+
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
@@ -566,6 +593,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             feedbackTransaction.SentDate = null;
             target.FeedbackTransactions.Add(feedbackTransaction);
             learner.CompletionStatus = 3;
+            learner.IsTransfer = false;
 
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
