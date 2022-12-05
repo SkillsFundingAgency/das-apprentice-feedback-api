@@ -86,7 +86,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
 
             // Begin sending process.
             EmailSentStatus sendStatus = EmailSentStatus.Failed;
-            
+
+            // Check Ignored Provider List for certain templates.
+            var isIgnoredProvider = ProviderExceptions.IgnoredUkprns.Contains(feedbackTransaction.ApprenticeFeedbackTarget.Ukprn.GetValueOrDefault(0));
+
             // If the email template is the feedback template then
             // decide whether to send email based on preference
             if (emailTemplateInfo.Id == _appSettings.ActiveFeedbackEmailTemplateId && !request.IsEmailContactAllowed)
@@ -108,6 +111,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                     // Kick the can down the road
                     feedbackTransaction.SendAfter = _dateTimeHelper.Now.AddDays(_appSettings.FeedbackEmailProcessingRetryWaitDays);
                 }
+            }
+            else if (emailTemplateInfo.Id == _appSettings.WithdrawnFeedbackEmailTemplateId && isIgnoredProvider)
+            {
+                // If it's the withdrawn template but the provider is ignored, don't send exit survey
+                _context.Entities.Remove(feedbackTransaction);
+                await _context.SaveChangesAsync();
+                return new ProcessEmailTransactionResponse(feedbackTransaction.Id, EmailSentStatus.Successful);
+
             }
             else if (emailTemplateInfo.Id.HasValue)
             {
