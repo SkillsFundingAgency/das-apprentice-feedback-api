@@ -25,7 +25,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IProviderAttributeSummaryContext,
         IProviderStarsSummaryContext,
         IExitSurveyContext,
-        IFeedbackTransactionContext
+        IFeedbackTransactionContext,
+        IExclusionContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -40,7 +41,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public virtual DbSet<ProviderStarsSummary> ProviderStarsSummary { get; set; } = null!;
         public virtual DbSet<Domain.Entities.ApprenticeExitSurvey> ApprenticeExitSurveys { get; set; } = null!;
         public virtual DbSet<FeedbackTransaction> FeedbackTransactions { get; set; }
-
+        public virtual DbSet<Exclusion> Exclusions { get; set; }
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<Domain.Entities.ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
@@ -51,6 +52,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         DbSet<ProviderStarsSummary> IEntityContext<ProviderStarsSummary>.Entities => ProviderStarsSummary;
         DbSet<ApprenticeExitSurvey> IEntityContext<ApprenticeExitSurvey>.Entities => ApprenticeExitSurveys;
         DbSet<FeedbackTransaction> IEntityContext<FeedbackTransaction>.Entities => FeedbackTransactions;
+        DbSet<Exclusion> IEntityContext<Exclusion>.Entities => Exclusions;
 
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
@@ -89,6 +91,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new FeedbackTransactionConfiguration());
             modelBuilder.ApplyConfiguration(new ExitSurveyAttributeConfiguration());
+            modelBuilder.ApplyConfiguration(new ExclusionsConfiguration());
             modelBuilder.Entity<GenerateFeedbackTransactionsResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }

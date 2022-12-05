@@ -76,16 +76,16 @@
     <Build Include="StoredProcedures\GenerateFeedbackTransactions.sql" />
     <Build Include="Tables\ApprenticeExitSurvey.sql" />
     <Build Include="Tables\ExitSurveyAttribute.sql" />
+    <Build Include="Tables\Exclusions.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Scripts\AddDefaultProviderAttributes.sql" />
+    <None Include="Scripts\AddProviderExclusions.sql" />
     <Build Include="Views\vApprenticeFeedbackResults.sql" />
     <None Include="Scripts\BackupApprenticeExitSurvey.sql" />
     <None Include="Scripts\SetPrimaryReasonForExistingExitSurveys.sql" />
-    <None Include="Scripts\SetAttributeTypeForExisting.sql" />
     <None Include="Scripts\AddDefaultExitSurveyAttributes.sql" />
   </ItemGroup>
   <ItemGroup>
