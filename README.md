@@ -47,7 +47,9 @@ In order to run this solution locally you will need the following:
 * **Azure Table Storage Config** - Add the following data to your Azure Table Storage Config. 
 
 Row Key: SFA.DAS.ApprenticeFeedback.Api_1.0
+
 Partition Key: LOCAL
+
 Data:
 
 ```
