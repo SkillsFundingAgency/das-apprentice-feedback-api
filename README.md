@@ -24,11 +24,8 @@ In order to run this solution locally you will need the following:
 ### Environment setup
 
 * Publish the local database from the `SFA.DAS.ApprenticeFeedback.Database` project. 
-* Add the following to an `appsettings.development.json` file.
-    * Add your connection strings for CosmosDB and ASB to the relevant sections of the file
-* The CosmosDB will be created automatically if it does not already exist and the credentials you are connected with have the appropriate rights within the Azure tenant otherwise it will need to be created manually using the details in the config below under `CosmosDbSettings`.
-
-appsettings.development.json file:
+* **appsettings.development.json file** - Add the following to an `appsettings.development.json` file.
+    * Add your connection strings for CosmosDB and ASB to the relevant sections of the file. The CosmosDB will be created automatically if it does not already exist and the credentials you are connected with have the appropriate rights within the Azure tenant otherwise it will need to be created manually using the details in the config below under `CosmosDbSettings`.
 
 ```json
 {
@@ -47,14 +44,10 @@ appsettings.development.json file:
 }  
 ```
 
-* Add the following data to your Azure Table Storage Config. 
-
-Azure Table Storage Config:
+* **Azure Table Storage Config** - Add the following data to your Azure Table Storage Config. 
 
 Row Key: SFA.DAS.ApprenticeFeedback.Api_1.0
-
 Partition Key: LOCAL
-
 Data:
 
 ```
