@@ -47,7 +47,7 @@ appsettings.development.json file:
 }  
 ```
 
-*Add the following data to your Azure Table Storage Config. 
+* Add the following data to your Azure Table Storage Config. 
 
 Azure Table Storage Config:
 
