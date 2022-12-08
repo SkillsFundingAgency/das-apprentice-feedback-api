@@ -47,6 +47,8 @@ appsettings.development.json file:
 }  
 ```
 
+*Add the following data to your Azure Table Storage Config. 
+
 Azure Table Storage Config:
 
 Row Key: SFA.DAS.ApprenticeFeedback.Api_1.0
