@@ -9,7 +9,7 @@
 [![Confluence Project](https://img.shields.io/badge/Confluence-Project-blue)](https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/3776446580/Apprentice+Feedback+-+QF)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg?longCache=true&style=flat-square)](https://en.wikipedia.org/wiki/MIT_License)
 
-This repository represents the Apprentice Feedback API code base. Apprentice Feedback is a service that allows apprentices to provide feedback on their training providers. The apprentice is able to submit feedback via the ad hoc journey, or an emailing journey. Either way, the UI code base is the `das-apprentice-feedback-web` repository, this repository is the inner API, and the outer API code base is in the `das-apim-endpoints repository` within the `ApprenticeFeedback` project.
+This repository represents the Apprentice Feedback API code base. Apprentice Feedback is a service that allows apprentices to provide feedback on their training providers. The apprentice is able to submit feedback via the ad hoc journey, or an emailing journey. Either way, the UI code base is the `das-apprentice-feedback-web` repository, this repository is the inner API, and the outer API code base is in the `das-apim-endpoints` repository within the `ApprenticeFeedback` project.
 
 ## Developer Setup
 ### Requirements
