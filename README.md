@@ -97,5 +97,5 @@ There are several unit test projects in the solution built using C#, NUnit, Moq,
 
 #### Integration Tests
 
-There is one integration test project, `SFA.DAS.ApprenticeFeedback.Api.IntegrationTests` and it tests the APIs.
+There is one integration test project, `SFA.DAS.ApprenticeFeedback.Api.IntegrationTests`, and it tests the APIs.
 
