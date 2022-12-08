@@ -27,8 +27,9 @@ In order to run this solution locally you will need the following:
 * Add the following to an `appsettings.development.json` file.
     * Add your connection strings for CosmosDB and ASB to the relevant sections of the file
 * The CosmosDB will be created automatically if it does not already exist and the credentials you are connected with have the appropriate rights within the Azure tenant otherwise it will need to be created manually using the details in the config below under `CosmosDbSettings`.
-```
-appSettings.development.json file
+
+appsettings.development.json file:
+
 ```json
 {
   "Logging": {
@@ -46,7 +47,7 @@ appSettings.development.json file
 }  
 ```
 
-Azure Table Storage Config
+Azure Table Storage Config:
 
 Row Key: SFA.DAS.ApprenticeFeedback.Api_1.0
 
@@ -54,7 +55,7 @@ Partition Key: LOCAL
 
 Data:
 
-```json
+```
 {
   "ApplicationSettings": {
     "DbConnectionString": "Data Source=HOSTNAME;Initial Catalog=SFA.DAS.ApprenticeFeedback.Database;Integrated Security=True;Pooling=False;Connect Timeout=30",
