@@ -90,8 +90,12 @@ This codebase includes unit tests and integration tests. These are all in sepera
 #### Unit Tests
 
 There are several unit test projects in the solution built using C#, NUnit, Moq, FluentAssertions, .NET and AutoFixture.
+* `SFA.DAS.ApprenticeFeedback.Api.UnitTests`
+* `SFA.DAS.ApprenticeFeedback.Application.UnitTests`
+* `SFA.DAS.ApprenticeFeedback.Data.UnitTests`
+* `SFA.DAS.ApprenticeFeedback.Domain.UnitTests`
 
 #### Integration Tests
 
-There is one integration test project and it tests the APIs.
+There is one integration test project, `SFA.DAS.ApprenticeFeedback.Api.IntegrationTests` and it tests the APIs.
 
