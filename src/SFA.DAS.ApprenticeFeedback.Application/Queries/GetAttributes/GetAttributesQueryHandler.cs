@@ -17,9 +17,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAttributes
         }
         public async Task<GetAttributesResult> Handle(GetAttributesQuery request, CancellationToken cancellationToken)
         {
-            var entities = await _attributeContext.Entities.ToListAsync();
+            var entities = await _attributeContext.Entities
+                .Where(e => e.AttributeType == request.AttributeType)
+                .ToListAsync();
 
-            var attributes = entities.Select(entity => (Domain.Models.Attribute)entity).ToList();
+            var attributes = entities.Select(entity => (Domain.Models.Attribute)entity).OrderBy(a => a.Ordering).ToList();
 
             return new GetAttributesResult
             {

@@ -16,10 +16,12 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             _mediator = mediator;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAttributes()
+        [HttpGet("{attributeType}")]
+        public async Task<IActionResult> GetAttributes(string attributeType)
         {
-            var result = await _mediator.Send(new GetAttributesQuery());
+            if (string.IsNullOrWhiteSpace(attributeType)) return BadRequest();
+
+            var result = await _mediator.Send(new GetAttributesQuery() { AttributeType = attributeType });
 
             return Ok(result.ProviderAttributes);
         }

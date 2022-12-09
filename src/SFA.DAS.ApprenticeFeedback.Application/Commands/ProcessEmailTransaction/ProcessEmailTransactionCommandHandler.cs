@@ -17,6 +17,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
     public class ProcessEmailTransactionCommandHandler : IRequestHandler<ProcessEmailTransactionCommand, ProcessEmailTransactionResponse>
     {
         private readonly IFeedbackTransactionContext _context;
+        private readonly IExclusionContext _exclusionContext;
         private readonly ApplicationSettings _appSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly ILogger<ProcessEmailTransactionCommandHandler> _logger;
@@ -24,6 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
 
         public ProcessEmailTransactionCommandHandler(
             IFeedbackTransactionContext context
+            , IExclusionContext exclusionContext
             , ApplicationSettings appSettings
             , IDateTimeHelper dateTimeHelper
             , ILogger<ProcessEmailTransactionCommandHandler> logger
@@ -31,6 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             )
         {
             _context = context;
+            _exclusionContext = exclusionContext;
             _appSettings = appSettings;
             _dateTimeHelper = dateTimeHelper;
             _logger = logger;
@@ -87,8 +90,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             // Begin sending process.
             EmailSentStatus sendStatus = EmailSentStatus.Failed;
 
-            // Check Ignored Provider List for certain templates.
-            var isIgnoredProvider = ProviderExceptions.IgnoredUkprns.Contains(feedbackTransaction.ApprenticeFeedbackTarget.Ukprn.GetValueOrDefault(0));
+            var isIgnoredProvider = await _exclusionContext.HasExclusion(feedbackTransaction.ApprenticeFeedbackTarget.Ukprn.GetValueOrDefault(0));
 
             // If the email template is the feedback template then
             // decide whether to send email based on preference

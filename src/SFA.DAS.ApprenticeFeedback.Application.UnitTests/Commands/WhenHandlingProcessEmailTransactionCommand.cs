@@ -9,6 +9,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.Notifications.Messages.Commands;
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
@@ -211,6 +212,52 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
             feedbackTransaction.TemplateId.Should().Be(appSettings.WithdrawnFeedbackEmailTemplateId);
             nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Once);
+        }
+
+        [Test, AutoMoqData]
+        public async Task And_ApprenticeFeedbackTargetIsWithdrawn_ButProviderExcluded_DoesNotSendExitSurvey(
+            ProcessEmailTransactionCommand command,
+            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+            [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+            [Frozen] ApplicationSettings appSettings,
+            ProcessEmailTransactionCommandHandler handler)
+        {
+            // Arrange
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Status = (int)FeedbackTargetStatus.Active,
+                FeedbackEligibility = (int)FeedbackEligibilityStatus.Allow,
+                Withdrawn = true,
+                Ukprn = 12345
+            };
+            var exclusion = new Exclusion
+            {
+                Ukprn = 12345,
+                CreatedOn = DateTime.UtcNow
+            };
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                EmailAddress = command.ApprenticeEmailAddress,
+                FirstName = command.ApprenticeName,
+                SentDate = null,
+                ApprenticeFeedbackTarget = feedbackTarget,
+            };
+            context.Add(exclusion);
+            context.Add(feedbackTarget);
+            context.Add(feedbackTransaction);
+            await context.SaveChangesAsync();
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEmailContactAllowed = true;
+
+            //Act
+            var result = await handler.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
+            context.FeedbackTransactions.ToList().Should().HaveCount(0);
+            nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Never);
         }
 
         [Test, AutoMoqData]

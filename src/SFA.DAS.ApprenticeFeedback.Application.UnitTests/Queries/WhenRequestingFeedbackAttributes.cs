@@ -21,9 +21,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             context.Attributes.AddRange(response);
             context.SaveChanges();
 
+            query.AttributeType = response[0].AttributeType;
             var result = await handler.Handle(query, CancellationToken.None);
 
-            result.ProviderAttributes.Count.Should().Be(response.Count);
+            result.ProviderAttributes.Count.Should().Be(1);
         }
     }
 }

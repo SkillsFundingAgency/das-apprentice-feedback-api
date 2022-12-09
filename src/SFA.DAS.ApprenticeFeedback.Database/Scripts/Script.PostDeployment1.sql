@@ -10,5 +10,7 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
-:r .\AddDefaultProviderAttributes.sql
+:r .\AddDefaultExitSurveyAttributes.sql
+:r .\SetPrimaryReasonForExistingExitSurveys.sql
+:r .\AddProviderExclusions.sql
 

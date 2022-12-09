@@ -1,0 +1,5 @@
+﻿CREATE TABLE [dbo].[Exclusion]
+(
+	[Ukprn] BIGINT NOT NULL PRIMARY KEY,
+	[CreatedOn] DATETIME2 NOT NULL DEFAULT GETDATE()
+)
