@@ -77,6 +77,7 @@
     <Build Include="Tables\ApprenticeExitSurvey.sql" />
     <Build Include="Tables\ExitSurveyAttribute.sql" />
     <Build Include="Tables\Exclusion.sql" />
+    <None Include="Scripts\UpdateDidNotComplete.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
