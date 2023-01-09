@@ -79,7 +79,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
                     {
                         o.Filters.Add(new AuthorizeFilter(PolicyNames.Default));
                     }
-                }).SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+                });
 
             services.AddServices();
         }
