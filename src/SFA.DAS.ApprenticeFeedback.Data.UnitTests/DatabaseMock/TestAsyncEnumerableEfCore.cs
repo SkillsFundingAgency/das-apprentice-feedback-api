@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Data.UnitTests.DatabaseMock
 {
-    public class TestAsyncEnumerableEfCore<T> : TestQueryProvider<T>, IAsyncEnumerable<T>, IAsyncQueryProvider
+    public class TestAsyncEnumerableEfCore<T> : TestQueryProvider<T>, IAsyncEnumerable<T>
     {
         public TestAsyncEnumerableEfCore(Expression expression) : base(expression)
         {
