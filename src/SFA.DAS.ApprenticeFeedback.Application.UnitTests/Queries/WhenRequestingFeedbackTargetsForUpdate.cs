@@ -1,5 +1,7 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargetsForUpdate;
@@ -56,7 +58,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active
             };
         }
-        
+
 
         private static Domain.Entities.ApprenticeFeedbackTarget AFT_EligibilityCalculatedRecently(string providerName)
         {
@@ -88,8 +90,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 StartDate = DateTime.UtcNow.AddMonths(-6),
                 Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active,
                 EligibilityCalculationDate = DateTime.UtcNow.AddDays(-100),
-                ApprenticeFeedbackResults = new List<Domain.Entities.ApprenticeFeedbackResult>() 
-                { 
+                ApprenticeFeedbackResults = new List<Domain.Entities.ApprenticeFeedbackResult>()
+                {
                     new Domain.Entities.ApprenticeFeedbackResult()
                     {
                         DateTimeCompleted = DateTime.UtcNow.AddDays(-2)
@@ -180,7 +182,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             }
 
             public class StatusNotCompleted
-            {            
+            {
                 [Test]
                 [AutoMoqData]
                 public void When_ApprenticeshipStatusCompleted_Then_ReturnEmpty(
@@ -390,26 +392,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 {
                     AFT_EligibleToGiveFeedback("Test Provider 4")
                 }
-            ),
-
-            // Test case 5 - Eligible for feedback - test batch size
-            new TestCaseData(
-                new List<Domain.Entities.ApprenticeFeedbackTarget>
-                {
-                    AFT_EligibleToGiveFeedback("Test Provider 5"),
-                    AFT_EligibleToGiveFeedback("Test Provider 6"),
-                    AFT_EligibleToGiveFeedback("Test Provider 7"),
-                    AFT_EligibleToGiveFeedback("Test Provider 8"),
-                    AFT_EligibleToGiveFeedback("Test Provider 9"),
-                },
-                3  // batch size
-            ).Returns(
-                new List<Domain.Entities.ApprenticeFeedbackTarget>()
-                {
-                    AFT_EligibleToGiveFeedback("Test Provider 5"),
-                    AFT_EligibleToGiveFeedback("Test Provider 6"),
-                    AFT_EligibleToGiveFeedback("Test Provider 7"),
-                }
             )
         };
 
@@ -421,7 +403,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         [AutoMoqInlineAutoData(2)]
         [AutoMoqInlineAutoData(3)]
         [AutoMoqInlineAutoData(4)]
-        [AutoMoqInlineAutoData(5)]
         public async Task ThenFeedbackTargetsAreReturned(
             int testCaseIndex,
             [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context
@@ -433,15 +414,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             context.SaveChanges();
 
             var query = new GetApprenticeFeedbackTargetsForUpdateQuery() { BatchSize = (int)FeedbackTargetTestData[testCaseIndex].Arguments[1] };
+            var handler = GetHandler(context);
 
-            var handler = new GetApprenticeFeedbackTargetsForUpdateQueryHandler(context, 
-                new ApplicationSettings() 
-                { 
-                    RecentDenyPeriodDays = 7,
-                    EligibilityCalculationThrottleDays = 7
-                }, 
-                new UtcTimeProvider());
-            
             // Act
 
             var result = await handler.Handle(query, CancellationToken.None);
@@ -449,6 +423,63 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             // Assert
             var expectedResult = (IEnumerable<Domain.Entities.ApprenticeFeedbackTarget>)FeedbackTargetTestData[testCaseIndex].ExpectedResult;
             result.ApprenticeFeedbackTargets.Select(aft => aft.ProviderName).Should().BeEquivalentTo(expectedResult.Select(aft => aft.ProviderName));
+        }
+
+        [TestCase(0)]
+        [TestCase(1)]
+        [TestCase(2)]
+        [TestCase(3)]
+        [TestCase(4)]
+        [TestCase(5)]
+        public async Task Then_Only_The_Expected_Number_Of_FeedbackTargetsAreReturned(int batchSize)
+        {
+            // Arrange
+            var context = ApprenticeFeedbackDataContextBuilder.GetApprenticeFeedbackDataContext();
+
+            // Note that .NET 6 will NOT try to add these items in the order specified.
+            context.ApprenticeFeedbackTargets.AddRange(new List<Domain.Entities.ApprenticeFeedbackTarget>
+                {
+                    AFT_EligibleToGiveFeedback("Test Provider 5"),
+                    AFT_EligibleToGiveFeedback("Test Provider 6"),
+                    AFT_EligibleToGiveFeedback("Test Provider 7"),
+                    AFT_EligibleToGiveFeedback("Test Provider 8"),
+                    AFT_EligibleToGiveFeedback("Test Provider 9"),
+                });
+            context.SaveChanges();
+
+            var query = new GetApprenticeFeedbackTargetsForUpdateQuery() { BatchSize = batchSize };
+
+            var handler = new GetApprenticeFeedbackTargetsForUpdateQueryHandler(context,
+                new ApplicationSettings()
+                {
+                    RecentDenyPeriodDays = 7,
+                    EligibilityCalculationThrottleDays = 7
+                },
+                new UtcTimeProvider());
+
+            // Act
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            // Assert
+
+            var expectedProviders = context.ApprenticeFeedbackTargets.Take(batchSize)
+                                                                     .Select(x => x.ProviderName);
+
+            var receivedProviders = result.ApprenticeFeedbackTargets.Select(aft => aft.ProviderName);
+
+            receivedProviders.Should().BeEquivalentTo(expectedProviders);
+        }
+
+        private static GetApprenticeFeedbackTargetsForUpdateQueryHandler GetHandler(ApprenticeFeedbackDataContext context)
+        {
+            return new GetApprenticeFeedbackTargetsForUpdateQueryHandler(context,
+                new ApplicationSettings()
+                {
+                    RecentDenyPeriodDays = 7,
+                    EligibilityCalculationThrottleDays = 7
+                },
+                new UtcTimeProvider());
         }
     }
 }
