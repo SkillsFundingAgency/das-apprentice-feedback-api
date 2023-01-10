@@ -431,7 +431,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         [TestCase(3)]
         [TestCase(4)]
         [TestCase(5)]
-        public async Task Then_Only_The_Expected_Number_Of_FeedbackTargetsAreReturned(int batchSize)
+        public async Task Then_TheNumberOf_FeedbackTargetsReturned_EqualsTheSpecifiedBatchSize(int batchSize)
         {
             // Arrange
             var context = ApprenticeFeedbackDataContextBuilder.GetApprenticeFeedbackDataContext();
