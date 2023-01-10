@@ -1,5 +1,4 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Threading;

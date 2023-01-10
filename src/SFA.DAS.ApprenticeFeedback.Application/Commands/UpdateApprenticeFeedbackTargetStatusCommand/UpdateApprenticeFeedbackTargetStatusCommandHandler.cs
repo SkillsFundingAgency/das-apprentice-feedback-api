@@ -18,7 +18,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
         private readonly ApplicationSettings _appSettings;
         private readonly IDateTimeHelper _dateTimeHelper;
 
-        public UpdateApprenticeFeedbackTargetStatusCommandHandler (
+        public UpdateApprenticeFeedbackTargetStatusCommandHandler(
             IApprenticeFeedbackTargetContext apprenticeFeedbackTargetContext,
             ApplicationSettings appSettings,
             IDateTimeHelper dateTimeHelper,

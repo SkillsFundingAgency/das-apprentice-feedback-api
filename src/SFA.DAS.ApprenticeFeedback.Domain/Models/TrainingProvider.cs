@@ -39,7 +39,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 LastFeedbackSubmittedDate = source.LastFeedbackSubmittedDate,
             };
 
-            switch(trainingProvider.FeedbackEligibility)
+            switch (trainingProvider.FeedbackEligibility)
             {
                 case FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently:
                     trainingProvider.SignificantDate = source.LastFeedbackSubmittedDate.Value.Date.AddDays(appSettings.RecentDenyPeriodDays);

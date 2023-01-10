@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using SFA.DAS.ApprenticeFeedback.Domain.Models;
+﻿using SFA.DAS.ApprenticeFeedback.Domain.Models;
+using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargetsForUpdate
 {

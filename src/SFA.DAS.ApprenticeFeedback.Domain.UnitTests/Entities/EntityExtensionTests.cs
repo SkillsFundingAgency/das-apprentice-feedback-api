@@ -160,7 +160,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             targets.ForEach(t => t.Status = (int)FeedbackTargetStatus.Complete);
             targets.ForEach(t => t.FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_Complete);
             targets.ForEach(t => t.Ukprn = individualTarget.Ukprn);
-            
+
             individualTarget.Status = (int)FeedbackTargetStatus.NotYetActive;
             individualTarget.FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
             individualTarget.StartDate = DateTime.UtcNow;

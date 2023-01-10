@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Authentication
-{ 
+{
     public class AzureAdScopeClaimTransformation : IClaimsTransformation
     {
         public const string ScopeClaimType = "http://schemas.microsoft.com/identity/claims/scope";

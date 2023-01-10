@@ -6,7 +6,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 {
     public interface IExclusionContext : IEntityContext<Exclusion>
     {
-       
+
         public async Task<bool> HasExclusion(long ukprn)
             => await Entities.AnyAsync(e => e.Ukprn == ukprn);
     }

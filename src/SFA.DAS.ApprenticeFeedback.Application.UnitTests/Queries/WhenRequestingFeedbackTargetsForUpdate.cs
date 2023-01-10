@@ -1,14 +1,10 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
-using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
-using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargetsForUpdate;
 using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Collections.Generic;
 using System.Linq;

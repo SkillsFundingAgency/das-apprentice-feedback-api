@@ -20,7 +20,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             GetApprenticeFeedbackDetailsQueryHandler handler)
         {
             query.Ukprn = 0;
-            
+
             var result = await handler.Handle(query, CancellationToken.None);
 
             result.Ukprn.Should().Be(0);

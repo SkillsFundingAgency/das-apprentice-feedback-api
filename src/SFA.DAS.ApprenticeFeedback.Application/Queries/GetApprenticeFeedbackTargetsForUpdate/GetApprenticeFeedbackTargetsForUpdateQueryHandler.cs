@@ -25,9 +25,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
         }
         public static IQueryable<Domain.Entities.ApprenticeFeedbackTarget> NotGivenFeedbackRecently(this IQueryable<Domain.Entities.ApprenticeFeedbackTarget> afts, IDateTimeHelper dateTimeHelper, ApplicationSettings appSettings)
         {
-            return afts.Where(aft => aft.ApprenticeFeedbackResults.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault() == null? 
-                true 
-                : !( aft.ApprenticeFeedbackResults.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault().DateTimeCompleted.Value.Date.AddDays(appSettings.RecentDenyPeriodDays) > dateTimeHelper.Now.Date));
+            return afts.Where(aft => aft.ApprenticeFeedbackResults.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault() == null ?
+                true
+                : !(aft.ApprenticeFeedbackResults.OrderByDescending(a => a.DateTimeCompleted).FirstOrDefault().DateTimeCompleted.Value.Date.AddDays(appSettings.RecentDenyPeriodDays) > dateTimeHelper.Now.Date));
         }
     }
 

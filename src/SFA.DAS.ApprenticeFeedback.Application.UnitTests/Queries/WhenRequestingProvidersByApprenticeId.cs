@@ -22,7 +22,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             GetAllProvidersForApprenticeQueryHandler handler)
         {
             //Arrange
-                        
+
             //Act
             var result = await handler.Handle(query, CancellationToken.None);
 

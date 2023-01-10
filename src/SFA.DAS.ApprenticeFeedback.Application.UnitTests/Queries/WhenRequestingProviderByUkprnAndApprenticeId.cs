@@ -47,13 +47,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             // Arrange
             response.Status = (int)FeedbackTargetStatus.Active;
             response.FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_HasGivenFeedbackRecently;
-            mockApprenticeFeedbackTargetDataContext.Setup( s => s.GetAllForApprenticeIdAndUkprnAndIncludeFeedbackResultsAsync(query.ApprenticeId, query.Ukprn)).ReturnsAsync(new List<ApprenticeFeedbackTarget> { response });
+            mockApprenticeFeedbackTargetDataContext.Setup(s => s.GetAllForApprenticeIdAndUkprnAndIncludeFeedbackResultsAsync(query.ApprenticeId, query.Ukprn)).ReturnsAsync(new List<ApprenticeFeedbackTarget> { response });
 
             // Act
             var result = await handler.Handle(query, CancellationToken.None);
 
             // Assert
-            result.TrainingProvider.Should().BeEquivalentTo(new 
+            result.TrainingProvider.Should().BeEquivalentTo(new
             {
                 ApprenticeFeedbackTargetId = response.Id,
                 response.Ukprn,

@@ -2,7 +2,6 @@ using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
-using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using System;
 using System.Linq;
 using System.Threading.Tasks;

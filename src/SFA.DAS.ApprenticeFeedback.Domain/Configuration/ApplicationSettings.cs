@@ -7,7 +7,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
         public string DbConnectionString { get; set; }
         public string NServiceBusConnectionString { get; set; }
         public string NServiceBusLicense { get; set; }
-        
+
         /// <summary>
         /// How soon since the last feedback given by an apprentice they are able to give feedback again
         /// </summary>

@@ -1,15 +1,11 @@
-﻿
-using System;
+﻿using MediatR;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
+using SFA.DAS.ApprenticeFeedback.Domain.Entities;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using MediatR;
-using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
-using SFA.DAS.ApprenticeFeedback.Domain.Entities;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransactions
 {

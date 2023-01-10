@@ -36,7 +36,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
         [Test, AutoMoqData]
         public async Task And_TransactionAlreadySent_Then_ReturnSuccessful(
-           ProcessEmailTransactionCommand command,  
+           ProcessEmailTransactionCommand command,
            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
            ProcessEmailTransactionCommandHandler handler
            )

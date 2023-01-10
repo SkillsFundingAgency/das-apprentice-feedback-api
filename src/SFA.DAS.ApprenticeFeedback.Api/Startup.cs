@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -9,15 +8,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 using NServiceBus.ObjectBuilder.MSDependencyInjection;
+using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 using SFA.DAS.ApprenticeFeedback.Api.Authorization;
 using SFA.DAS.ApprenticeFeedback.Api.Configuration;
-using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
-using System;
 using System.IO;
-using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 
 namespace SFA.DAS.ApprenticeFeedback.Api
 {
@@ -58,7 +55,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
 
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(s => s.GetRequiredService<IOptions<ApplicationSettings>>().Value);
-            
+
             services.Configure<AzureActiveDirectoryApiConfiguration>(Configuration.GetSection("AzureAd"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value);
             var azureAdConfiguration = Configuration.GetSection("AzureAd").Get<AzureActiveDirectoryApiConfiguration>();
