@@ -25,7 +25,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
             result.Should().BeOfType<OkObjectResult>();
         }
 
-
         [Test, MoqAutoData]
         public async Task And_MediatorCommandIsUnsuccessful_Then_ReturnBadRequest
             (CreateApprenticeFeedbackCommand request,
