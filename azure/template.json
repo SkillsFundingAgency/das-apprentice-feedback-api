@@ -172,6 +172,9 @@
                     "subnetResourceId": {
                         "value": "[parameters('sharedBackEndSubnetResourceId')]"
                     },
+                    "netFrameworkVersion": {
+                        "value": "v6.0"
+                    },
                     "appServiceAppSettings": {
                         "value": {
                             "array": [
