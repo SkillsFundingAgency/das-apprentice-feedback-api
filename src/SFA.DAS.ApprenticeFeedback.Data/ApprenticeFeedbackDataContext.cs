@@ -66,17 +66,18 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             _chainedTokenProvider = chainedTokenCredential;
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override async void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (_configuration == null || _chainedTokenProvider == null)
             {
                 return;
             }
 
+            var getTokenTask = await _chainedTokenProvider.GetTokenAsync(new TokenRequestContext(new string[] { AzureResource }));
             var connection = new SqlConnection
             {
                 ConnectionString = _configuration.DbConnectionString,
-                AccessToken = _chainedTokenProvider.GetTokenAsync(new TokenRequestContext(new string[] { AzureResource })).Result.Token
+                AccessToken = getTokenTask.Token
             };
             optionsBuilder.UseSqlServer(connection);
         }
