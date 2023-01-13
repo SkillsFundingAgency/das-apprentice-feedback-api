@@ -99,6 +99,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             targets.Count().Should().Be(expectedCount);
         }
 
+        [Test]
+        public void Blah()
+        {
+            Assert.Pass();
+        }
+
         [Test, MoqAutoData]
         public void WhenCalling_FilterForEligibleActiveApprenticeFeedbackTargets_PrioritisesActiveRecords()
         {
