@@ -31,7 +31,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
-        private readonly ChainedTokenCredential _chainedTokenProvider;
+        private readonly DefaultAzureCredential _defaultAzureCredential;
 
         public virtual DbSet<Domain.Entities.Attribute> Attributes { get; set; }
         public virtual DbSet<Domain.Entities.ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
@@ -60,24 +60,23 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         {
         }
 
-        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, ChainedTokenCredential chainedTokenCredential) : base(options)
+        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, DefaultAzureCredential defaultAzureCredential) : base(options)
         {
             _configuration = config.Value;
-            _chainedTokenProvider = chainedTokenCredential;
+            _defaultAzureCredential = defaultAzureCredential;
         }
 
-        protected override async void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (_configuration == null || _chainedTokenProvider == null)
+            if (_configuration == null || _defaultAzureCredential == null)
             {
                 return;
             }
 
-            var getTokenTask = await _chainedTokenProvider.GetTokenAsync(new TokenRequestContext(new string[] { AzureResource }));
             var connection = new SqlConnection
             {
                 ConnectionString = _configuration.DbConnectionString,
-                AccessToken = getTokenTask.Token
+                AccessToken = _defaultAzureCredential.GetTokenAsync(new TokenRequestContext(new string[] { AzureResource })).Result.Token
             };
             optionsBuilder.UseSqlServer(connection);
         }
