@@ -66,17 +66,19 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             _defaultAzureCredential = defaultAzureCredential;
         }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        protected override async void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (_configuration == null || _defaultAzureCredential == null)
             {
                 return;
             }
 
+            var token = await _defaultAzureCredential.GetTokenAsync(new TokenRequestContext(new string[] { AzureResource }));
+
             var connection = new SqlConnection
             {
                 ConnectionString = _configuration.DbConnectionString,
-                AccessToken = _defaultAzureCredential.GetTokenAsync(new TokenRequestContext(new string[] { AzureResource })).Result.Token
+                AccessToken = token.Token
             };
             optionsBuilder.UseSqlServer(connection);
         }
