@@ -1,18 +1,19 @@
-﻿using System;
+﻿using Azure.Core;
+using Azure.Identity;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.Options;
+using SFA.DAS.ApprenticeFeedback.Data.Configuration;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
+using SFA.DAS.ApprenticeFeedback.Domain.Entities;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Microsoft.Azure.Services.AppAuthentication;
-using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Options;
-using SFA.DAS.ApprenticeFeedback.Domain.Entities;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using SFA.DAS.ApprenticeFeedback.Data.Configuration;
-using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -28,9 +29,9 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IFeedbackTransactionContext,
         IExclusionContext
     {
-        private const string AzureResource = "https://database.windows.net/";
+        private const string AzureResource = "https://citizenazuresfabisgov.onmicrosoft.com/das-at-appfbapi-as-ar/.default";
         private readonly ApplicationSettings _configuration;
-        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
+        private readonly DefaultAzureCredential _azureServiceTokenProvider;
 
         public virtual DbSet<Domain.Entities.Attribute> Attributes { get; set; }
         public virtual DbSet<Domain.Entities.ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
@@ -59,7 +60,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         {
         }
 
-        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, AzureServiceTokenProvider azureServiceTokenProvider) : base(options)
+        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, DefaultAzureCredential azureServiceTokenProvider) : base(options)
         {
             _configuration = config.Value;
             _azureServiceTokenProvider = azureServiceTokenProvider;
@@ -75,7 +76,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             var connection = new SqlConnection
             {
                 ConnectionString = _configuration.DbConnectionString,
-                AccessToken = _azureServiceTokenProvider.GetAccessTokenAsync(AzureResource).Result
+                AccessToken = _azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(new string[] { AzureResource })).Result.Token
             };
             optionsBuilder.UseSqlServer(connection);
         }
