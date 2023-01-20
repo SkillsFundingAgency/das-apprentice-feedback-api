@@ -26,13 +26,11 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
 
             var appSettings = configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
 
-            var sqlConnection = await CreateSqlConnectionAsync(configuration, appSettings);
-
             var endpointConfiguration = new EndpointConfiguration("SFA.DAS.ApprenticeFeedback.Api")
                 .UseMessageConventions()
                 .UseNewtonsoftJsonSerializer()
                 .UseServicesBuilder(serviceProvider)
-                .UseSqlServerPersistence(() => sqlConnection)
+                .UseSqlServerPersistence(() => CreateSqlConnection(configuration, appSettings))
                 .UseSendOnly();
 
             if (appSettings.NServiceBusConnectionString.Equals("UseLearningEndpoint=true", StringComparison.CurrentCultureIgnoreCase))
@@ -59,7 +57,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             return serviceProvider;
         }
 
-        private static async Task<DbConnection> CreateSqlConnectionAsync(IConfiguration configuration, ApplicationSettings appSettings)
+        private static DbConnection CreateSqlConnection(IConfiguration configuration, ApplicationSettings appSettings)
         {
             if (configuration.IsLocalAcceptanceOrDev())
             {
@@ -67,13 +65,11 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             }
             else
             {
-                var token = await new DefaultAzureCredential().GetTokenAsync(
-                    new TokenRequestContext(new string[] { "https://database.windows.net/" }));
-
                 return new SqlConnection
                 {
                     ConnectionString = appSettings.DbConnectionString,
-                    AccessToken = token.Token
+                    AccessToken = new DefaultAzureCredential().GetTokenAsync(
+                    new TokenRequestContext(new string[] { "https://database.windows.net/" })).Result.Token
                 };
             }
         }
