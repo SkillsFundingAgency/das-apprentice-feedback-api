@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -21,7 +21,7 @@
     <PackageReference Include="SFA.DAS.Notifications.Messages" Version="3.0.0" />
     <PackageReference Include="SFA.DAS.NServiceBus" Version="17.0.49" />
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="17.0.49" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="5.6.3" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     <PackageReference Include="System.Text.Json" Version="6.0.2" />
   </ItemGroup>
 
