@@ -24,7 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             }
             else
             {
-                services.AddSingleton(new ChainedTokenCredential());
+                services.AddSingleton(new AzureServiceTokenProvider());
                 services.AddDbContext<ApprenticeFeedbackDataContext>(ServiceLifetime.Transient);
             }
 
