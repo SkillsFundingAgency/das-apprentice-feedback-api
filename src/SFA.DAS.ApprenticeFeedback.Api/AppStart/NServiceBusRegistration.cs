@@ -1,4 +1,6 @@
 ﻿using Microsoft.Azure.Services.AppAuthentication;
+using Azure.Identity;
+using Azure.Core;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +16,7 @@ using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using System;
 using System.Data.Common;
 using System.Threading.Tasks;
+using Azure.Core;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
 {
@@ -67,7 +70,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
                 return new SqlConnection
                 {
                     ConnectionString = appSettings.DbConnectionString,
-                    AccessToken = new AzureServiceTokenProvider().GetAccessTokenAsync("https://database.windows.net/").Result
+                    AccessToken = new DefaultAzureCredential().GetTokenAsync(
+                        new TokenRequestContext(scopes: new string[] { "https://database.windows.com/" })).Result.Token
                 };
             }
         }
