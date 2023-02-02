@@ -19,7 +19,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetAllProviders
         {
             _apprenticeFeedbackTargetDataContext = apprenticeFeedbackTargetDataContext;
             _appSettings = appSettings;
-        }               
+        }
 
         public async Task<GetAllProvidersForApprenticeResult> Handle(GetAllProvidersForApprenticeQuery request, CancellationToken cancellationToken)
         {

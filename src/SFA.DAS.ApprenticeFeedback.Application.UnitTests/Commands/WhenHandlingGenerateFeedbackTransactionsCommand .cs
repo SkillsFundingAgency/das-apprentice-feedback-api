@@ -1,14 +1,13 @@
 ﻿
-using System.Threading;
-using System.Threading.Tasks;
 using AutoFixture.NUnit3;
 using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransactions;
-using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+using System.Threading;
+using System.Threading.Tasks;
 
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands

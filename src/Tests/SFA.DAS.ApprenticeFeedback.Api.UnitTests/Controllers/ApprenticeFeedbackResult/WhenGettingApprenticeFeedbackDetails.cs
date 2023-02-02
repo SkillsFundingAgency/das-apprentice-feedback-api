@@ -28,7 +28,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(detailResult);
         }
 
-        
         [Test, MoqAutoData]
         public async Task And_MediatorCommandIsUnsuccessful_Then_ReturnBadRequest
             (long ukprn,

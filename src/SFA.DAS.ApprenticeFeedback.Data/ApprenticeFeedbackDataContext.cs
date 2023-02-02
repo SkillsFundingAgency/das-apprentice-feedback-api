@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
-    public class ApprenticeFeedbackDataContext : DbContext, 
+    public class ApprenticeFeedbackDataContext : DbContext,
         IApprenticeFeedbackTargetContext,
         IApprenticeFeedbackResultContext,
         IProviderAttributeContext,

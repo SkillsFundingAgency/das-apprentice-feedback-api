@@ -60,23 +60,27 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
         {
             if (request is Type type && type == typeof(ApprenticeFeedbackDataContext))
             {
-
-                var connection = new SqliteConnection("Filename=:memory:");
-                connection.Open();
-
-                // These options will be used by the context instances in this test suite, including the connection opened above.
-                var contextOptions = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>()
-                    .UseSqlite(connection)
-                    .Options;
-
-                // Create the schema and seed some data
-                var dbContext = new ApprenticeFeedbackDataContext(contextOptions);
-                dbContext.Database.EnsureCreated();
-
-                return dbContext;
+                return GetApprenticeFeedbackDataContext();
             }
 
             return new NoSpecimen();
+        }
+
+        public static ApprenticeFeedbackDataContext GetApprenticeFeedbackDataContext()
+        {
+            var connection = new SqliteConnection("Filename=:memory:");
+            connection.Open();
+
+            // These options will be used by the context instances in this test suite, including the connection opened above.
+            var contextOptions = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>()
+                .UseSqlite(connection)
+                .Options;
+
+            // Create the schema and seed some data
+            var dbContext = new ApprenticeFeedbackDataContext(contextOptions);
+            dbContext.Database.EnsureCreated();
+
+            return dbContext;
         }
     }
 
@@ -93,4 +97,5 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
             return new NoSpecimen();
         }
     }
+
 }

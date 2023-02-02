@@ -149,7 +149,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
         {
             Guid? templateId = null;
             string templateName = null;
-            Dictionary<string, string> tokens = 
+            Dictionary<string, string> tokens =
                 new Dictionary<string, string>()
                 {
                     { "Contact", $"{request.ApprenticeName}" }

@@ -5,14 +5,13 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Api.Controllers;
-using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetails;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRatingSummary;
+using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbackResult
 {
@@ -29,7 +28,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
 
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(summaryResult.RatingSummaries);
         }
-        
+
         [Test, MoqAutoData]
         public async Task And_MediatorCommandIsSuccessful_With_No_Results_Then_ReturnOk(
             [Frozen] Mock<IMediator> mediator,
@@ -42,7 +41,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
 
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(new List<GetApprenticeFeedbackRatingSummaryResult.RatingSummary>());
         }
-        
+
         [Test, MoqAutoData]
         public async Task And_MediatorCommandIsUnsuccessful_Then_ReturnBadRequest
             ([Frozen] Mock<IMediator> mediator,

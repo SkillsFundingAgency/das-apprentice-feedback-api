@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 
 namespace SFA.DAS.ApprenticeFeedback.Data.Configuration

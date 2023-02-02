@@ -139,7 +139,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 
         private ApprenticeshipStatus GetApprenticeshipStatus(Learner learner)
         {
-            if(learner?.IsTransfer == true)
+            if (learner?.IsTransfer == true)
             {
                 // If an IsTransfer is marked as in progress, then while the other information
                 // may indicate this is a stop, we are holding fire on actually doing anything about it

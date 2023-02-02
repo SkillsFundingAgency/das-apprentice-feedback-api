@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetExitSurvey
 {

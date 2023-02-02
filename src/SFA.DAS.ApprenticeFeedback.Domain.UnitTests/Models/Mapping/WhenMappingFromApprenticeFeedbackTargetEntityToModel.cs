@@ -18,7 +18,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             result.Id.Should().Be(source.Id);
             result.Status.Should().Be(((FeedbackTargetStatus)source.Status));
             result.StartDate.Should().Be(source.StartDate);
-            result.EndDate.Should().Be(source.EndDate); 
+            result.EndDate.Should().Be(source.EndDate);
         }
     }
 }

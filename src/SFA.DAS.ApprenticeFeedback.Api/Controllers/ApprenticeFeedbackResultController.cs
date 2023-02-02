@@ -5,7 +5,6 @@ using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetails;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRatingSummary;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
@@ -59,7 +58,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             try
             {
                 var result = await _mediator.Send(new GetApprenticeFeedbackRatingSummaryQuery());
-                
+
                 return Ok(result.RatingSummaries);
             }
             catch (Exception e)

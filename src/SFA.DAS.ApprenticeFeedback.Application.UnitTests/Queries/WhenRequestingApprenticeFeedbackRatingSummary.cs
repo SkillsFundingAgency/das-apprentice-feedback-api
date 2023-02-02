@@ -24,7 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             context.SaveChanges();
 
             var result = await handler.Handle(query, CancellationToken.None);
-                       
+
             result.RatingSummaries.Should().BeEquivalentTo(providerStarsSummaries.Select(s => new
             {
                 s.Ukprn,
