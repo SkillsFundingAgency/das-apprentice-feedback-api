@@ -1,4 +1,4 @@
-﻿using Microsoft.Azure.Services.AppAuthentication;
+﻿using Azure.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,7 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             }
             else
             {
-                services.AddSingleton(new AzureServiceTokenProvider());
+                services.AddSingleton(new DefaultAzureCredential());
                 services.AddDbContext<ApprenticeFeedbackDataContext>(ServiceLifetime.Transient);
             }
 
