@@ -29,7 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IFeedbackTransactionContext,
         IExclusionContext
     {
-        private const string AzureResource = "https://management.azure.com/";
+        private const string AzureResource = "https://citizenazuresfabisgov.onmicrosoft.com/das-at-roatpapi-as-ar/";
         private readonly ApplicationSettings _configuration;
         private readonly ChainedTokenCredential _chainedTokenCredential;
 
