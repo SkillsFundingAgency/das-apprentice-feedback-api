@@ -32,7 +32,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
-        private readonly DefaultAzureCredential _azureServiceTokenProvider;
+        private readonly ChainedTokenCredential _azureServiceTokenProvider;
 
         public virtual DbSet<Domain.Entities.Attribute> Attributes { get; set; }
         public virtual DbSet<Domain.Entities.ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
@@ -61,7 +61,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         {
         }
 
-        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, DefaultAzureCredential azureServiceTokenProvider) : base(options)
+        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, ChainedTokenCredential azureServiceTokenProvider) : base(options)
         {
             _configuration = config.Value;
             _azureServiceTokenProvider = azureServiceTokenProvider;
