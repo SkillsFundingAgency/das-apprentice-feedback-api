@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Services.AppAuthentication;
+﻿using Azure.Core;
+using Azure.Identity;
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -30,7 +32,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
-        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
+        private readonly DefaultAzureCredential _azureServiceTokenProvider;
 
         public virtual DbSet<Domain.Entities.Attribute> Attributes { get; set; }
         public virtual DbSet<Domain.Entities.ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
@@ -59,7 +61,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         {
         }
 
-        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, AzureServiceTokenProvider azureServiceTokenProvider) : base(options)
+        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, DefaultAzureCredential azureServiceTokenProvider) : base(options)
         {
             _configuration = config.Value;
             _azureServiceTokenProvider = azureServiceTokenProvider;
@@ -75,7 +77,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             var connection = new SqlConnection
             {
                 ConnectionString = _configuration.DbConnectionString,
-                AccessToken = _azureServiceTokenProvider.GetAccessTokenAsync(AzureResource).Result
+                AccessToken = _azureServiceTokenProvider.GetTokenAsync(new TokenRequestContext(scopes: new string[] { AzureResource })).Result.Token
             };
             optionsBuilder.UseSqlServer(connection);
         }
