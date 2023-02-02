@@ -24,7 +24,12 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             }
             else
             {
-                services.AddSingleton(new AzureServiceTokenProvider());
+                services.AddSingleton(new ChainedTokenCredential(
+                    new ManagedIdentityCredential(),
+                    new AzureCliCredential(),
+                    new VisualStudioCodeCredential(),
+                    new VisualStudioCredential())
+            );
                 services.AddDbContext<ApprenticeFeedbackDataContext>(ServiceLifetime.Transient);
             }
 
