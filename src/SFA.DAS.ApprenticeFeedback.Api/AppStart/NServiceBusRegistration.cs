@@ -1,5 +1,4 @@
-﻿using Microsoft.Azure.Services.AppAuthentication;
-using Azure.Identity;
+﻿using Azure.Identity;
 using Azure.Core;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
@@ -16,7 +15,6 @@ using SFA.DAS.NServiceBus.SqlServer.Configuration;
 using System;
 using System.Data.Common;
 using System.Threading.Tasks;
-using Azure.Core;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
 {
