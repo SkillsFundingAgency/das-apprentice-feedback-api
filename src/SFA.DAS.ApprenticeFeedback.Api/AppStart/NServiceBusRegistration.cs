@@ -69,7 +69,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
                 {
                     ConnectionString = appSettings.DbConnectionString,
                     AccessToken = new DefaultAzureCredential().GetTokenAsync(
-                    new TokenRequestContext(new string[] { "https://management.azure.com/" })).Result.Token
+                    new TokenRequestContext(new string[] { "https://database.windows.net/" })).Result.Token
                 };
             }
         }
