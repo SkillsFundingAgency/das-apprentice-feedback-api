@@ -18,7 +18,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Models
             result.Ukprn.Should().Be(source.Ukprn);
             result.StartDate.Should().Be(source.StartDate);
             result.EndDate.Should().Be(source.EndDate);
-            result.ProviderName.Should().Be(source.ProviderName);   
+            result.ProviderName.Should().Be(source.ProviderName);
             result.Status.Should().Be(source.Status);
             result.FeedbackEligibility.Should().Be(source.FeedbackEligibility);
             result.SignificantDate.Should().Be(null);

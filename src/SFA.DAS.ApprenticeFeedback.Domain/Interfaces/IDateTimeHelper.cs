@@ -18,7 +18,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 
         public SpecifiedTimeProvider(DateTime time)
         {
-            Now = time; 
+            Now = time;
         }
 
         public void Advance(TimeSpan timeSpan)

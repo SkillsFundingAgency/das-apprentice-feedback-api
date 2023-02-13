@@ -52,7 +52,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error attempting to create apprentice feedback target for ApprenticeId: {request.ApprenticeId}, Commitments Apprentice Id {request.CommitmentApprenticeshipId}");
-                
+
                 return BadRequest();
             }
         }

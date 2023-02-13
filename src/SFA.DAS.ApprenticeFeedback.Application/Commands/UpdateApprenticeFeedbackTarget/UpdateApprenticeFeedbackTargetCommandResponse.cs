@@ -1,5 +1,4 @@
 ﻿using SFA.DAS.ApprenticeFeedback.Domain.Models;
-using System;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTarget
 {

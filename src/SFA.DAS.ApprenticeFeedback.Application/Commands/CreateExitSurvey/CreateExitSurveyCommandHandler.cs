@@ -4,8 +4,8 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateExitSurvey 
-{ 
+namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateExitSurvey
+{
     public class CreateExitSurveyCommandHandler : IRequestHandler<CreateExitSurveyCommand, CreateExitSurveyCommandResponse>
     {
         private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetContext;
@@ -36,7 +36,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateExitSurvey
             // If there is already an exit survey for this feedback target then return the existing one
 
             var existingSurvey = await _exitSurveyContext.FindForFeedbackTargetAsync(apprenticeFeedbackTarget.Id);
-            if(null != existingSurvey)
+            if (null != existingSurvey)
             {
                 response.ApprenticeExitSurveyId = existingSurvey.Id;
             }

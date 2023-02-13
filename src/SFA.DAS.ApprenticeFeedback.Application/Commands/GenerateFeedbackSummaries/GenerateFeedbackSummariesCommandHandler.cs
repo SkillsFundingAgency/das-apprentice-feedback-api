@@ -1,14 +1,10 @@
 ﻿using MediatR;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
-using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using SFA.DAS.ApprenticeFeedback.Domain.Models;
-using Microsoft.EntityFrameworkCore;
-using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackSummaries
 {
@@ -17,7 +13,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackSummar
         private readonly IProviderRatingSummaryContext _providerRatingSummaryContext;
         private readonly ApplicationSettings _appSettings;
         private readonly ILogger<GenerateFeedbackSummariesCommandHandler> _logger;
-        
+
         public GenerateFeedbackSummariesCommandHandler(
             IProviderRatingSummaryContext providerRatingSummaryContext,
             ApplicationSettings appSettings,

@@ -48,7 +48,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests
         public async Task ExecuteScopeAsync(Func<IServiceProvider, Task> action)
         {
             using var scope = _scopeFactory.CreateScope();
-           
+
             await action(scope.ServiceProvider);
         }
 

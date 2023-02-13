@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackSummaries;
-using SFA.DAS.ApprenticeFeedback.Application.Queries.GetAttributes;
 using System;
 using System.Threading.Tasks;
 

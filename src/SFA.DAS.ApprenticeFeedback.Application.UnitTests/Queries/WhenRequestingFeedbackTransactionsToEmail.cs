@@ -16,9 +16,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
     {
         public static List<Domain.Entities.FeedbackTransaction> SetSentDate(this List<Domain.Entities.FeedbackTransaction> fts, DateTime? value)
         {
-            foreach(var ft in fts)
+            foreach (var ft in fts)
             {
-                if(ft != null)
+                if (ft != null)
                 {
                     ft.SentDate = value;
                 }
@@ -53,7 +53,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         }
 
         [Test, AutoMoqData]
-        public async Task AndAllFeedbackTransactionsHaveBeenSent_ThenReturnEmpty (
+        public async Task AndAllFeedbackTransactionsHaveBeenSent_ThenReturnEmpty(
             GetFeedbackTransactionsToEmailQuery query,
             [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
             GetFeedbackTransactionsToEmailQueryHandler handler,

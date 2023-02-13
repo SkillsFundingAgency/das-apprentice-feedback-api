@@ -1,13 +1,13 @@
 ﻿
-using System;
-using System.Threading.Tasks;
+using MediatR;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using MediatR;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransactions;
-using Microsoft.AspNetCore.Http;
-using SFA.DAS.ApprenticeFeedback.Application.Queries.GetFeedbackTransactions;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransaction;
+using SFA.DAS.ApprenticeFeedback.Application.Queries.GetFeedbackTransactions;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
 {
@@ -45,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         {
             try
             {
-                var result = await _mediator.Send(new GetFeedbackTransactionsToEmailQuery() { BatchSize = batchSize } );
+                var result = await _mediator.Send(new GetFeedbackTransactionsToEmailQuery() { BatchSize = batchSize });
                 return Ok(result.FeedbackTransactionsToEmail);
             }
             catch (Exception e)

@@ -1,8 +1,5 @@
-﻿using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using System;
+﻿using System;
 using System.Linq;
-using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Models

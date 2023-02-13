@@ -1,13 +1,10 @@
-﻿using AutoFixture.NUnit3;
-using FluentAssertions;
+﻿using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Api.Controllers;
-using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedbackTarget;
-using SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTarget;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTargets;
 using SFA.DAS.Testing.AutoFixture;
 using System;
@@ -33,7 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
             Guid apprenticeId,
             GetApprenticeFeedbackTargetsResult response)
         {
-            _mockMediator.Setup(s => s.Send(It.Is<GetApprenticeFeedbackTargetsQuery>(s => s.ApprenticeId == apprenticeId),It.IsAny<CancellationToken>())).ReturnsAsync(response);
+            _mockMediator.Setup(s => s.Send(It.Is<GetApprenticeFeedbackTargetsQuery>(s => s.ApprenticeId == apprenticeId), It.IsAny<CancellationToken>())).ReturnsAsync(response);
             var result = await _sut.GetAllForApprentice(apprenticeId);
 
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(response.ApprenticeFeedbackTargets);

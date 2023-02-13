@@ -1,5 +1,7 @@
 ﻿using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Extensions;
+using System;
+using System.Text.RegularExpressions;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Extensions
 {
@@ -17,6 +19,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Extensions
             public string OnlyIllegalCharactersAreRemoved(string str)
             {
                 return str.RemoveIllegalCharacters();
+            }
+
+            [Test]
+            public void Regex_MatchTimeout_Is_Set_To_100_Milliseconds()
+            {
+                Assert.That(StringExtensions.LegalExitSurveyRegexMatchTimeout, Is.EqualTo(TimeSpan.FromMilliseconds(100)));
             }
         }
     }

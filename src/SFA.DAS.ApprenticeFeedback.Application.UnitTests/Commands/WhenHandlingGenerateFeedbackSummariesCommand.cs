@@ -3,7 +3,6 @@ using FluentAssertions;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackSummaries;
-using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Threading;
@@ -29,7 +28,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             result.Should().BeOfType<GenerateFeedbackSummariesCommandResponse>();
             providerRatingSummaryContext.Verify(s => s.GenerateFeedbackSummaries(settings.ReportingMinNumberOfResponses, settings.ReportingFeedbackCutoffMonths), Times.Once);
-            
+
         }
     }
 }

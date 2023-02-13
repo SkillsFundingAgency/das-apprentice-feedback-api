@@ -65,7 +65,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             context.Attributes.AddRange(attributes);
             context.ApprenticeFeedbackTargets.Add(apprenticeFeedbackTarget);
             context.SaveChanges();
-            
+
             var result = await handler.Handle(command, CancellationToken.None);
 
             result.Should().BeOfType<CreateApprenticeFeedbackResponse>().Which.ApprenticeFeedbackResultId.Should().NotBeEmpty();

@@ -335,7 +335,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         {
             // Arrange
             learner.CompletionStatus = 1;
-            
+
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
@@ -395,7 +395,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             appFeedbackResult.DateTimeCompleted = recentFeedbackToEndDate ? now.AddDays(1) : now.AddDays(-1);
             target.ApprenticeFeedbackResults.Clear();
             target.ApprenticeFeedbackResults.Add(appFeedbackResult);
-            
+
             //Advance time 1 day beyond the final allowed period days
             settings.FinalAllowedPeriodDays = 30;
             dateTimeHelper.Advance(TimeSpan.FromDays(31));
@@ -438,7 +438,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             appFeedbackResult.DateTimeCompleted = recentFeedbackForApprenticeship ? now.AddDays(-5) : now.AddDays(-15);
             target.ApprenticeFeedbackResults.Clear();
             target.ApprenticeFeedbackResults.Add(appFeedbackResult);
-            
+
             // Set all end dates to the same, we don't care which one for this test.
             learner.EstimatedEndDate = dateTimeHelper.Now;
             learner.ApprovalsPauseDate = dateTimeHelper.Now;
@@ -606,7 +606,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             transaction.FirstName.Should().BeEmpty();
             transaction.EmailAddress.Should().BeEmpty();
             transaction.SendAfter.Should().BeNull();
-            transaction.ApprenticeFeedbackTargetId.Should().Be(target.Id);            
+            transaction.ApprenticeFeedbackTargetId.Should().Be(target.Id);
         }
     }
 }

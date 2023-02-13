@@ -1,7 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Authorization
