@@ -93,6 +93,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseMiddleware<SecurityHeadersMiddleware>();
 
             app.UseAuthentication();
 
