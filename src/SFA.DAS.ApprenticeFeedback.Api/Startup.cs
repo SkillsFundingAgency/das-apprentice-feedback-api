@@ -87,8 +87,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             {
                 app.UseDeveloperExceptionPage();
             }
-
-            if (env.IsProduction())
+            else
             {
                 app.UseHsts();
             }
