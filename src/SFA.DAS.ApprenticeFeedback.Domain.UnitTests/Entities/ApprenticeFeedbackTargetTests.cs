@@ -245,7 +245,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         }
 
         [Test, RecursiveMoqAutoData]
-        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_SetsApprovalsStoppedDateAsEndDate(
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_AndLearnActEndDateIsNotSet_SetsApprovalsStoppedDateAsEndDate(
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
@@ -255,7 +255,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.Withdrawn = false;
             learner.CompletionStatus = 3;
             learner.IsTransfer = false;
-            learner.ApprovalsStopDate = learner.LearnActEndDate.Value.AddDays(-7);
+            learner.LearnActEndDate = null;
+            learner.ApprovalsStopDate = DateTime.Now.AddDays(-7);
 
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
@@ -266,7 +267,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         }
 
         [Test, RecursiveMoqAutoData]
-        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_SetsLearnActEndDateAsEndDate(
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_AndLearnActEndDateIsSet_SetsLearnActEndDateAsEndDate(
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
@@ -287,7 +288,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         }
 
         [Test, RecursiveMoqAutoData]
-        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_ButIsTransfer_SetInProgress_AndEstimatedEndDate(
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_AndLearnActEndDateIsNotSet_ButIsTransfer_SetInProgress_AndEndDateIsEstimatedEndDate(
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
@@ -296,8 +297,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             // Arrange
             target.Withdrawn = false;
             learner.CompletionStatus = 3;
+            learner.LearnActEndDate = null;
             learner.IsTransfer = true;
-            learner.LearnActEndDate = learner.ApprovalsStopDate.Value.AddDays(-7);
+            learner.EstimatedEndDate = DateTime.Now.AddDays(-7);
 
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
@@ -309,7 +311,29 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         }
 
         [Test, RecursiveMoqAutoData]
-        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsPaused_SetsPausedDate(
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsStopped_AndLearnActEndDateIsSet_ButIsTransfer_SetInProgress_AndEndDateIsLearnActEndDate(
+            Learner learner,
+            ApplicationSettings settings,
+            Mock<IDateTimeHelper> dateTimeHelper,
+            Domain.Entities.ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.Withdrawn = false;
+            learner.CompletionStatus = 3;
+            learner.LearnActEndDate = DateTime.Now.AddDays(-7);
+            learner.IsTransfer = true;
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+
+            // Assert
+            target.EndDate.Should().Be(learner.LearnActEndDate);
+            target.Withdrawn.Should().BeFalse();
+            target.IsTransfer.Should().BeTrue();
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsPaused_AndLearnActEndDateIsNotSet_SetsApprovalsPauseDateAsEndDate(
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
@@ -318,6 +342,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             // Arrange
             learner.CompletionStatus = 6;
             learner.IsTransfer = false;
+            learner.LearnActEndDate = null;
+            learner.ApprovalsPauseDate = DateTime.Now.AddDays(-7);
 
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
@@ -327,7 +353,26 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         }
 
         [Test, RecursiveMoqAutoData]
-        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsInProgress_SetsInProgress(
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsPaused_AndLearnActEndDateIsSet_SetsLearnActEndDateAsEndDate(
+            Learner learner,
+            ApplicationSettings settings,
+            Mock<IDateTimeHelper> dateTimeHelper,
+            Domain.Entities.ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            learner.CompletionStatus = 6;
+            learner.IsTransfer = false;
+            learner.LearnActEndDate = DateTime.Now.AddDays(-7);
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+
+            // Assert
+            target.EndDate.Should().Be(learner.LearnActEndDate);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsInProgress_AndLearnActEndDateIsNotSet_EndDateIsEstimatedEndDate(
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
@@ -335,12 +380,32 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         {
             // Arrange
             learner.CompletionStatus = 1;
+            learner.LearnActEndDate = null;
+            learner.EstimatedEndDate = DateTime.Now.AddDays(-7);
 
             // Act
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.EstimatedEndDate);
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsInProgress_AndLearnActEndDateIsSet_EndDateIsLearnActEndDate(
+            Learner learner,
+            ApplicationSettings settings,
+            Mock<IDateTimeHelper> dateTimeHelper,
+            Domain.Entities.ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            learner.CompletionStatus = 1;
+            learner.LearnActEndDate = DateTime.Now.AddDays(-7);
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+
+            // Assert
+            target.EndDate.Should().Be(learner.LearnActEndDate);
         }
 
         [Test, RecursiveMoqAutoData]
