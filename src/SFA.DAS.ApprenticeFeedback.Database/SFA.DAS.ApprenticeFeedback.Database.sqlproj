@@ -77,6 +77,9 @@
     <Build Include="Tables\ApprenticeExitSurvey.sql" />
     <Build Include="Tables\ExitSurveyAttribute.sql" />
     <Build Include="Tables\Exclusion.sql" />
+    <Build Include="Tables\EngagementEmails.sql" />
+    <Build Include="Tables\FeedbackEligibilityStatus.sql" />
+    <Build Include="Tables\FeedbackTargetStatus.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
@@ -87,6 +90,9 @@
     <None Include="Scripts\BackupApprenticeExitSurvey.sql" />
     <None Include="Scripts\SetPrimaryReasonForExistingExitSurveys.sql" />
     <None Include="Scripts\AddDefaultExitSurveyAttributes.sql" />
+    <None Include="Scripts\AddEngagementEmails.sql" />
+    <None Include="Scripts\AddFeedbackTargetStatus.sql" />
+    <None Include="Scripts\AddFeedbackEligibilityStatus.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment1.sql" />
