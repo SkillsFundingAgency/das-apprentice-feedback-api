@@ -80,6 +80,7 @@
     <Build Include="Tables\EngagementEmails.sql" />
     <Build Include="Tables\FeedbackEligibilityStatus.sql" />
     <Build Include="Tables\FeedbackTargetStatus.sql" />
+    <Build Include="Tables\FeedbackTransactionClick.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
