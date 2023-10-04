@@ -327,9 +327,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
-            target.EndDate.Should().Be(learner.LearnActEndDate);
-            target.Withdrawn.Should().BeFalse();
-            target.IsTransfer.Should().BeTrue();
+            using (new AssertionScope())
+            {
+                 target.EndDate.Should().Be(learner.LearnActEndDate);
+                 target.Withdrawn.Should().BeFalse();
+                 target.IsTransfer.Should().BeTrue();
+             }
         }
 
         [Test, RecursiveMoqAutoData]
