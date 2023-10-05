@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using FluentAssertions.Execution;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
@@ -175,15 +176,18 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.ResetFeedbackTarget();
 
             // Assert
-            target.StartDate.Should().BeNull();
-            target.EndDate.Should().BeNull();
-            target.Ukprn.Should().BeNull();
-            target.ProviderName.Should().BeNull();
-            target.StandardUId.Should().BeNull();
-            target.StandardName.Should().BeNull();
-            target.EligibilityCalculationDate.Should().BeNull();
-            target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Unknown);
-            target.Status.Should().Be((int)FeedbackTargetStatus.Unknown);
+            using (new AssertionScope())
+            {
+                target.StartDate.Should().BeNull();
+                target.EndDate.Should().BeNull();
+                target.Ukprn.Should().BeNull();
+                target.ProviderName.Should().BeNull();
+                target.StandardUId.Should().BeNull();
+                target.StandardName.Should().BeNull();
+                target.EligibilityCalculationDate.Should().BeNull();
+                target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Unknown);
+                target.Status.Should().Be((int)FeedbackTargetStatus.Unknown);
+            }
         }
 
         [Test, RecursiveMoqAutoData]
@@ -200,9 +204,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(null, settings, dateTimeHelper);
 
             // Assert
-            target.Status.Should().Be((int)FeedbackTargetStatus.Complete);
-            target.EligibilityCalculationDate.Should().Be(now);
-            target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Deny_Complete);
+            using (new AssertionScope())
+            {
+                target.Status.Should().Be((int)FeedbackTargetStatus.Complete);
+                target.EligibilityCalculationDate.Should().Be(now);
+                target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Deny_Complete);
+            }
         }
 
         [Test, RecursiveMoqAutoData]
@@ -219,11 +226,14 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
-            target.Ukprn.Should().NotBe(learner.Ukprn);
-            target.ProviderName.Should().NotBe(learner.ProviderName);
-            target.StandardName.Should().NotBe(learner.StandardName);
-            target.StandardUId.Should().NotBe(learner.StandardUId);
-            target.StartDate.Should().NotBe(learner.LearnStartDate);
+            using (new AssertionScope())
+            {
+                target.Ukprn.Should().NotBe(learner.Ukprn);
+                target.ProviderName.Should().NotBe(learner.ProviderName);
+                target.StandardName.Should().NotBe(learner.StandardName);
+                target.StandardUId.Should().NotBe(learner.StandardUId);
+                target.StartDate.Should().NotBe(learner.LearnStartDate);
+            }
         }
 
         [Test, RecursiveMoqAutoData]
@@ -237,11 +247,14 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
-            target.Ukprn.Should().Be(learner.Ukprn);
-            target.ProviderName.Should().Be(learner.ProviderName);
-            target.StandardName.Should().Be(learner.StandardName);
-            target.StandardUId.Should().Be(learner.StandardUId);
-            target.StartDate.Should().Be(learner.LearnStartDate);
+            using (new AssertionScope())
+            {
+                target.Ukprn.Should().Be(learner.Ukprn);
+                target.ProviderName.Should().Be(learner.ProviderName);
+                target.StandardName.Should().Be(learner.StandardName);
+                target.StandardUId.Should().Be(learner.StandardUId);
+                target.StartDate.Should().Be(learner.LearnStartDate);
+            }
         }
 
         [Test, RecursiveMoqAutoData]
@@ -262,8 +275,11 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
-            target.EndDate.Should().Be(learner.ApprovalsStopDate);
-            target.Withdrawn.Should().BeTrue();
+            using (new AssertionScope())
+            {
+                target.EndDate.Should().Be(learner.ApprovalsStopDate);
+                target.Withdrawn.Should().BeTrue();
+            }
         }
 
         [Test, RecursiveMoqAutoData]
@@ -283,8 +299,11 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
-            target.EndDate.Should().Be(learner.LearnActEndDate);
-            target.Withdrawn.Should().BeTrue();
+            using (new AssertionScope())
+            {
+                target.EndDate.Should().Be(learner.LearnActEndDate);
+                target.Withdrawn.Should().BeTrue();
+            }
         }
 
         [Test, RecursiveMoqAutoData]
@@ -305,9 +324,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
-            target.EndDate.Should().Be(learner.EstimatedEndDate);
-            target.Withdrawn.Should().BeFalse();
-            target.IsTransfer.Should().BeTrue();
+            using (new AssertionScope())
+            {
+                target.EndDate.Should().Be(learner.EstimatedEndDate);
+                target.Withdrawn.Should().BeFalse();
+                target.IsTransfer.Should().BeTrue();
+            }
         }
 
         [Test, RecursiveMoqAutoData]
@@ -427,9 +449,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
-            target.Status.Should().Be((int)FeedbackTargetStatus.Complete);
-            target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Deny_Complete);
-            target.EligibilityCalculationDate.Should().Be(previousCalculatedDate);
+            using (new AssertionScope())
+            {
+                target.Status.Should().Be((int)FeedbackTargetStatus.Complete);
+                target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Deny_Complete);
+                target.EligibilityCalculationDate.Should().Be(previousCalculatedDate);
+            }
         }
 
         [Test]
@@ -475,9 +500,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
 
             // Assert
-            target.Status.Should().Be((int)expectedStatus);
-            target.FeedbackEligibility.Should().Be((int)expectedEligibility);
-            target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+            using (new AssertionScope())
+            {
+                target.Status.Should().Be((int)expectedStatus);
+                target.FeedbackEligibility.Should().Be((int)expectedEligibility);
+                target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+            }
         }
 
         [Test]
@@ -520,8 +548,11 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
 
             // Assert
-            target.FeedbackEligibility.Should().Be((int)expectedEligibility);
-            target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+            using (new AssertionScope())
+            {
+                target.FeedbackEligibility.Should().Be((int)expectedEligibility);
+                target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+            }
         }
 
         [Test, RecursiveMoqAutoData]
@@ -555,9 +586,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
 
             // Assert
-            target.Status.Should().Be((int)FeedbackTargetStatus.NotYetActive);
-            target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Deny_TooSoon);
-            target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+            using (new AssertionScope())
+            {
+                target.Status.Should().Be((int)FeedbackTargetStatus.NotYetActive);
+                target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Deny_TooSoon);
+                target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+            }
         }
 
         [Test]
@@ -594,9 +628,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
 
             // Assert
-            target.Status.Should().Be((int)expectedFeedbackTargetStatus);
-            target.FeedbackEligibility.Should().Be((int)expectedFeedbackEligibilityStatus);
-            target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+            using (new AssertionScope())
+            {
+                target.Status.Should().Be((int)expectedFeedbackTargetStatus);
+                target.FeedbackEligibility.Should().Be((int)expectedFeedbackEligibilityStatus);
+                target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+            }
         }
 
         [Test]
@@ -619,9 +656,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateTargetAfterFeedback(dateTimeHelper.Now);
 
             // Assert
-            target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
-            target.FeedbackEligibility.Should().Be((int)expectedEligibility);
-            target.Status.Should().Be((int)expectedStatus);
+            using (new AssertionScope())
+            {
+                target.EligibilityCalculationDate.Should().Be(dateTimeHelper.Now);
+                target.FeedbackEligibility.Should().Be((int)expectedEligibility);
+                target.Status.Should().Be((int)expectedStatus);
+            }
         }
 
         [Test, RecursiveMoqAutoData]
@@ -667,14 +707,17 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
 
             // Assert
-            target.Withdrawn.Should().BeTrue();
-            target.FeedbackTransactions.Should().HaveCount(1);
-            var transaction = target.FeedbackTransactions.Single();
+            using (new AssertionScope())
+            {
+                target.Withdrawn.Should().BeTrue();
+                target.FeedbackTransactions.Should().HaveCount(1);
 
-            transaction.FirstName.Should().BeEmpty();
-            transaction.EmailAddress.Should().BeEmpty();
-            transaction.SendAfter.Should().BeNull();
-            transaction.ApprenticeFeedbackTargetId.Should().Be(target.Id);
+                var transaction = target.FeedbackTransactions.Single();
+                transaction.FirstName.Should().BeEmpty();
+                transaction.EmailAddress.Should().BeEmpty();
+                transaction.SendAfter.Should().BeNull();
+                transaction.ApprenticeFeedbackTargetId.Should().Be(target.Id);
+            }
         }
     }
 }
