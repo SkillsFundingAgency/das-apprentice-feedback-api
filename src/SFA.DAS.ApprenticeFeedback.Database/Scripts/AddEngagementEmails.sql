@@ -12,7 +12,6 @@ INSERT INTO #EngagementEmails
 VALUES 
 (1, 'short', 0, null, 'AppStart'),
 (2, 'short', 1, 6, 'AppPreEPA'),
-(3, 'short', 1, null, 'AppMonthOne'),
 (4, 'short', 3, null, 'AppMonthThree'),
 (5, 'short', 6, null, 'AppMonthSix'),
 (6, 'short', 9, null, 'AppMonthNine'),
@@ -22,7 +21,6 @@ VALUES
 
 (11, 'long', 0, null, 'AppStart'),
 (12, 'long', 1, 6, 'AppPreEPA'),
-(13, 'long', 1, null, 'AppMonthOne'),
 (14, 'long', 3, null, 'AppMonthThree'),
 (15, 'long', 6, null, 'AppMonthSix'),
 (16, 'long', 9, null, 'AppMonthNine'),
