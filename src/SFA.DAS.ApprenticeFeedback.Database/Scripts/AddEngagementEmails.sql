@@ -10,26 +10,47 @@ CREATE TABLE #EngagementEmails
 
 INSERT INTO #EngagementEmails
 VALUES 
-(1, 'short', 0, null, 'AppStart'),
-(2, 'short', 1, 6, 'AppPreEPA'),
-(4, 'short', 3, null, 'AppMonthThree'),
-(5, 'short', 6, null, 'AppMonthSix'),
-(6, 'short', 9, null, 'AppMonthNine'),
-(7, 'short', 12, null, 'AppMonthTwelve'),
-(8, 'short', 18, null, 'AppMonthEighteen'),
+(1, 'startshort', 0, 24, 'AppStart'),
+(2, 'startshort', 1, 6, 'AppPreEPA'),
+(4, 'startshort', 3, null, 'AppMonthThree'),
+(5, 'startshort', 6, null, 'AppMonthSix'),
+(6, 'startshort', 9, null, 'AppMonthNine'),
+(7, 'startshort', 12, null, 'AppMonthTwelve'),
+(8, 'startshort', 18, null, 'AppMonthEighteen'),
 
 
-(11, 'long', 0, null, 'AppStart'),
-(12, 'long', 1, 6, 'AppPreEPA'),
-(14, 'long', 3, null, 'AppMonthThree'),
-(15, 'long', 6, null, 'AppMonthSix'),
-(16, 'long', 9, null, 'AppMonthNine'),
-(18, 'long', 12, null, 'AppAnnual'),
-(19, 'long', 24, null, 'AppAnnual'),
-(20, 'long', 36, null, 'AppAnnual'),
-(21, 'long', 48, null, 'AppAnnual'),
-(22, 'long', 60, null, 'AppAnnual'),
-(23, 'long', 72, null, 'AppAnnual');
+(11, 'startlong', 0, 78, 'AppStart'),
+(12, 'startlong', 1, 6, 'AppPreEPA'),
+(14, 'startlong', 3, null, 'AppMonthThree'),
+(15, 'startlong', 6, null, 'AppMonthSix'),
+(16, 'startlong', 9, null, 'AppMonthNine'),
+(18, 'startlong', 12, null, 'AppAnnual'),
+(19, 'startlong', 24, null, 'AppAnnual'),
+(20, 'startlong', 36, null, 'AppAnnual'),
+(21, 'startlong', 48, null, 'AppAnnual'),
+(22, 'startlong', 60, null, 'AppAnnual'),
+(23, 'startlong', 72, null, 'AppAnnual'),
+
+(31, 'activeshort', 0, 24, 'AppWelcome'),
+(32, 'activeshort', 1, 6, 'AppPreEPA'),
+(34, 'activeshort', 3, null, 'AppMonthThree'),
+(35, 'activeshort', 6, null, 'AppMonthSix'),
+(36, 'activeshort', 9, null, 'AppMonthNine'),
+(37, 'activeshort', 12, null, 'AppMonthTwelve'),
+(38, 'activeshort', 18, null, 'AppMonthEighteen'),
+
+
+(41, 'activelong', 0, 78, 'AppWelcome'),
+(42, 'activelong', 1, 6, 'AppPreEPA'),
+(44, 'activelong', 3, null, 'AppMonthThree'),
+(45, 'activelong', 6, null, 'AppMonthSix'),
+(46, 'activelong', 9, null, 'AppMonthNine'),
+(48, 'activelong', 12, null, 'AppAnnual'),
+(49, 'activelong', 24, null, 'AppAnnual'),
+(50, 'activelong', 36, null, 'AppAnnual'),
+(51, 'activelong', 48, null, 'AppAnnual'),
+(52, 'activelong', 60, null, 'AppAnnual'),
+(53, 'activelong', 72, null, 'AppAnnual');
 
 
 

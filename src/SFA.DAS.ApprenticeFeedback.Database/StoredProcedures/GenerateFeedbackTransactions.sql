@@ -37,51 +37,54 @@ DECLARE @Error_Code INT = 0
 
         SET @count = @@ROWCOUNT;
 
-
-        -- Add the Email Engagement programme preset data for recently Active targets
+        -- This data will be inserted in to FeedbackTransaction
+        -- Add the Email Engagement programme preset data for New Starts and Active targets
         WITH EmailSchedule
         AS
         (
+        -- active targets
         SELECT 
-        DATEADD(month,[MonthsFromStart],[StartDate]) SendDate,
-        DATEADD(month,0-[MonthsBeforeEnd],[EndDate]) PreEPA,
-        [TemplateName] , [StartDate], [EndDate], aft.[Id] ApprenticeFeedbackTargetId
+        CASE WHEN ep1.[MonthsBeforeEnd] IS NULL 
+             THEN DATEADD(month,[MonthsFromStart],[StartDate]) 
+             ELSE DATEADD(month,0-[MonthsBeforeEnd],[EndDate]) END SendAfter,
+        [TemplateName] , [StartDate], [EndDate], aft.[Id] ApprenticeFeedbackTargetId,
+        ep1.[Id] seqn
         FROM 
         (
-            -- all potential active targets
+            -- all potential active and new start targets
             SELECT [Id], [StartDate], [EndDate]
-            ,CASE WHEN DATEDIFF(month,[StartDate],[EndDate]) <= 24 THEN 'short' ELSE 'long' END [DurationType]
+            -- start date to be from the start of the previous month
+            ,CASE WHEN [StartDate] > EOMONTH(DATEADD(month,-2,@CreatedOn)) THEN 'start' ELSE 'active' END +
+             CASE WHEN DATEDIFF(month,[StartDate],[EndDate]) <= 24 THEN 'short' ELSE 'long' END [DurationType]
             ,DATEDIFF(month,[StartDate],[EndDate]) PlannedDuration
             FROM [dbo].[ApprenticeFeedbackTarget] aft1
             WHERE 1=1
             AND [IsTransfer] = 0
             AND [Withdrawn] = 0
             AND [StartDate] IS NOT NULL
-            AND [StartDate] > EOMONTH(DATEADD(month,-2,@CreatedOn)) -- start date to be from the start of the previous month
             AND [EndDate] IS NOT NULL
+            AND [EndDate] > DATEADD(month,-1,DATEADD(day,1,EOMONTH(@CreatedOn))) -- End date after start of the current month
             AND [Status] != 3 -- i.e. not (yet) Complete
             -- that have not yet had Engagement Emails added
             AND NOT EXISTS (
               SELECT null 
-              FROM [dbo].[FeedbackTransaction] ft1
+              FROM  [dbo].[FeedbackTransaction] ft1
               JOIN [dbo].[EngagementEmails] ep1 on ep1.[TemplateName] = ft1.[TemplateName]
-              WHERE  ft1.[ApprenticeFeedbackTargetId] = aft1.[Id]
+              WHERE ft1.[ApprenticeFeedbackTargetId] = aft1.[Id]
               )
-            ) aft
-            CROSS JOIN [dbo].[EngagementEmails] ep1 
-            WHERE ep1.[ProgrammeType] = aft.[DurationType]
+        ) aft
+        CROSS JOIN [dbo].[EngagementEmails] ep1 
+        WHERE ep1.[ProgrammeType] = aft.[DurationType]
+        AND ( ep1.[MonthsBeforeEnd] IS NOT NULL -- this always includes the Start/Welcome email and PreEPA 
+              OR DATEADD(month,[MonthsFromStart],[StartDate]) BETWEEN EOMONTH(@CreatedOn) AND EOMONTH([EndDate])
         )
-
+        )
+        
         -- add a new Email Engagement programme for any Apprenticeships that have recently started and do not yet have one setup
-        INSERT INTO [dbo].[FeedbackTransaction]  ([ApprenticeFeedbackTargetId] ,[CreatedOn] ,[SendAfter], [TemplateName])
-        SELECT [ApprenticeFeedbackTargetId], @CreatedOn [CreatedOn], ISNULL(PreEPA,[SendDate]) SendAfter, [TemplateName] 
-        FROM (
-            SELECT MAX(PreEPA) OVER () PreEPADate, * 
-            FROM EmailSchedule
-        ) ab1 
-        WHERE 1=1
-        AND [EndDate] >  ISNULL(PreEPA,[SendDate])
-        ORDER BY [ApprenticeFeedbackTargetId], SendAfter
+        INSERT INTO [dbo].[FeedbackTransaction] ([ApprenticeFeedbackTargetId] ,[CreatedOn] ,[SendAfter], [TemplateName])
+        SELECT [ApprenticeFeedbackTargetId], @CreatedOn [CreatedOn], SendAfter, [TemplateName] 
+        FROM EmailSchedule
+        ORDER BY [ApprenticeFeedbackTargetId], SendAfter, seqn
         ;
 
         SET @count = @count + @@ROWCOUNT;
