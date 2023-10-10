@@ -20,7 +20,7 @@ DECLARE @Error_Code INT = 0
 
         -- Add the Feedback Email requests
         INSERT INTO dbo.FeedbackTransaction (ApprenticeFeedbackTargetId, CreatedOn)
-        SELECT aft.Id, @CreatedOn [CreatedOn]
+        SELECT aft.Id, GETUTCDATE() [CreatedOn]
         FROM [dbo].[ApprenticeFeedbackTarget] aft
         LEFT JOIN (
           SELECT DISTINCT ApprenticeFeedbackTargetId
@@ -82,7 +82,7 @@ DECLARE @Error_Code INT = 0
         
         -- add a new Email Engagement programme for any Apprenticeships that have recently started and do not yet have one setup
         INSERT INTO [dbo].[FeedbackTransaction] ([ApprenticeFeedbackTargetId] ,[CreatedOn] ,[SendAfter], [TemplateName])
-        SELECT [ApprenticeFeedbackTargetId], @CreatedOn [CreatedOn], SendAfter, [TemplateName] 
+        SELECT [ApprenticeFeedbackTargetId], GETUTCDATE() [CreatedOn], SendAfter, [TemplateName] 
         FROM EmailSchedule
         ORDER BY [ApprenticeFeedbackTargetId], SendAfter, seqn
         ;
