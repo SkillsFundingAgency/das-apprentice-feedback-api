@@ -17,3 +17,10 @@ ON [dbo].[FeedbackTransaction] ( [ApprenticeFeedbackTargetId] )
 INCLUDE ( [SentDate], [TemplateName] );
 
 GO
+
+CREATE NONCLUSTERED INDEX [IX_FeedbackTransaction_CreatedOn]
+ON [dbo].[FeedbackTransaction] ( [CreatedOn] )
+INCLUDE ( [ApprenticeFeedbackTargetId], [SentDate], [SendAfter], [TemplateName] );
+
+GO
+
