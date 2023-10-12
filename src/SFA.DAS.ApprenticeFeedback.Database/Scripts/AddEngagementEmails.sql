@@ -1,4 +1,7 @@
 ﻿-- add /amend the Email Engagement programmes
+-- ProgammeType different for new starts and on-programme active 
+-- and for short and longer durations
+-- 
 
 CREATE TABLE #EngagementEmails
 ([Id] int not null, 
