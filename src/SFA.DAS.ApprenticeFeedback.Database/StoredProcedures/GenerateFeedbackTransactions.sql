@@ -1,20 +1,22 @@
 ﻿CREATE PROCEDURE [dbo].[GenerateFeedbackTransactions]
 
-    @SentDateAgeDays int = 90
+    @SentDateAgeDays int = 90,
+    @CreatedOn datetime
 
 AS
 BEGIN
 SET NOCOUNT ON;
 
-DECLARE @Error_Code INT = 0
-        ,@Error_Message VARCHAR(MAX)
-        ,@Error_Severity INT = 0
+    DECLARE @Error_Code INT = 0,
+            @Error_Message VARCHAR(MAX),
+            @Error_Severity INT = 0;
         
     BEGIN TRANSACTION T1;
     
     
-    DECLARE @CreatedOn datetime, @count int;
-    SELECT @CreatedOn = GETUTCDATE();
+    DECLARE @count int;
+    IF @CreatedOn IS NULL
+        SELECT @CreatedOn = GETUTCDATE();
     
     BEGIN TRY;    
 
@@ -23,12 +25,12 @@ DECLARE @Error_Code INT = 0
         SELECT aft.Id, GETUTCDATE() [CreatedOn]
         FROM [dbo].[ApprenticeFeedbackTarget] aft
         LEFT JOIN (
-          SELECT DISTINCT ApprenticeFeedbackTargetId
-          FROM [dbo].[FeedbackTransaction]
-          WHERE 1=1
-          AND (([TemplateName] IS NULL
-             OR [TemplateName] NOT IN (SELECT [TemplateName] FROM [dbo].[EngagementEmails] ) ) )
-          AND ([SentDate] IS NULL OR ([SentDate] IS NOT NULL AND [SentDate] >= DATEADD(day, 0 - @SentDateAgeDays, GETDATE())))
+            SELECT DISTINCT ApprenticeFeedbackTargetId
+            FROM [dbo].[FeedbackTransaction]
+            WHERE 1=1
+            AND ( ( [TemplateName] IS NULL
+                 OR [TemplateName] NOT IN (SELECT [TemplateName] FROM [dbo].[EngagementEmails] ) ) )
+            AND ( [SentDate] IS NULL OR ( [SentDate] IS NOT NULL AND [SentDate] >= DATEADD(day, 0 - @SentDateAgeDays, GETDATE()) ) )
         ) ft1  on ft1.ApprenticeFeedbackTargetId = aft.[Id]
         WHERE aft.[Status] = 2 -- "active"
         AND aft.[FeedbackEligibility] = 1 -- "allow"
@@ -67,17 +69,17 @@ DECLARE @Error_Code INT = 0
             AND [Status] != 3 -- i.e. not (yet) Complete
             -- that have not yet had Engagement Emails added
             AND NOT EXISTS (
-              SELECT null 
-              FROM  [dbo].[FeedbackTransaction] ft1
-              JOIN [dbo].[EngagementEmails] ep1 on ep1.[TemplateName] = ft1.[TemplateName]
-              WHERE ft1.[ApprenticeFeedbackTargetId] = aft1.[Id]
-              )
+                SELECT null 
+                FROM  [dbo].[FeedbackTransaction] ft1
+                JOIN [dbo].[EngagementEmails] ep1 on ep1.[TemplateName] = ft1.[TemplateName]
+                WHERE ft1.[ApprenticeFeedbackTargetId] = aft1.[Id]
+            )
         ) aft
         CROSS JOIN [dbo].[EngagementEmails] ep1 
         WHERE ep1.[ProgrammeType] = aft.[DurationType]
         AND ( ep1.[MonthsBeforeEnd] IS NOT NULL -- this always includes the Start/Welcome email and PreEPA 
               OR DATEADD(month,[MonthsFromStart],[StartDate]) BETWEEN EOMONTH(@CreatedOn) AND EOMONTH([EndDate])
-        )
+            )
         )
         
         -- add a new Email Engagement programme for any Apprenticeships that have recently started and do not yet have one setup
