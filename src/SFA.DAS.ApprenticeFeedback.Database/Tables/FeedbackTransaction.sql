@@ -8,7 +8,8 @@
 	[CreatedOn] DATETIME NOT NULL,
 	[SendAfter] DATETIME,
 	[SentDate] DATETIME,
-    [TemplateName] VARCHAR(100) NULL
+	[TemplateName] VARCHAR(100) NULL,
+	[IsSuppressed] BIT NOT NULL DEFAULT 0 
 )
 GO
 
