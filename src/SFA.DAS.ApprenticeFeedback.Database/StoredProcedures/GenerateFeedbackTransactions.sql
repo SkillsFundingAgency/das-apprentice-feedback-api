@@ -1,7 +1,7 @@
 ﻿CREATE PROCEDURE [dbo].[GenerateFeedbackTransactions]
 
     @SentDateAgeDays int = 90,
-    @CreatedOn datetime
+    @CreatedOn datetime = null
 
 AS
 BEGIN
