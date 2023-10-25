@@ -5,6 +5,7 @@
 	[ApprenticeFeedbackTargetId] UNIQUEIDENTIFIER NOT NULL,
 	[LinkName] VARCHAR(200) NOT NULL,
 	[LinkUrl] NVARCHAR(max) NOT NULL,
+	[ClickedOn] DATETIME NOT NULL,
 	[CreatedOn] DATETIME NOT NULL DEFAULT GETUTCDATE()
 	CONSTRAINT [PK_FeedbackTransactionClick] PRIMARY KEY ([Id])
 	CONSTRAINT [FK_FeedbackTransactionClick_FeedbackTransaction] FOREIGN KEY ([FeedbackTransactionId]) REFERENCES [FeedbackTransaction]([Id])
