@@ -49,7 +49,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.TrackEmailTransactionC
                 _logger.LogWarning($"Invalid email click there is no FeedbackTransaction {request.FeedbackTransactionId} with ApprenticeFeedbackTarget {request.ApprenticeFeedbackTargetId}.");
             }
 
-            return new TrackEmailTransactionClickResponse(feedbackTransaction.Id, clickStatus);
+            return new TrackEmailTransactionClickResponse(request.FeedbackTransactionId, clickStatus);
         }
     }
 }
