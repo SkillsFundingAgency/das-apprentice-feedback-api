@@ -9,9 +9,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public Guid ApprenticeFeedbackTargetId { get; set; }
         public string LinkName { get; set; }
         public string LinkUrl { get; set; }
-        public DateTime CreatedOn { get; set; }
         public DateTime ClickedOn { get; set; }
-
+        public DateTime CreatedOn { get; set; }
+        public DateTime UpdatedOn { get; set; } 
 
         public static implicit operator FeedbackTransactionClick(Entities.FeedbackTransactionClick source)
         {
@@ -26,7 +26,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 LinkName = source.LinkName,
                 LinkUrl = source.LinkUrl,
                 ClickedOn = source.ClickedOn,
-                CreatedOn = source.CreatedOn
+                CreatedOn = source.CreatedOn,
+                UpdatedOn = source.UpdatedOn
             };
         }
     }

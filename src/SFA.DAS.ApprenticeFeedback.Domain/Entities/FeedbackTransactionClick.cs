@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 {
-    public class FeedbackTransactionClick
+    public class FeedbackTransactionClick : EntityBase
     {
         public Guid Id { get; set; }
         public long FeedbackTransactionId { get; set; }
@@ -10,7 +10,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string LinkName { get; set; }
         public string LinkUrl { get; set; }
         public DateTime ClickedOn { get; set; }
-        public DateTime CreatedOn { get; set; }
         public FeedbackTransaction FeedbackTransaction { get; set; }
         public ApprenticeFeedbackTarget ApprenticeFeedbackTarget { get; set; }
 
@@ -24,7 +23,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 LinkName = source.LinkName,
                 LinkUrl = source.LinkUrl,
                 ClickedOn = source.ClickedOn,
-                CreatedOn = source.CreatedOn
+                CreatedOn = source.CreatedOn,
+                UpdatedOn = source.UpdatedOn
             };
         }
     }
