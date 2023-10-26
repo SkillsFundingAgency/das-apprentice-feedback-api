@@ -14,7 +14,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public DateTime? SendAfter { get; set; }
         public DateTime? SentDate { get; set; }
         public ApprenticeFeedbackTarget ApprenticeFeedbackTarget { get; set; }
-        public ICollection<FeedbackTransactionClick> FeedbackTransactionClicks { get; set; }
 
         public static implicit operator FeedbackTransaction(Models.FeedbackTransaction source)
         {

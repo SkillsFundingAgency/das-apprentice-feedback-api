@@ -11,14 +11,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Configuration
         {
             builder.ToTable("FeedbackTransactionClick")
                    .HasKey(x => x.Id);
-
-            builder.HasOne(a => a.ApprenticeFeedbackTarget)
-                   .WithMany(b => b.FeedbackTransactionClicks)
-                   .HasForeignKey(c => c.ApprenticeFeedbackTargetId);
-
-            builder.HasOne(a => a.FeedbackTransaction)
-                   .WithMany(b => b.FeedbackTransactionClicks)
-                   .HasForeignKey(c => c.FeedbackTransactionId);
         }
     }
 }

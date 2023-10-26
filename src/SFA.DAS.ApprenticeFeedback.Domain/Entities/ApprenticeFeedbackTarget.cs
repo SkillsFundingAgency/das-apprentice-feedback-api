@@ -28,7 +28,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public bool Withdrawn { get; set; }
 
         public ICollection<FeedbackTransaction> FeedbackTransactions { get; set; }
-        public ICollection<FeedbackTransactionClick> FeedbackTransactionClicks { get; set; }
         public ICollection<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
 
         public static implicit operator ApprenticeFeedbackTarget(Models.ApprenticeFeedbackTarget source)
