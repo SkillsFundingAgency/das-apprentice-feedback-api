@@ -135,8 +135,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             await handler.Handle(command, CancellationToken.None);
 
             // Assert
-            context.FeedbackTransactionClicks.Should().HaveCount(1);
-            context.FeedbackTransactionClicks.First().Should().BeEquivalentTo(new FeedbackTransactionClick
+            context.FeedbackTransactionClicks.Single().Should().BeEquivalentTo(new FeedbackTransactionClick
             {
                 FeedbackTransaction = feedbackTransaction,
                 FeedbackTransactionId = command.FeedbackTransactionId,

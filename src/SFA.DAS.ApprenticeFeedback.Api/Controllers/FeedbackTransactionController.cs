@@ -71,7 +71,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
                 _log.LogError(e, msg);
                 return StatusCode(StatusCodes.Status500InternalServerError, $"{msg}: {e.Message}");
             }
-
         }
 
         [HttpPost("{feedbackTransactionId}/track-click")]
@@ -80,7 +79,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             try
             {
                 var result = await _mediator.Send(command);
-                if (null == result) return NotFound();
                 return Ok(result);
             }
             catch (Exception e)
@@ -89,7 +87,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
                 _log.LogError(e, msg);
                 return StatusCode(StatusCodes.Status500InternalServerError, $"{msg}: {e.Message}");
             }
-
         }
     }
 }
