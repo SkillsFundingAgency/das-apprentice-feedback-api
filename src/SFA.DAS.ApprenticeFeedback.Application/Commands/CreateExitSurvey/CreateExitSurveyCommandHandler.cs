@@ -48,7 +48,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateExitSurvey
                     AllowContact = request.AllowContact,
                     StandardUId = apprenticeFeedbackTarget.StandardUId,
                     DateTimeCompleted = _dateTimeHelper.Now,
-                    DidNotCompleteApprenticeship = request.DidNotCompleteApprenticeship,
+                    // Temporary fix to make sure did not complete sets a reporting variable for did not complete based on 
+                    // This static attribute Id of 17 which is Apprenticeship Status "I have left my apprenticeship"
+                    // See DacPac PostDeploy populate Attribute script for Ids
+                    // To be improved by QF-871 
+                    DidNotCompleteApprenticeship = request.AttributeIds.Contains(17),
                     ExitSurveyAttributes = request.AttributeIds.
                             Select(s => new Domain.Entities.ExitSurveyAttribute { AttributeId = s, AttributeValue = 1 }).ToList(),
                     PrimaryReason = request.PrimaryReason,
