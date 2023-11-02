@@ -2,8 +2,8 @@
 {
     public enum ClickStatus
     {
-        Valid,
-        Invalid
+        Invalid,
+        Valid
     }
 
     public class TrackEmailTransactionClickResponse
