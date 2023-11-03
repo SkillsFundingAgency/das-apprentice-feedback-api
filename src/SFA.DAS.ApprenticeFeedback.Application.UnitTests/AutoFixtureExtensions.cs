@@ -5,6 +5,7 @@ using AutoFixture.NUnit3;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.ApprenticeFeedback.Data;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 
@@ -51,6 +52,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
 
             fixture.Customizations.Add(new ApprenticeFeedbackDataContextBuilder());
             fixture.Customizations.Add(new DateTimeHelperBuilder());
+            fixture.Customizations.Add(new ApplicationSettingsBuilder());
         }
     }
 
@@ -92,6 +94,28 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
             if (request is Type type && type == typeof(IDateTimeHelper))
             {
                 return new UtcTimeProvider();
+            }
+
+            return new NoSpecimen();
+        }
+    }
+
+    public class ApplicationSettingsBuilder : ISpecimenBuilder
+    {
+        public object Create(object request, ISpecimenContext context)
+        {
+            if (request is Type type && type == typeof(ApplicationSettings))
+            {
+                var appSettings = new ApplicationSettings
+                {
+                    FeedbackTransactionSentDateAgeDays = 90,
+                    EmailNotifications = new System.Collections.Generic.List<EmailNotification>
+                    {
+                        new EmailNotification { TemplateName = "Active", TemplateId = Guid.NewGuid() },
+                        new EmailNotification { TemplateName = "Withdrawn", TemplateId = Guid.NewGuid() }
+                    }
+                };
+                return appSettings;
             }
 
             return new NoSpecimen();

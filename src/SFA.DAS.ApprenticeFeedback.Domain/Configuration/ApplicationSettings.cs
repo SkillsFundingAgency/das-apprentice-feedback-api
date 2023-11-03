@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
 {
@@ -41,18 +42,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
         /// Number of days since last calculating feedback eligibility before we
         /// allow the calculation to happen again
         /// </summary>
-        public int EligibilityCalculationThrottleDays { get; set; }
-        /// <summary>
-        /// Email template id for feedback emails for an active apprenticeship
-        /// </summary>
-        public Guid ActiveFeedbackEmailTemplateId { get; set; }
-        /// <summary>
-        /// Email template id for feedback emails for a withdrawn apprenticeship
-        /// </summary>
-        public Guid WithdrawnFeedbackEmailTemplateId { get; set; }
+        public int EligibilityCalculationThrottleDays { get; set; }        
         /// <summary>
         /// Number of days to wait before reprocessing a feedback transaction email (eg. 90)
         /// </summary>
         public int FeedbackEmailProcessingRetryWaitDays { get; set; }
+
+        public List<EmailNotification> EmailNotifications { get; set; }
     }
 }

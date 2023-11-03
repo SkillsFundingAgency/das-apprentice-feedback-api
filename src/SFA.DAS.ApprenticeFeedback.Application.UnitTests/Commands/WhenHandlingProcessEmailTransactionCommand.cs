@@ -59,7 +59,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             await context.SaveChangesAsync();
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
-            command.IsEmailContactAllowed = true;
+            command.IsFeedbackEmailContactAllowed = true;
 
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
@@ -94,7 +94,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             await context.SaveChangesAsync();
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
-            command.IsEmailContactAllowed = true;
+            command.IsFeedbackEmailContactAllowed = true;
 
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
@@ -129,7 +129,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             await context.SaveChangesAsync();
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
-            command.IsEmailContactAllowed = false;
+            command.IsFeedbackEmailContactAllowed = false;
 
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
@@ -164,7 +164,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             await context.SaveChangesAsync();
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
-            command.IsEmailContactAllowed = false;
+            command.IsFeedbackEmailContactAllowed = false;
 
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
@@ -178,7 +178,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         public async Task And_ApprenticeFeedbackTargetIsWithdrawn_EmailsExitSurvey(
            ProcessEmailTransactionCommand command,
            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
-            [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
            [Frozen] ApplicationSettings appSettings,
            ProcessEmailTransactionCommandHandler handler
            )
@@ -202,7 +202,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             await context.SaveChangesAsync();
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
-            command.IsEmailContactAllowed = true;
+            command.IsFeedbackEmailContactAllowed = true;
 
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
@@ -210,7 +210,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
-            feedbackTransaction.TemplateId.Should().Be(appSettings.WithdrawnFeedbackEmailTemplateId);
+            feedbackTransaction.TemplateId.Should().Be(appSettings.EmailNotifications.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId);
             nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Once);
         }
 
@@ -248,7 +248,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             await context.SaveChangesAsync();
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
-            command.IsEmailContactAllowed = true;
+            command.IsFeedbackEmailContactAllowed = true;
 
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
@@ -280,7 +280,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             {
                 EmailAddress = command.ApprenticeEmailAddress,
                 FirstName = command.ApprenticeName,
-                TemplateId = appSettings.WithdrawnFeedbackEmailTemplateId,
+                TemplateId = appSettings.EmailNotifications.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId,
                 SentDate = DateTime.UtcNow,
                 ApprenticeFeedbackTarget = feedbackTarget,
             };
@@ -298,7 +298,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             await context.SaveChangesAsync();
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
-            command.IsEmailContactAllowed = true;
+            command.IsFeedbackEmailContactAllowed = true;
 
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
@@ -306,9 +306,16 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
-            feedbackTransaction.TemplateId.Should().Be(appSettings.ActiveFeedbackEmailTemplateId);
+            feedbackTransaction.TemplateId.Should().Be(appSettings.EmailNotifications.FirstOrDefault(p => p.TemplateName == "Active")?.TemplateId);
 
-            nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => !t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Once);
+            nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t =>
+                t.Tokens.ContainsKey("Contact") &&
+                t.Tokens.ContainsKey("ApprenticeFeedbackTargetId") &&
+                t.Tokens.ContainsKey("FeedbackTransactionId") &&
+                t.Tokens.ContainsKey("ApprenticeFeedbackHostname") &&
+                t.Tokens.ContainsKey("ApprenticeAccountHostname") &&
+                t.TemplateId == feedbackTransaction.TemplateId.ToString() &&
+                t.RecipientsAddress == feedbackTransaction.EmailAddress), It.IsAny<SendOptions>()), Times.Once);
         }
     }
 }

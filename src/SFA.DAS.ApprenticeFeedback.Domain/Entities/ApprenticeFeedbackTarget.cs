@@ -26,6 +26,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public int FeedbackEligibility { get; set; }
         public DateTime? EligibilityCalculationDate { get; set; }
         public bool Withdrawn { get; set; }
+        public ApprenticeshipStatus ApprenticeshipStatus { get; set; }
 
         public ICollection<FeedbackTransaction> FeedbackTransactions { get; set; }
         public ICollection<ApprenticeFeedbackResult> ApprenticeFeedbackResults { get; set; }
@@ -48,6 +49,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 EligibilityCalculationDate = source.EligibilityCalculationDate,
                 FeedbackEligibility = (int)source.FeedbackEligibility,
                 Withdrawn = source.Withdrawn,
+                ApprenticeshipStatus = source.ApprenticeshipStatus
             };
         }
 
@@ -75,7 +77,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 return;
             }
 
-            var apprenticeStatus = GetApprenticeshipStatus(learner);
+            ApprenticeshipStatus = GetApprenticeshipStatus(learner);
 
             Ukprn = learner.Ukprn;
             ProviderName = learner.ProviderName;
@@ -86,7 +88,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             IsTransfer = learner.IsTransfer;
             DateTransferIdentified = learner.DateTransferIdentified;
 
-            if (!Withdrawn && apprenticeStatus == ApprenticeshipStatus.Stopped)
+            if (!Withdrawn && ApprenticeshipStatus == ApprenticeshipStatus.Stopped)
             {
                 // Not already withdrawn, but being set
                 // Need to create Feedback Transaction for trigger or update existing.
@@ -105,7 +107,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 }
             }
 
-            Withdrawn = apprenticeStatus == ApprenticeshipStatus.Stopped;
+            Withdrawn = ApprenticeshipStatus == ApprenticeshipStatus.Stopped;
 
             DateTime? GetApprenticeStoppedDate(Learner learner)
             {
@@ -127,7 +129,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                     return learner.LearnActEndDate > learner.ApprovalsStopDate ? learner.ApprovalsStopDate : learner.LearnActEndDate;
                 }
             };
-            EndDate = apprenticeStatus switch
+            EndDate = ApprenticeshipStatus switch
             {
                 ApprenticeshipStatus.Stopped => GetApprenticeStoppedDate(learner),
                 ApprenticeshipStatus.Paused => learner.ApprovalsPauseDate,

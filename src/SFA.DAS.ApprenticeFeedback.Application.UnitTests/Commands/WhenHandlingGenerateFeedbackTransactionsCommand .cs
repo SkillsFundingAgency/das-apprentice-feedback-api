@@ -21,9 +21,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
            [Frozen] Mock<IFeedbackTransactionContext> dataContext,
            GenerateFeedbackTransactionsCommandHandler handler)
         {
-            //Arrange
-            //dataContext.Setup(s => s.GenerateFeedbackTransactionsAsync(settings.FeedbackTransactionSentDateAgeDays));
-
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
 
