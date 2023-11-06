@@ -48,7 +48,7 @@ SET NOCOUNT ON;
         SELECT 
         CASE WHEN ep1.[MonthsBeforeEnd] IS NULL 
              THEN DATEADD(month,[MonthsFromStart],[StartDate]) 
-             ELSE DATEADD(month,0-[MonthsBeforeEnd],[EndDate]) END SendAfter,
+             ELSE GREATEST(CONVERT(date,@CreatedOn),[StartDate],DATEADD(month,0-[MonthsBeforeEnd],[EndDate])) END SendAfter,
         [TemplateName] , [StartDate], [EndDate], aft.[Id] ApprenticeFeedbackTargetId,
         ep1.[Id] seqn
         FROM 
