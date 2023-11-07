@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[ApprenticeFeedbackTarget]
 (
-	[Id] UNIQUEIDENTIFIER NOT NULL PRIMARY KEY,
+	[Id] UNIQUEIDENTIFIER NOT NULL,
 	[ApprenticeId] UNIQUEIDENTIFIER NOT NULL, 
 	[ApprenticeshipId] BIGINT NOT NULL, 
 	[Status] INT NOT NULL,
@@ -18,6 +18,9 @@
 	[Withdrawn] BIT NOT NULL DEFAULT 0,
 	[IsTransfer] BIT NOT NULL DEFAULT 0,
 	[DateTransferIdentified] DATETIME2 NULL DEFAULT NULL,
+	CONSTRAINT [PK_ApprenticeFeedbackTarget] PRIMARY KEY ([Id]),
+	CONSTRAINT [FK_ApprenticeFeedbackTarget_FeedbackTargetStatus] FOREIGN KEY ([Status]) REFERENCES [FeedbackTargetStatus]([Id]),
+	CONSTRAINT [FK_ApprenticeFeedbackTarget_FeedbackEligibilityStatus] FOREIGN KEY ([FeedbackEligibility]) REFERENCES [FeedbackEligibilityStatus]([Id])
 )
 
 GO

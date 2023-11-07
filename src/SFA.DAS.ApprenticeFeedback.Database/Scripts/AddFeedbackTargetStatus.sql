@@ -11,14 +11,14 @@ INSERT INTO #FeedbackTargetStatus VALUES
     (1,'NotYetActive'),
     (2,'Active'),
     (3,'Complete');
-    
 
-
-MERGE [dbo].[FeedbackTargetStatus] TARGET
-USING #FeedbackTargetStatus SOURCE
-ON TARGET.[Id]=SOURCE.[Id]
+MERGE INTO [dbo].[FeedbackTargetStatus] AS TARGET
+USING #FeedbackTargetStatus AS SOURCE
+ON TARGET.[Id] = SOURCE.[Id]
+WHEN MATCHED THEN 
+    UPDATE SET TARGET.[Description] = SOURCE.[Description]
 WHEN NOT MATCHED BY TARGET THEN 
-INSERT ([Id], [Description])
-VALUES (SOURCE.[Id],SOURCE.[Description]);
+    INSERT ([Id], [Description])
+    VALUES (SOURCE.[Id], SOURCE.[Description]);
 
 DROP TABLE #FeedbackTargetStatus;
