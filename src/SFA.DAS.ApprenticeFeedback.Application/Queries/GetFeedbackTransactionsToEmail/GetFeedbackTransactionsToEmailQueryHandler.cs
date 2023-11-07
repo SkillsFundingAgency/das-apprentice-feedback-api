@@ -47,7 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetFeedbackTransactions
             var feedbackTransactionsToEmail = query
                 .Select(r => new FeedbackTransactionToEmail
                 {
-                    ApprenticeFeedbackTransactionId = r.Id,
+                    FeedbackTransactionId = r.Id,
                     ApprenticeId = r.ApprenticeFeedbackTarget.ApprenticeId,
                     ApprenticeFeedbackTargetId = r.ApprenticeFeedbackTargetId
                 })
