@@ -159,7 +159,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                 {
                     // if a withdrawn email hasn't been sent already, send a withdrawn template
                     var targetTransactions = await _context.FindByApprenticeFeedbackTargetId(feedbackTransaction.ApprenticeFeedbackTargetId);
-                    var withdrawnFeedbackEmailTemplateId = _appSettings.EmailNotifications.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId;
+                    var withdrawnFeedbackEmailTemplateId = _appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId;
                     var previousWithdrawnEmailSent = targetTransactions.Any(t => t.SentDate != null && t.TemplateId == withdrawnFeedbackEmailTemplateId);
 
                     if (!previousWithdrawnEmailSent)
@@ -178,7 +178,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                 templateName = feedbackTransaction.TemplateName;
             }
 
-            templateId = _appSettings.EmailNotifications.FirstOrDefault(p => p.TemplateName == templateName)?.TemplateId;
+            templateId = _appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == templateName)?.TemplateId;
 
             return (templateId, templateName, tokens);
         }

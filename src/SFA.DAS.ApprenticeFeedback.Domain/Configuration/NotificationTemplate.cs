@@ -2,7 +2,7 @@
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
 {
-    public class EmailNotification
+    public class NotificationTemplate
     {
         /// <summary>
         /// The template name which is contained in the database

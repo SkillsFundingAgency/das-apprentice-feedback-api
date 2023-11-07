@@ -109,10 +109,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
                 var appSettings = new ApplicationSettings
                 {
                     FeedbackTransactionSentDateAgeDays = 90,
-                    EmailNotifications = new System.Collections.Generic.List<EmailNotification>
+                    NotificationTemplates = new System.Collections.Generic.List<NotificationTemplate>
                     {
-                        new EmailNotification { TemplateName = "Active", TemplateId = Guid.NewGuid() },
-                        new EmailNotification { TemplateName = "Withdrawn", TemplateId = Guid.NewGuid() }
+                        new NotificationTemplate { TemplateName = "Active", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "Withdrawn", TemplateId = Guid.NewGuid() }
                     }
                 };
                 return appSettings;

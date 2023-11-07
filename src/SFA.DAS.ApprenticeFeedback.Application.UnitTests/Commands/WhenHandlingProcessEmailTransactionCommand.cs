@@ -210,7 +210,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
-            feedbackTransaction.TemplateId.Should().Be(appSettings.EmailNotifications.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId);
+            feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId);
             nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Once);
         }
 
@@ -280,7 +280,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             {
                 EmailAddress = command.ApprenticeEmailAddress,
                 FirstName = command.ApprenticeName,
-                TemplateId = appSettings.EmailNotifications.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId,
+                TemplateId = appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId,
                 SentDate = DateTime.UtcNow,
                 ApprenticeFeedbackTarget = feedbackTarget,
             };
@@ -306,7 +306,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
-            feedbackTransaction.TemplateId.Should().Be(appSettings.EmailNotifications.FirstOrDefault(p => p.TemplateName == "Active")?.TemplateId);
+            feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Active")?.TemplateId);
 
             nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t =>
                 t.Tokens.ContainsKey("Contact") &&

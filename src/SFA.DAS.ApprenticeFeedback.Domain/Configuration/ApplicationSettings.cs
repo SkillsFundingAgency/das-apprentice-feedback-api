@@ -48,6 +48,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
         /// </summary>
         public int FeedbackEmailProcessingRetryWaitDays { get; set; }
 
-        public List<EmailNotification> EmailNotifications { get; set; }
+        public List<NotificationTemplate> NotificationTemplates { get; set; }
     }
 }
