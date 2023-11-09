@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using NServiceBus;
+using SFA.DAS.ApprenticeFeedback.Application.Services;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
@@ -22,19 +23,20 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
         private readonly ApplicationSettings _appSettings;
         private readonly ApplicationUrls _appUrls;
         private readonly IDateTimeHelper _dateTimeHelper;
+        private readonly IEmailTemplateService _emailTemplateService;
         private readonly ILogger<ProcessEmailTransactionCommandHandler> _logger;
         private readonly IMessageSession _messageSession;
 
         public ProcessEmailTransactionCommandHandler(
-            IFeedbackTransactionContext context
-            , IEngagementEmailContext engagementEmailContext
-            , IExclusionContext exclusionContext
-            , ApplicationSettings appSettings
-            , ApplicationUrls appUrls
-            , IDateTimeHelper dateTimeHelper
-            , ILogger<ProcessEmailTransactionCommandHandler> logger
-            , IMessageSession messageSession
-            )
+            IFeedbackTransactionContext context,
+            IEngagementEmailContext engagementEmailContext,
+            IExclusionContext exclusionContext,
+            ApplicationSettings appSettings,
+            ApplicationUrls appUrls,
+            IDateTimeHelper dateTimeHelper,
+            IEmailTemplateService emailTemplateService,
+            ILogger<ProcessEmailTransactionCommandHandler> logger,
+            IMessageSession messageSession)
         {
             _context = context;
             _engagementEmailContext = engagementEmailContext;
@@ -42,6 +44,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             _appSettings = appSettings;
             _appUrls = appUrls;
             _dateTimeHelper = dateTimeHelper;
+            _emailTemplateService = emailTemplateService;
             _logger = logger;
             _messageSession = messageSession;
         }
@@ -57,7 +60,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
                 return new ProcessEmailTransactionResponse(feedbackTransaction.Id, EmailSentStatus.Successful);
             }
 
-            var emailTemplateInfo = await GetEmailTemplateInfoForTransaction(feedbackTransaction, request);
+            var emailTemplateInfo = await _emailTemplateService.GetEmailTemplateInfoForTransaction(feedbackTransaction, request);
             if (emailTemplateInfo.Id == null && feedbackTransaction.TemplateName == null)
             {
                 // when no email template can be determined remove the email but return success, this is

@@ -3,6 +3,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.ApprenticeFeedback.Application.Behaviours;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
+using SFA.DAS.ApprenticeFeedback.Application.Services;
 using SFA.DAS.ApprenticeFeedback.Data;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 
@@ -28,6 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             services.AddScoped<IExclusionContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddValidatorsFromAssembly(typeof(Application.Queries.GetFeedbackTransactionsToEmail.GetFeedbackTransactionsToEmailQueryValidator).Assembly);
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+            services.AddTransient<IEmailTemplateService, EmailTemplateService>();
         }
     }
 }

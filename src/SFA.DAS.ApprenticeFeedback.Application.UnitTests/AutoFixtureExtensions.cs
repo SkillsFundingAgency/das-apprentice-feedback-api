@@ -36,10 +36,20 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
     public class AutoMoqInlineAutoDataAttribute : InlineAutoDataAttribute
     {
         public AutoMoqInlineAutoDataAttribute(params object[] arguments)
-            : base(AutofixtureExtensions.ApprenticeFeedbackFixture, arguments)
+            : base(() => CustomizeFixture(new Fixture()), arguments)
         {
         }
+
+        private static IFixture CustomizeFixture(IFixture fixture)
+        {
+            fixture.Behaviors.Remove(new ThrowingRecursionBehavior());
+            fixture.Behaviors.Add(new OmitOnRecursionBehavior());
+            fixture.Customize(new ApprenticeFeedbackCustomization());
+            fixture.Customize(new AutoMoqCustomization { ConfigureMembers = true });
+            return fixture;
+        }
     }
+
 
     public class ApprenticeFeedbackCustomization : ICustomization
     {
@@ -112,7 +122,16 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
                     NotificationTemplates = new System.Collections.Generic.List<NotificationTemplate>
                     {
                         new NotificationTemplate { TemplateName = "Active", TemplateId = Guid.NewGuid() },
-                        new NotificationTemplate { TemplateName = "Withdrawn", TemplateId = Guid.NewGuid() }
+                        new NotificationTemplate { TemplateName = "Withdrawn", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "AppStart", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "AppWelcome", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "AppMonthThree", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "AppMonthSix", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "AppMonthNine", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "AppMonthTwelve", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "AppMonthEighteen", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "AppAnnual", TemplateId = Guid.NewGuid() },
+                        new NotificationTemplate { TemplateName = "AppPreEpa", TemplateId = Guid.NewGuid() }
                     }
                 };
                 return appSettings;
