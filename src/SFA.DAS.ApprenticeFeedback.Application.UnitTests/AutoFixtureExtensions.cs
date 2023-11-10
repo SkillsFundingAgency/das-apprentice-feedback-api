@@ -61,7 +61,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
             }
 
             fixture.Customizations.Add(new ApprenticeFeedbackDataContextBuilder());
-            fixture.Customizations.Add(new DateTimeHelperBuilder());
             fixture.Customizations.Add(new ApplicationSettingsBuilder());
         }
     }
@@ -96,20 +95,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
         }
     }
 
-    // Handy for unit testing - make sure any IDateTimeHelper instances are "now"
-    public class DateTimeHelperBuilder : ISpecimenBuilder
-    {
-        public object Create(object request, ISpecimenContext context)
-        {
-            if (request is Type type && type == typeof(IDateTimeHelper))
-            {
-                return new UtcTimeProvider();
-            }
-
-            return new NoSpecimen();
-        }
-    }
-
     public class ApplicationSettingsBuilder : ISpecimenBuilder
     {
         public object Create(object request, ISpecimenContext context)
@@ -118,6 +103,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests
             {
                 var appSettings = new ApplicationSettings
                 {
+                    FeedbackEmailProcessingRetryWaitDays = 90,
                     FeedbackTransactionSentDateAgeDays = 90,
                     NotificationTemplates = new System.Collections.Generic.List<NotificationTemplate>
                     {

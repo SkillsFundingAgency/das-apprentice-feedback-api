@@ -1,5 +1,6 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
+using Microsoft.EntityFrameworkCore;
 using Moq;
 using NServiceBus;
 using NUnit.Framework;
@@ -21,97 +22,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 {
     public class WhenHandlingProcessEmailTransactionCommand
     {
-        [Test, AutoMoqData]
-        public async Task AndTransactionIdDoesNotExist_ThenReturnNull(
-           ProcessEmailTransactionCommand command,
-           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
-           ProcessEmailTransactionCommandHandler handler)
+        private DateTime _utcNow;
+
+        [SetUp]
+        public void Setup()
         {
-            //Arrange
-            feedbackTransactionContext.Setup(p => p.FindByIdIncludeFeedbackTargetAsync(It.IsAny<long>()))
-                .ReturnsAsync((FeedbackTransaction)null);
-
-            //Act
-            var result = await handler.Handle(command, CancellationToken.None);
-
-            // Assert
-            result.Should().BeNull();
-        }
-
-        [Test, AutoMoqData]
-        public async Task AndTransactionAlreadySent_ThenReturnSuccessful(
-           ProcessEmailTransactionCommand command,
-           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
-           ProcessEmailTransactionCommandHandler handler
-           )
-        {
-            // Arrange
-            var feedbackTarget = new ApprenticeFeedbackTarget()
-            {
-                Id = Guid.NewGuid()
-            };
-
-            var feedbackTransaction = new FeedbackTransaction()
-            {
-                Id = 101,
-                ApprenticeFeedbackTargetId = feedbackTarget.Id,
-                ApprenticeFeedbackTarget = feedbackTarget,
-                SentDate = DateTime.UtcNow.AddMonths(-1),
-            };
-
-            feedbackTransactionContext.Setup(p => p.FindByIdIncludeFeedbackTargetAsync(feedbackTransaction.Id))
-                .ReturnsAsync(feedbackTransaction);
-
-            command.FeedbackTransactionId = feedbackTransaction.Id;
-            command.IsFeedbackEmailContactAllowed = true;
-
-            //Act
-            var result = await handler.Handle(command, CancellationToken.None);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
-        }
-
-        [Test, AutoMoqData]
-        public async Task AndFeedbackTransactionIsFeedback_ButEmailTemplateNotFound_ThenReturnSuccessful_AndRemoveFeedbackTransaction(
-           ProcessEmailTransactionCommand command,
-           [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
-           [Frozen] Mock<IEmailTemplateService> emailTemplateService,
-           ProcessEmailTransactionCommandHandler handler
-           )
-        {
-            // Arrange
-            var feedbackTarget = new ApprenticeFeedbackTarget()
-            {
-                Id = Guid.NewGuid()
-            };
-
-            var feedbackTransaction = new FeedbackTransaction()
-            {
-                Id = 101,
-                ApprenticeFeedbackTargetId = feedbackTarget.Id,
-                ApprenticeFeedbackTarget = feedbackTarget,
-                TemplateName = null
-            };
-
-            context.Add(feedbackTarget);
-            context.Add(feedbackTransaction);
-            await context.SaveChangesAsync();
-
-            command.FeedbackTransactionId = feedbackTransaction.Id;
-            command.IsFeedbackEmailContactAllowed = false;
-
-            emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
-                .ReturnsAsync((null, null, new Dictionary<string, string>()));
-
-            //Act
-            var result = await handler.Handle(command, CancellationToken.None);
-
-            // Assert
-            result.Should().NotBeNull();
-            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
-            context.FeedbackTransactions.ToList().Should().HaveCount(0);
+            _utcNow = DateTime.UtcNow;
         }
 
         [AutoMoqInlineAutoData("AppStart")]
@@ -123,13 +39,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
         [AutoMoqInlineAutoData("AppMonthEighteen")]
         [AutoMoqInlineAutoData("AppAnnual")]
         [AutoMoqInlineAutoData("AppPreEpa")]
-        public async Task AndFeedbackTransactionIsNotFeedback_ButEmailTemplateNotFound_ThenReturnFailure_AndDoNotRemoveFeedbackTransaction(
+        public async Task AndTransactionTemplateKnown_ButEmailTemplateNotFound_ThenEmailResultFailure_AndDoNotRemoveFeedbackTransaction_AndNoEmailSent(
            string templateName,
-           ProcessEmailTransactionCommand command,
            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
            [Frozen] Mock<IEmailTemplateService> emailTemplateService,
-           ProcessEmailTransactionCommandHandler handler
-           )
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut)
         {
             // Arrange
             var feedbackTarget = new ApprenticeFeedbackTarget()
@@ -149,32 +67,46 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             context.Add(feedbackTransaction);
             await context.SaveChangesAsync();
 
+            exclusionContext.Setup(p => p.HasExclusion(It.IsAny<long>()))
+                .ReturnsAsync(false);
+
+            engagementEmailContext.Setup(p => p.HasTemplate(It.IsAny<string>()))
+                .ReturnsAsync(false);
+
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = false;
 
             emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
                 .ReturnsAsync((null, null, new Dictionary<string, string>()));
 
-            //Act
-            var result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            var result = await sut.Handle(command, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.Failed);
             context.FeedbackTransactions.ToList().Should().HaveCount(1);
+
+            VerifyDoesNotSendEmail(nserviceBusMessageSession);
         }
 
         [Test, AutoMoqData]
-        public async Task AndNoEmailContactAllowed_ThenReturnNotAllowed(
-           ProcessEmailTransactionCommand command,
+        public async Task AndTransactionTemplateActive_ButFeedbackEmailNotSubscribed_AndFeedbackTargetComplete_ThenFeedbackTransactionRemoved_AndEmailResultSuccessfull_AndNoEmailSent(
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
            [Frozen] Mock<IEmailTemplateService> emailTemplateService,
-           ProcessEmailTransactionCommandHandler handler)
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] ApplicationUrls appUrls,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut)
         {
             // Arrange
             var feedbackTarget = new ApprenticeFeedbackTarget()
             {
-                Id = Guid.NewGuid()
+                Id = Guid.NewGuid(),
+                Status = (int)FeedbackTargetStatus.Complete
             };
 
             var feedbackTransaction = new FeedbackTransaction()
@@ -188,28 +120,101 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             feedbackTransactionContext.Setup(p => p.FindByIdIncludeFeedbackTargetAsync(feedbackTransaction.Id))
                 .ReturnsAsync(feedbackTransaction);
 
+            var mockFeedbackTransactionDbSet = new Mock<DbSet<FeedbackTransaction>>();
+            feedbackTransactionContext.Setup(p => p.Entities)
+                .Returns(mockFeedbackTransactionDbSet.Object);
+
+            exclusionContext.Setup(p => p.HasExclusion(It.IsAny<long>()))
+                .ReturnsAsync(false);
+
+            engagementEmailContext.Setup(p => p.HasTemplate(It.IsAny<string>()))
+                .ReturnsAsync(false);
+
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = false;
 
-            emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
-                .ReturnsAsync((Guid.NewGuid(), "Active", new Dictionary<string, string>()));
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
 
             // Act
-            var result = await handler.Handle(command, CancellationToken.None);
+            var result = await sut.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
+
+            mockFeedbackTransactionDbSet.Verify(m => m.Remove(It.Is<FeedbackTransaction>(p => p.Id == feedbackTransaction.Id)), Times.Once());
+
+            VerifyDoesNotSendEmail(nserviceBusMessageSession);
+        }
+
+        [Test, AutoMoqData]
+        public async Task AndTransactionTemplateActive_ButFeedbackEmailNotSubscribed_AndFeedbackTargetNotComplete_ThenEmailResultNotAllowed_AndTransactionDelayed_AndNoEmailSent(
+           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
+           [Frozen] Mock<IEmailTemplateService> emailTemplateService,
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] ApplicationUrls appUrls,
+           [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut)
+        {
+            // Arrange
+            dateTimeHelper.Setup(p => p.Now).Returns(_utcNow);
+
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Id = Guid.NewGuid(),
+                Status = (int)FeedbackTargetStatus.Active,
+            };
+
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                Id = 101,
+                ApprenticeFeedbackTargetId = feedbackTarget.Id,
+                ApprenticeFeedbackTarget = feedbackTarget,
+                SendAfter = _utcNow,
+                TemplateName = null
+            };
+
+            feedbackTransactionContext.Setup(p => p.FindByIdIncludeFeedbackTargetAsync(feedbackTransaction.Id))
+                .ReturnsAsync(feedbackTransaction);
+
+            exclusionContext.Setup(p => p.HasExclusion(It.IsAny<long>()))
+                .ReturnsAsync(false);
+
+            engagementEmailContext.Setup(p => p.HasTemplate(It.IsAny<string>()))
+                .ReturnsAsync(false);
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsFeedbackEmailContactAllowed = false;
+
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
+
+            // Act
+            var result = await sut.Handle(command, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.NotAllowed);
+
+            feedbackTransaction.SendAfter.Should().Be(_utcNow.AddDays(appSettings.FeedbackEmailProcessingRetryWaitDays));
+
+            VerifyDoesNotSendEmail(nserviceBusMessageSession);
         }
 
         [Test, AutoMoqData]
-        public async Task AndValidStateAndEmailContactAllowed_ThenReturnSuccess(
-           ProcessEmailTransactionCommand command,
+        public async Task AndTransactionTemplateActive_AndFeedbackEmailSubscribed_ThenEmailResultSuccessful_AndEmailSentIsActive(
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
            [Frozen] Mock<IEmailTemplateService> emailTemplateService,
            [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
            [Frozen] ApplicationSettings appSettings,
-           ProcessEmailTransactionCommandHandler handler
+           [Frozen] ApplicationUrls appUrls,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut
            )
         {
             // Arrange
@@ -220,42 +225,56 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             var feedbackTransaction = new FeedbackTransaction()
             {
+                Id = 101,
                 EmailAddress = command.ApprenticeEmailAddress,
                 FirstName = command.ApprenticeName,
                 SentDate = null,
+                ApprenticeFeedbackTargetId = feedbackTarget.Id,
                 ApprenticeFeedbackTarget = feedbackTarget,
             };
 
             feedbackTransactionContext.Setup(p => p.FindByIdIncludeFeedbackTargetAsync(feedbackTransaction.Id))
                 .ReturnsAsync(feedbackTransaction);
 
+            exclusionContext.Setup(p => p.HasExclusion(It.IsAny<long>()))
+                .ReturnsAsync(false);
+
+            engagementEmailContext.Setup(p => p.HasTemplate(It.IsAny<string>()))
+                .ReturnsAsync(false);
+
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
-                .ReturnsAsync((appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Active").TemplateId, 
-                    "Active", new Dictionary<string, string>() { { "ApprenticeFeedbackTargetId", feedbackTarget.Id.ToString() } } ));
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
 
-            //Act
-            var result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            var result = await sut.Handle(command, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
-            feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Active")?.TemplateId);
-            nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Once);
+            
+            VerifyDoesSendEmail(nserviceBusMessageSession,
+                feedbackTransaction.EmailAddress,
+                appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Active").TemplateId,
+                feedbackTransaction.FirstName,
+                feedbackTransaction.ApprenticeFeedbackTargetId,
+                feedbackTransaction.Id,
+                appUrls.ApprenticeFeedbackUrl,
+                appUrls.ApprenticeAccountsUrl);
         }
 
         [Test, AutoMoqData]
-        public async Task AndApprenticeFeedbackTargetIsWithdrawn_ButNotProviderExcluded_AndNotEngagementEmail_ThenEmailsExitSurvey(
-           ProcessEmailTransactionCommand command,
+        public async Task AndTransactionTemplateWithdrawn_AndNotProviderExcluded_ThenEmailResultSuccessfull_AndEmailSentIsWithdrawn(
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
            [Frozen] Mock<IExclusionContext> exclusionContext,
            [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
            [Frozen] Mock<IEmailTemplateService> emailTemplateService,
            [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
            [Frozen] ApplicationSettings appSettings,
-           ProcessEmailTransactionCommandHandler handler
+           [Frozen] ApplicationUrls appUrls,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut
            )
         {
             // Arrange
@@ -283,28 +302,38 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
-                .ReturnsAsync((appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn").TemplateId,
-                    "Withdrawn", new Dictionary<string, string>() { { "ApprenticeFeedbackTargetId", feedbackTarget.Id.ToString() } }));
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", appSettings, appUrls);
 
-            //Act
-            var result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            var result = await sut.Handle(command, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
             feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId);
-            nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Once);
+
+            VerifyDoesSendEmail(nserviceBusMessageSession,
+                feedbackTransaction.EmailAddress,
+                appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn").TemplateId,
+                feedbackTransaction.FirstName,
+                feedbackTransaction.ApprenticeFeedbackTargetId,
+                feedbackTransaction.Id,
+                appUrls.ApprenticeFeedbackUrl,
+                appUrls.ApprenticeAccountsUrl);
         }
 
         [Test, AutoMoqData]
-        public async Task AndApprenticeFeedbackTargetIsWithdrawn_ButProviderExcluded_ThenDoesNotSendExitSurvey(
-            ProcessEmailTransactionCommand command,
-            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
-            [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
-            [Frozen] ApplicationSettings appSettings,
-            [Frozen] Mock<IEmailTemplateService> emailTemplateService,
-            ProcessEmailTransactionCommandHandler handler)
+        public async Task AndTransactionTemplateWithdrawn_ButProviderExcluded_ThenEmailResultSuccessfull_ButFeedbackTransactionRemoved_AndNoEmailSent(
+           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
+           [Frozen] Mock<IEmailTemplateService> emailTemplateService,
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] ApplicationUrls appUrls,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut
+           )
         {
             // Arrange
             var feedbackTarget = new ApprenticeFeedbackTarget()
@@ -314,38 +343,304 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
                 Withdrawn = true,
                 Ukprn = 12345
             };
-            var exclusion = new Exclusion
-            {
-                Ukprn = 12345,
-                CreatedOn = DateTime.UtcNow
-            };
+
             var feedbackTransaction = new FeedbackTransaction()
             {
+                Id = 101,
                 EmailAddress = command.ApprenticeEmailAddress,
                 FirstName = command.ApprenticeName,
                 SentDate = null,
                 ApprenticeFeedbackTarget = feedbackTarget,
             };
-            context.Add(exclusion);
-            context.Add(feedbackTarget);
-            context.Add(feedbackTransaction);
-            await context.SaveChangesAsync();
+
+
+            feedbackTransactionContext.Setup(p => p.FindByIdIncludeFeedbackTargetAsync(feedbackTransaction.Id))
+                .ReturnsAsync(feedbackTransaction);
+
+            var mockFeedbackTransactionDbSet = new Mock<DbSet<FeedbackTransaction>>();
+            feedbackTransactionContext.Setup(p => p.Entities)
+                .Returns(mockFeedbackTransactionDbSet.Object);
+
+            exclusionContext.Setup(p => p.HasExclusion(It.Is<long>(p => p == feedbackTarget.Ukprn)))
+                .ReturnsAsync(true);
+
+            engagementEmailContext.Setup(p => p.HasTemplate(It.IsAny<string>()))
+                .ReturnsAsync(false);
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
-                .ReturnsAsync((appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn").TemplateId,
-                    "Withdrawn", new Dictionary<string, string>() { { "ApprenticeFeedbackTargetId", feedbackTarget.Id.ToString() } }));
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", appSettings, appUrls);
 
-            //Act
-            var result = await handler.Handle(command, CancellationToken.None);
+            // Act
+            var result = await sut.Handle(command, CancellationToken.None);
 
             // Assert
             result.Should().NotBeNull();
             result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
-            context.FeedbackTransactions.ToList().Should().HaveCount(0);
-            nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t => t.Tokens.ContainsKey("ApprenticeFeedbackTargetId")), It.IsAny<SendOptions>()), Times.Never);
+            mockFeedbackTransactionDbSet.Verify(m => m.Remove(It.Is<FeedbackTransaction>(p => p.Id == feedbackTransaction.Id)), Times.Once());
+
+            VerifyDoesNotSendEmail(nserviceBusMessageSession);
+        }
+
+        [AutoMoqInlineAutoData("AppStart")]
+        [AutoMoqInlineAutoData("AppWelcome")]
+        [AutoMoqInlineAutoData("AppMonthThree")]
+        [AutoMoqInlineAutoData("AppMonthSix")]
+        [AutoMoqInlineAutoData("AppMonthNine")]
+        [AutoMoqInlineAutoData("AppMonthTwelve")]
+        [AutoMoqInlineAutoData("AppMonthEighteen")]
+        [AutoMoqInlineAutoData("AppAnnual")]
+        [AutoMoqInlineAutoData("AppPreEpa")]
+        public async Task AndTransactionTemplateEngagement_ButEngagementEmailNotSubscribed_ThenEmailResultNotAllowed_AndTransactionSuppressed_AndNoEmailSent(
+           string templateName,
+           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
+           [Frozen] Mock<IEmailTemplateService> emailTemplateService,
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] ApplicationUrls appUrls,
+           [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut)
+        {
+            // Arrange
+            dateTimeHelper.Setup(p => p.Now).Returns(_utcNow);
+
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Id = Guid.NewGuid()
+            };
+
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                Id = 101,
+                TemplateName = templateName,
+                IsSuppressed = false,
+                SentDate = null,
+                ApprenticeFeedbackTargetId = feedbackTarget.Id,
+                ApprenticeFeedbackTarget = feedbackTarget
+            };
+
+            feedbackTransactionContext.Setup(p => p.FindByIdIncludeFeedbackTargetAsync(feedbackTransaction.Id))
+                .ReturnsAsync(feedbackTransaction);
+
+            exclusionContext.Setup(p => p.HasExclusion(It.Is<long>(p => p == feedbackTarget.Ukprn)))
+                .ReturnsAsync(false);
+
+            engagementEmailContext.Setup(p => p.HasTemplate(It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEngagementEmailContactAllowed = false;
+
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+
+            // Act
+            var result = await sut.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.NotAllowed);
+
+            feedbackTransaction.IsSuppressed.Should().BeTrue();
+            feedbackTransaction.SentDate.Should().Be(_utcNow);
+
+            VerifyDoesNotSendEmail(nserviceBusMessageSession);
+        }
+
+        [AutoMoqInlineAutoData("AppStart")]
+        [AutoMoqInlineAutoData("AppWelcome")]
+        [AutoMoqInlineAutoData("AppMonthThree")]
+        [AutoMoqInlineAutoData("AppMonthSix")]
+        [AutoMoqInlineAutoData("AppMonthNine")]
+        [AutoMoqInlineAutoData("AppMonthTwelve")]
+        [AutoMoqInlineAutoData("AppMonthEighteen")]
+        [AutoMoqInlineAutoData("AppAnnual")]
+        [AutoMoqInlineAutoData("AppPreEpa")]
+        public async Task AndTransactionTemplateEngagement_AndEngagementEmailSubscribed_AndFeedbackTargetPaused_ThenEmailResultNotAllowed_AndTransactionDelayed_AndNoEmailSent(
+           string templateName,
+           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
+           [Frozen] Mock<IEmailTemplateService> emailTemplateService,
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] ApplicationUrls appUrls,
+           [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut)
+        {
+            // Arrange
+            dateTimeHelper.Setup(p => p.Now).Returns(_utcNow);
+
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Id = Guid.NewGuid(),
+                ApprenticeshipStatus = ApprenticeshipStatus.Paused
+            };
+
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                Id = 101,
+                TemplateName = templateName,
+                SendAfter = null,
+                IsSuppressed = false,
+                SentDate = null,
+                ApprenticeFeedbackTargetId = feedbackTarget.Id,
+                ApprenticeFeedbackTarget = feedbackTarget
+            };
+
+            feedbackTransactionContext.Setup(p => p.FindByIdIncludeFeedbackTargetAsync(feedbackTransaction.Id))
+                .ReturnsAsync(feedbackTransaction);
+
+            exclusionContext.Setup(p => p.HasExclusion(It.Is<long>(p => p == feedbackTarget.Ukprn)))
+                .ReturnsAsync(false);
+
+            engagementEmailContext.Setup(p => p.HasTemplate(It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEngagementEmailContactAllowed = true;
+
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+
+            // Act
+            var result = await sut.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.NotAllowed);
+
+            feedbackTransaction.IsSuppressed.Should().BeFalse();
+            feedbackTransaction.SentDate.Should().BeNull();
+            feedbackTransaction.SendAfter.Should().Be(_utcNow.AddDays(appSettings.FeedbackEmailProcessingRetryWaitDays));
+
+            VerifyDoesNotSendEmail(nserviceBusMessageSession);
+        }
+
+        [AutoMoqInlineAutoData("AppStart")]
+        [AutoMoqInlineAutoData("AppWelcome")]
+        [AutoMoqInlineAutoData("AppMonthThree")]
+        [AutoMoqInlineAutoData("AppMonthSix")]
+        [AutoMoqInlineAutoData("AppMonthNine")]
+        [AutoMoqInlineAutoData("AppMonthTwelve")]
+        [AutoMoqInlineAutoData("AppMonthEighteen")]
+        [AutoMoqInlineAutoData("AppAnnual")]
+        [AutoMoqInlineAutoData("AppPreEpa")]
+        public async Task AndTransactionTemplateEngagement_AndEngagementEmailSubscribed_ThenEmailResultSuccessfull_AndFeedbackTransactionUpdated_AndEngagementEmailSent(
+           string templateName,
+           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
+           [Frozen] Mock<IEmailTemplateService> emailTemplateService,
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] ApplicationUrls appUrls,
+           [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut)
+        {
+            // Arrange
+            dateTimeHelper.Setup(p => p.Now).Returns(_utcNow);
+
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Id = Guid.NewGuid()
+            };
+
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                Id = 101,
+                TemplateName = templateName,
+                IsSuppressed = false,
+                SentDate = null,
+                ApprenticeFeedbackTargetId = feedbackTarget.Id,
+                ApprenticeFeedbackTarget = feedbackTarget
+            };
+
+            feedbackTransactionContext.Setup(p => p.FindByIdIncludeFeedbackTargetAsync(feedbackTransaction.Id))
+                .ReturnsAsync(feedbackTransaction);
+
+            exclusionContext.Setup(p => p.HasExclusion(It.Is<long>(p => p == feedbackTarget.Ukprn)))
+                .ReturnsAsync(false);
+
+            engagementEmailContext.Setup(p => p.HasTemplate(It.IsAny<string>()))
+                .ReturnsAsync(true);
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEngagementEmailContactAllowed = true;
+
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+
+            // Act
+            var result = await sut.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
+
+            feedbackTransaction.IsSuppressed.Should().BeFalse();
+            feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == templateName)?.TemplateId);
+            feedbackTransaction.EmailAddress = command.ApprenticeEmailAddress;
+            feedbackTransaction.FirstName = command.ApprenticeName;
+            feedbackTransaction.SentDate.Should().Be(_utcNow);
+
+            VerifyDoesSendEmail(nserviceBusMessageSession,
+                feedbackTransaction.EmailAddress,
+                appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == templateName).TemplateId,
+                feedbackTransaction.FirstName,
+                feedbackTransaction.ApprenticeFeedbackTargetId,
+                feedbackTransaction.Id,
+                appUrls.ApprenticeFeedbackUrl,
+                appUrls.ApprenticeAccountsUrl);
+        }
+
+        private void SetupEmailTemplateService(
+            Mock<IEmailTemplateService> emailTemplateService, 
+            FeedbackTransaction feedbackTransaction, 
+            ProcessEmailTransactionCommand command, string templateName, 
+            ApplicationSettings appSettings,
+            ApplicationUrls appUrls)
+        {
+            emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
+                .ReturnsAsync((appSettings.NotificationTemplates.FirstOrDefault(p => 
+                    p.TemplateName == templateName).TemplateId,
+                    templateName, 
+                    new Dictionary<string, string>() 
+                    {
+                        { "Contact", $"{command.ApprenticeName}" },
+                        { "ApprenticeFeedbackTargetId", $"{feedbackTransaction.ApprenticeFeedbackTargetId}" },
+                        { "FeedbackTransactionId", $"{feedbackTransaction.Id}" },
+                        { "ApprenticeFeedbackHostname", $"{appUrls.ApprenticeFeedbackUrl}" },
+                        { "ApprenticeAccountHostname", $"{appUrls.ApprenticeAccountsUrl}" }
+                    }));
+        }
+
+        private void VerifyDoesSendEmail(
+            Mock<IMessageSession> nserviceBusMessageSession,
+            string recipientsAddress,
+            Guid templateId,
+            string contact,
+            Guid apprenticeFeedbackTargetId,
+            long feedbackTransactionId,
+            string apprenticeFeedbackHostname,
+            string apprenticeAccountHostname)
+        {
+            nserviceBusMessageSession.Verify(s => s.Send(It.Is<SendEmailCommand>(t =>
+                t.RecipientsAddress == recipientsAddress &&
+                t.TemplateId == templateId.ToString() &&
+                t.Tokens["Contact"] == contact &&
+                t.Tokens["ApprenticeFeedbackTargetId"] == apprenticeFeedbackTargetId.ToString() &&
+                t.Tokens["FeedbackTransactionId"] == feedbackTransactionId.ToString() &&
+                t.Tokens["ApprenticeFeedbackHostname"] == apprenticeFeedbackHostname &&
+                t.Tokens["ApprenticeAccountHostname"] == apprenticeAccountHostname), It.IsAny<SendOptions>()), Times.Once);
+        }
+
+        private void VerifyDoesNotSendEmail(Mock<IMessageSession> nserviceBusMessageSession)
+        {
+            nserviceBusMessageSession.Verify(s => s.Send(It.IsAny<SendEmailCommand>(), It.IsAny<SendOptions>()), Times.Never);
         }
     }
 }
