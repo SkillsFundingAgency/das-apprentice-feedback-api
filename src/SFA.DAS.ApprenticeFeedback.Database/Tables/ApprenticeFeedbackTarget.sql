@@ -18,7 +18,7 @@
 	[Withdrawn] BIT NOT NULL DEFAULT 0,
 	[IsTransfer] BIT NOT NULL DEFAULT 0,
 	[DateTransferIdentified] DATETIME2 NULL DEFAULT NULL, 
-    [ApprenticeshipStatus] INT NOT NULL DEFAULT 0,
+	[ApprenticeshipStatus] INT NOT NULL DEFAULT 0,
 )
 
 GO
