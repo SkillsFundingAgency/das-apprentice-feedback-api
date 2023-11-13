@@ -15,11 +15,20 @@ using System.Threading.Tasks;
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmailTransactionCommandTests
 {
     [TestFixture]
-    public class WhenHandlingProcessEmailTransactionCommandAndTransactionTemplateUnknownAndEmailTemplateNotFound
+    public class WhenHandlingProcessEmailTransactionCommandAndTransactionTemplateKnown 
         : WhenHandlingProcessEmailTransactionCommandBase
     {
-        [Test, AutoMoqData]
-        public async Task ButEmailTemplateNotFound_ThenEmailResultSuccessful(
+        [AutoMoqInlineAutoData("AppStart")]
+        [AutoMoqInlineAutoData("AppWelcome")]
+        [AutoMoqInlineAutoData("AppMonthThree")]
+        [AutoMoqInlineAutoData("AppMonthSix")]
+        [AutoMoqInlineAutoData("AppMonthNine")]
+        [AutoMoqInlineAutoData("AppMonthTwelve")]
+        [AutoMoqInlineAutoData("AppMonthEighteen")]
+        [AutoMoqInlineAutoData("AppAnnual")]
+        [AutoMoqInlineAutoData("AppPreEpa")]
+        public async Task ButEmailTemplateNotFound_ThenEmailResultFailure(
+           string templateName,
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
            [Frozen] Mock<IExclusionContext> exclusionContext,
            [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
@@ -38,7 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
                 Id = 101,
                 ApprenticeFeedbackTargetId = feedbackTarget.Id,
                 ApprenticeFeedbackTarget = feedbackTarget,
-                TemplateName = null
+                TemplateName = templateName
             };
 
             CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, null, feedbackTransaction);
@@ -53,11 +62,20 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             var result = await sut.Handle(command, CancellationToken.None);
 
             // Assert
-            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
+            result.EmailSentStatus.Should().Be(EmailSentStatus.Failed);
         }
 
-        [Test, AutoMoqData]
-        public async Task ButEmailTemplateNotFound_ThenRemoveFeedbackTransaction(
+        [AutoMoqInlineAutoData("AppStart")]
+        [AutoMoqInlineAutoData("AppWelcome")]
+        [AutoMoqInlineAutoData("AppMonthThree")]
+        [AutoMoqInlineAutoData("AppMonthSix")]
+        [AutoMoqInlineAutoData("AppMonthNine")]
+        [AutoMoqInlineAutoData("AppMonthTwelve")]
+        [AutoMoqInlineAutoData("AppMonthEighteen")]
+        [AutoMoqInlineAutoData("AppAnnual")]
+        [AutoMoqInlineAutoData("AppPreEpa")]
+        public async Task ButEmailTemplateNotFound_ThenDoNotRemoveFeedbackTransaction(
+           string templateName,
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
            [Frozen] Mock<IExclusionContext> exclusionContext,
            [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
@@ -76,7 +94,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
                 Id = 101,
                 ApprenticeFeedbackTargetId = feedbackTarget.Id,
                 ApprenticeFeedbackTarget = feedbackTarget,
-                TemplateName = null
+                TemplateName = templateName
             };
 
             CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, null, feedbackTransaction);
@@ -88,14 +106,23 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
                 .ReturnsAsync((null, null, new Dictionary<string, string>()));
 
             // Act
-            await sut.Handle(command, CancellationToken.None);
+            var result = await sut.Handle(command, CancellationToken.None);
 
             // Assert
-            _mockFeedbackTransactionDbSet.Verify(m => m.Remove(It.Is<FeedbackTransaction>(p => p.Id == feedbackTransaction.Id)), Times.Once());
+            _mockFeedbackTransactionDbSet.Verify(m => m.Remove(It.Is<FeedbackTransaction>(p => p.Id == feedbackTransaction.Id)), Times.Never);
         }
 
-        [Test, AutoMoqData]
+        [AutoMoqInlineAutoData("AppStart")]
+        [AutoMoqInlineAutoData("AppWelcome")]
+        [AutoMoqInlineAutoData("AppMonthThree")]
+        [AutoMoqInlineAutoData("AppMonthSix")]
+        [AutoMoqInlineAutoData("AppMonthNine")]
+        [AutoMoqInlineAutoData("AppMonthTwelve")]
+        [AutoMoqInlineAutoData("AppMonthEighteen")]
+        [AutoMoqInlineAutoData("AppAnnual")]
+        [AutoMoqInlineAutoData("AppPreEpa")]
         public async Task ButEmailTemplateNotFound_ThenNoEmailSent(
+           string templateName,
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
            [Frozen] Mock<IExclusionContext> exclusionContext,
            [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
@@ -115,7 +142,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
                 Id = 101,
                 ApprenticeFeedbackTargetId = feedbackTarget.Id,
                 ApprenticeFeedbackTarget = feedbackTarget,
-                TemplateName = null
+                TemplateName = templateName
             };
 
             CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, null, feedbackTransaction);

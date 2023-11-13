@@ -4,19 +4,18 @@ using Moq;
 using NServiceBus;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransaction;
-using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmailTransactionCommandTests
 {
+    [TestFixture]
     public class WhenHandlingProcessEmailTransactionCommandAndTransactionIdDoesNotExist 
         : WhenHandlingProcessEmailTransactionCommandBase
     {
         [Test, AutoMoqData]
-        public async Task AndTransactionIdDoesNotExist_ThenReturnNull(
+        public async Task ThenReturnNull(
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
            [Frozen] Mock<IExclusionContext> exclusionContext,
            [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
@@ -24,7 +23,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
            ProcessEmailTransactionCommandHandler sut)
         {
             // Arrange
-            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, null);
+            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, null, null);
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -34,7 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
         }
 
         [Test, AutoMoqData]
-        public async Task AndTransactionIdDoesNotExist_ThenNoEmailSent(
+        public async Task ThenNoEmailSent(
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
            [Frozen] Mock<IExclusionContext> exclusionContext,
            [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
@@ -43,7 +42,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
            ProcessEmailTransactionCommandHandler sut)
         {
             // Arrange
-            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, null);
+            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, null, null);
 
             // Act
             await sut.Handle(command, CancellationToken.None);

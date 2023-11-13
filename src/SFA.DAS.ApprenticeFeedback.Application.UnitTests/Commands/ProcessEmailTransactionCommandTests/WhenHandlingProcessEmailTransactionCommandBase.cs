@@ -30,7 +30,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
            [Frozen] Mock<IExclusionContext> exclusionContext,
            [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
-           FeedbackTransaction feedbackTransaction)
+           [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
+           FeedbackTransaction feedbackTransaction,
+           bool hasProviderExlusion = false,
+           bool hasEngagementTemplate = false)
         {
             if (feedbackTransaction is null)
             {
@@ -48,10 +51,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
                 .Returns(_mockFeedbackTransactionDbSet.Object);
 
             exclusionContext.Setup(p => p.HasExclusion(It.IsAny<long>()))
-                .ReturnsAsync(false);
+                .ReturnsAsync(hasProviderExlusion);
 
             engagementEmailContext.Setup(p => p.HasTemplate(It.IsAny<string>()))
-                .ReturnsAsync(false);
+                .ReturnsAsync(hasEngagementTemplate);
+
+            if(dateTimeHelper != null)
+            {
+                dateTimeHelper.Setup(p => p.Now).Returns(_utcNow);
+            }
         }
 
         protected void SetupEmailTemplateService(

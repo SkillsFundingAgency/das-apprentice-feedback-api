@@ -12,11 +12,12 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmailTransactionCommandTests
 {
+    [TestFixture]
     public class WhenHandlingProcessEmailTransactionCommandAndTransactionAlreadySent 
         : WhenHandlingProcessEmailTransactionCommandBase
     {
         [Test, AutoMoqData]
-        public async Task AndTransactionAlreadySent_ThenEmailResultSuccessful(
+        public async Task ThenEmailResultSuccessful(
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
            [Frozen] Mock<IExclusionContext> exclusionContext,
            [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
@@ -37,7 +38,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
                 SentDate = DateTime.UtcNow.AddMonths(-1),
             };
 
-            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, feedbackTransaction);
+            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, null, feedbackTransaction);
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
@@ -50,7 +51,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
         }
         
         [Test, AutoMoqData]
-        public async Task AndTransactionAlreadySent_ThenNoEmailSent(
+        public async Task ThenNoEmailSent(
            [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
            [Frozen] Mock<IExclusionContext> exclusionContext,
            [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
@@ -72,7 +73,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
                 SentDate = DateTime.UtcNow.AddMonths(-1),
             };
 
-            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, feedbackTransaction);
+            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, null, feedbackTransaction);
 
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
