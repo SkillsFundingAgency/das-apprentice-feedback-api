@@ -141,51 +141,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             return new ProcessEmailTransactionResponse(feedbackTransaction.Id, sendStatus);
         }
 
-        private async Task<(Guid? Id, string Name, Dictionary<string, string> Tokens)> GetEmailTemplateInfoForTransaction(FeedbackTransaction feedbackTransaction, ProcessEmailTransactionCommand request)
-        {
-            Guid? templateId = null;
-            string templateName = null;
-            Dictionary<string, string> tokens =
-                new Dictionary<string, string>()
-                {
-                    { "Contact", $"{request.ApprenticeName}" },
-                    { "ApprenticeFeedbackTargetId", $"{feedbackTransaction.ApprenticeFeedbackTargetId}" },
-                    { "FeedbackTransactionId", $"{feedbackTransaction.Id}" },
-                    { "ApprenticeFeedbackHostname", $"{_appUrls.ApprenticeFeedbackUrl}" },
-                    { "ApprenticeAccountHostname", $"{_appUrls.ApprenticeAccountsUrl}" }
-                };
-
-            if (feedbackTransaction.TemplateName == null)
-            {
-                // if the Apprentice Feedback Target is Withdrawn, that takes precedent over giving feedback.
-                if (feedbackTransaction.ApprenticeFeedbackTarget.Withdrawn == true)
-                {
-                    // if a withdrawn email hasn't been sent already, send a withdrawn template
-                    var targetTransactions = await _context.FindByApprenticeFeedbackTargetId(feedbackTransaction.ApprenticeFeedbackTargetId);
-                    var withdrawnFeedbackEmailTemplateId = _appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId;
-                    var previousWithdrawnEmailSent = targetTransactions.Any(t => t.SentDate != null && t.TemplateId == withdrawnFeedbackEmailTemplateId);
-
-                    if (!previousWithdrawnEmailSent)
-                    {
-                        templateName = "Withdrawn";
-                    }
-                } 
-                
-                if (templateName == null && feedbackTransaction.ApprenticeFeedbackTarget.IsActiveAndEligible())
-                {
-                    templateName = "Active";
-                }
-            }
-            else
-            {
-                templateName = feedbackTransaction.TemplateName;
-            }
-
-            templateId = _appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == templateName)?.TemplateId;
-
-            return (templateId, templateName, tokens);
-        }
-
         private async Task SendEmailViaNserviceBus(string toAddress, string templateId, string templateName, Dictionary<string, string> personalisationTokens)
         {
             try
