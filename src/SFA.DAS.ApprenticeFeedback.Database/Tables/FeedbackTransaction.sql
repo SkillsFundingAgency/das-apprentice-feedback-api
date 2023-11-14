@@ -7,12 +7,21 @@
 	[TemplateId] UNIQUEIDENTIFIER,
 	[CreatedOn] DATETIME NOT NULL,
 	[SendAfter] DATETIME,
-	[SentDate] DATETIME
+	[SentDate] DATETIME,
+	[TemplateName] VARCHAR(100) NULL,
+	[IsSuppressed] BIT NOT NULL DEFAULT 0 
 )
 GO
 
 CREATE NONCLUSTERED INDEX [IX_FeedbackTransaction_ApprenticeFeedbackTarget]
 ON [dbo].[FeedbackTransaction] ( [ApprenticeFeedbackTargetId] )
-INCLUDE ( [SentDate] );
+INCLUDE ( [SentDate], [TemplateName] );
 
 GO
+
+CREATE NONCLUSTERED INDEX [IX_FeedbackTransaction_CreatedOn]
+ON [dbo].[FeedbackTransaction] ( [CreatedOn] )
+INCLUDE ( [ApprenticeFeedbackTargetId], [SentDate], [SendAfter], [TemplateName] );
+
+GO
+

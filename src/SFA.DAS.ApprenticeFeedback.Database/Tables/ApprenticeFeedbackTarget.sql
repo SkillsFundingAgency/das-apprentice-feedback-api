@@ -17,7 +17,7 @@
 	[UpdatedOn] DATETIME2 NOT NULL DEFAULT GETUTCDATE(),
 	[Withdrawn] BIT NOT NULL DEFAULT 0,
 	[IsTransfer] BIT NOT NULL DEFAULT 0,
-	[DateTransferIdentified] DATETIME2 NULL DEFAULT NULL,
+	[DateTransferIdentified] DATETIME2 NULL DEFAULT NULL
 )
 
 GO
@@ -27,12 +27,18 @@ CREATE UNIQUE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_ApprenticeIdAppren
 	(
 		[ApprenticeId],
 		[ApprenticeshipId]
-	);
+	) INCLUDE ( [Id], [CreatedOn] );
 
 GO
 
 CREATE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_Ukprn]
     ON [dbo].[ApprenticeFeedbackTarget]	( [Ukprn] )
 	INCLUDE ( [Id], [Status], [FeedbackEligibility]);
+
+GO
+
+CREATE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_Status]
+    ON [dbo].[ApprenticeFeedbackTarget]	( [Status] )
+	INCLUDE ( [Id], [Withdrawn] , [IsTransfer] );
 
 GO

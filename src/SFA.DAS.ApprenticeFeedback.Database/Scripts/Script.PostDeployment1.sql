@@ -10,7 +10,10 @@ Post-Deployment Script Template
 --------------------------------------------------------------------------------------
 */
 
+:r .\AddFeedbackTargetStatus.sql
+:r .\AddFeedbackEligibilityStatus.sql
 :r .\AddDefaultExitSurveyAttributes.sql
 :r .\SetPrimaryReasonForExistingExitSurveys.sql
 :r .\AddProviderExclusions.sql
+:r .\AddEngagementEmails.sql
 
