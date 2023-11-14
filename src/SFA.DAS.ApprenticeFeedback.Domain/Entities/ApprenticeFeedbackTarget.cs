@@ -107,32 +107,14 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
 
             Withdrawn = apprenticeStatus == ApprenticeshipStatus.Stopped;
 
-            DateTime? GetApprenticeStoppedDate(Learner learner)
-            {
-                if (!learner.ApprovalsStopDate.HasValue && !learner.LearnActEndDate.HasValue)
+            EndDate = learner.LearnActEndDate 
+                ?? apprenticeStatus switch
                 {
-                    return null;
-                }
-                else if (learner.ApprovalsStopDate == null)
-                {
-                    return learner.LearnActEndDate;
-                }
-                else if (learner.LearnActEndDate == null)
-                {
-                    return learner.ApprovalsStopDate;
-                }
-                else
-                {
-                    // Return the earliest date if both set.
-                    return learner.LearnActEndDate > learner.ApprovalsStopDate ? learner.ApprovalsStopDate : learner.LearnActEndDate;
-                }
-            };
-            EndDate = apprenticeStatus switch
-            {
-                ApprenticeshipStatus.Stopped => GetApprenticeStoppedDate(learner),
-                ApprenticeshipStatus.Paused => learner.ApprovalsPauseDate,
-                _ => learner.EstimatedEndDate,
-            };
+                    ApprenticeshipStatus.Stopped => learner.ApprovalsStopDate,
+                    ApprenticeshipStatus.Paused => learner.ApprovalsPauseDate,
+                    _ => learner.EstimatedEndDate,
+                } 
+                ?? learner.EstimatedEndDate;
 
             SetStatusAndEligibility(learner, appSettings, dateTimeHelper);
         }
@@ -143,7 +125,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             {
                 // If an IsTransfer is marked as in progress, then while the other information
                 // may indicate this is a stop, we are holding fire on actually doing anything about it
-                // Until the trasnfer is complete
+                // Until the transfer is complete
                 return ApprenticeshipStatus.InProgress;
             }
             else if (learner?.CompletionStatus == 3)
