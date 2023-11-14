@@ -1,10 +1,10 @@
-﻿
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransactions;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransaction;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.TrackEmailTransactionClick;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetFeedbackTransactions;
 using System;
 using System.Threading.Tasks;
@@ -71,7 +71,22 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
                 _log.LogError(e, msg);
                 return StatusCode(StatusCodes.Status500InternalServerError, $"{msg}: {e.Message}");
             }
+        }
 
+        [HttpPost("{feedbackTransactionId}/track-click")]
+        public async Task<IActionResult> TrackEmailTransactionClick(long feedbackTransactionId, [FromBody] TrackEmailTransactionClickCommand command)
+        {
+            try
+            {
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                var msg = $"Error attempting to record feedback transaction id [{feedbackTransactionId}] email click";
+                _log.LogError(e, msg);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"{msg}: {e.Message}");
+            }
         }
     }
 }

@@ -21,6 +21,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             services.AddScoped<IProviderAttributeSummaryContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IProviderStarsSummaryContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IFeedbackTransactionContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
+            services.AddScoped<IFeedbackTransactionClickContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IDateTimeHelper, UtcTimeProvider>();
             services.AddScoped<IExitSurveyContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IExclusionContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
