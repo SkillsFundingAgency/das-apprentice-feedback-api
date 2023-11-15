@@ -47,8 +47,8 @@ SET NOCOUNT ON;
         -- active targets
         SELECT 
         CASE WHEN ep1.[MonthsBeforeEnd] IS NULL 
-             THEN DATEADD(month,[MonthsFromStart],[StartDate]) 
-             ELSE GREATEST(CONVERT(date,@CreatedOn),[StartDate],DATEADD(month,0-[MonthsBeforeEnd],[EndDate])) END SendAfter,
+             THEN LEAST(DATEADD(month,[MonthsFromStart],[StartDate]),[EndDate])
+             ELSE GREATEST(LEAST(CONVERT(date,@CreatedOn),[EndDate]),[StartDate],DATEADD(month,0-[MonthsBeforeEnd],[EndDate])) END SendAfter,
         [TemplateName] , [StartDate], [EndDate], aft.[Id] ApprenticeFeedbackTargetId,
         ep1.[Id] seqn
         FROM 
@@ -78,7 +78,7 @@ SET NOCOUNT ON;
         CROSS JOIN [dbo].[EngagementEmails] ep1 
         WHERE ep1.[ProgrammeType] = aft.[DurationType]
         AND ( ep1.[MonthsBeforeEnd] IS NOT NULL -- this always includes the Start/Welcome email and PreEPA 
-              OR DATEADD(month,[MonthsFromStart],[StartDate]) BETWEEN EOMONTH(@CreatedOn) AND EOMONTH([EndDate])
+              OR DATEADD(month,[MonthsFromStart],[StartDate]) BETWEEN DATEADD(month,-1,DATEADD(day,1,EOMONTH(@CreatedOn))) AND EOMONTH([EndDate])
             )
         )
 
