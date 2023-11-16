@@ -65,7 +65,7 @@ SET NOCOUNT ON;
             AND [Withdrawn] = 0
             AND [StartDate] IS NOT NULL
             AND [EndDate] IS NOT NULL
-            AND [EndDate] > DATEADD(month,-1,DATEADD(day,1,EOMONTH(@CreatedOn))) -- End date after start of the current month
+            AND [EndDate] >= DATEADD(month,-1,DATEADD(day,1,EOMONTH(@CreatedOn))) -- End date after start of the current month
             AND [Status] != 3 -- i.e. not (yet) Complete
             -- that have not yet had Engagement Emails added
             AND NOT EXISTS (
