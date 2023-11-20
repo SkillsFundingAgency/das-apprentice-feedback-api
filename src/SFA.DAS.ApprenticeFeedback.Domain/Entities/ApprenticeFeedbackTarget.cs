@@ -74,7 +74,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                     Status = (int)FeedbackTargetStatus.Complete;
                     FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_Complete;
                 }
-                else if (Status == (int)FeedbackTargetStatus.NotYetActive && myApprenticeship != null)
+                else if (Status == (int)FeedbackTargetStatus.Unknown && myApprenticeship != null)
                 {
                     // If the feedback target is not yet active then no learner record was previously received, initialize the
                     // feedback target to default values obtained from the apprentice accounts so that the engagement email
