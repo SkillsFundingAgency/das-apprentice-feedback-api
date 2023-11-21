@@ -9,6 +9,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Collections.Generic;
+using System.Configuration.Provider;
 using System.Linq;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
@@ -209,6 +210,35 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
                 target.Status.Should().Be((int)FeedbackTargetStatus.Complete);
                 target.EligibilityCalculationDate.Should().Be(now);
                 target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Deny_Complete);
+            }
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndLearnerIsNull_AndTargetUnknown_StoresMyApprenticeshipDetails(
+            MyApprenticeship myApprenticeship,
+            ApplicationSettings settings,
+            Domain.Entities.ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.Status = (int)FeedbackTargetStatus.Unknown;
+            var now = DateTime.UtcNow;
+            var dateTimeHelper = new SpecifiedTimeProvider(now);
+            myApprenticeship.TrainingCode = 10.ToString();
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(null, myApprenticeship, settings, dateTimeHelper);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                target.Status.Should().Be((int)FeedbackTargetStatus.Unknown);
+                target.EligibilityCalculationDate.Should().Be(now);
+                target.Ukprn.Should().Be(myApprenticeship.TrainingProviderId);
+                target.ProviderName.Should().Be(myApprenticeship.TrainingProviderName);
+                target.StandardUId.Should().Be(myApprenticeship.StandardUId);
+                target.LarsCode.Should().Be(int.TryParse(myApprenticeship.TrainingCode, out int parsedValue) ? (int?)parsedValue : null);
+                target.StartDate.Should().Be(myApprenticeship.StartDate);
+                target.EndDate.Should().Be(myApprenticeship.EndDate);
             }
         }
 
