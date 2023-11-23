@@ -21,14 +21,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
            [Frozen] Mock<IFeedbackTransactionContext> dataContext,
            GenerateFeedbackTransactionsCommandHandler handler)
         {
-            //Arrange
-            //dataContext.Setup(s => s.GenerateFeedbackTransactionsAsync(settings.FeedbackTransactionSentDateAgeDays));
-
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
 
             result.Should().BeOfType<GenerateFeedbackTransactionsCommandResponse>();
-            dataContext.Verify(s => s.GenerateFeedbackTransactionsAsync(settings.FeedbackTransactionSentDateAgeDays), Times.Once);
+            dataContext.Verify(s => s.GenerateFeedbackTransactionsAsync(settings.FeedbackTransactionSentDateAgeDays, null), Times.Once);
         }
     }
 }
