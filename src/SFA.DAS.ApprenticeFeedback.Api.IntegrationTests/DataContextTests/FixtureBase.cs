@@ -1,7 +1,9 @@
-﻿using SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Models;
-using SFA.DAS.AssessorService.Data.IntegrationTests.Handlers;
+﻿using FluentAssertions;
+using SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers;
+using SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Models;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests
@@ -31,17 +33,26 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests
             return this as T;
         }
 
-        /*public async Task<T> VerifyFeedbackTransactionExists(FeedbackTransactionModel feedbackTransaction)
+        public async Task<T> VerifyFeedbackTransactionExists(FeedbackTransactionModel feedbackTransaction)
         {
             var result = await FeedbackTransactionHandler.QueryFirstOrDefaultAsync(feedbackTransaction);
-            result.Should().NotBeNull();
+            result.Should().NotBeNull(FeedbackTransactionHandler.Because(feedbackTransaction));
 
             return this as T;
         }
 
+
         public async Task<T> VerifyFeedbackTransactionRowCount(int count)
         {
             var result = await FeedbackTransactionHandler.QueryCountAllAsync();
+            result.Should().Be(count);
+
+            return this as T;
+        }
+
+        public async Task<T> VerifyFeedbackTransactionRowCount(Guid apprenticeFeedbackTargetId, int count)
+        {
+            var result = await FeedbackTransactionHandler.QueryCountAllAsync(apprenticeFeedbackTargetId);
             result.Should().Be(count);
 
             return this as T;
@@ -53,7 +64,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests
             result.Should().BeNull();
 
             return this as T;
-        }*/
+        }
 
         public void Dispose()
         {
@@ -63,6 +74,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests
         protected static void DeleteAllRecords()
         {
             ApprenticeFeedbackTargetHandler.DeleteAllRecords();
+            FeedbackTransactionHandler.DeleteAllRecords();
         }
     }
 }

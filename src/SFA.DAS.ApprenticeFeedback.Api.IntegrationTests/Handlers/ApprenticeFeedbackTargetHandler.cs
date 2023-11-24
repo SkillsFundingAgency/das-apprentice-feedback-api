@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
-namespace SFA.DAS.AssessorService.Data.IntegrationTests.Handlers
+namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
 {
-    public static class ApprenticeFeedbackTargetHandler
+    public class ApprenticeFeedbackTargetHandler : HandlerBase
     {
         private static readonly DatabaseService DatabaseService = new DatabaseService();
 
@@ -14,22 +14,22 @@ namespace SFA.DAS.AssessorService.Data.IntegrationTests.Handlers
         {
             var sql =
                 "INSERT INTO [ApprenticeFeedbackTarget] " +
-                    "([Id], " +
-                    "[ApprenticeId], " +
-                    "[ApprenticeshipId], " +
-                    "[Status], " +
-                    "[StartDate], " +
-                    "[EndDate], " +
-                    "[Ukprn], " +
-                    "[ProviderName], " +
-                    "[StandardUId], " +
-                    "[LarsCode], " +
-                    "[StandardName], " +
-                    "[FeedbackEligibility], " +
-                    "[EligibilityCalculationDate], " +
-                    "[CreatedOn], " +
-                    "[UpdatedOn], " +
-                    "[Withdrawn])" +
+                    "([Id]" +
+                    ", [ApprenticeId]" +
+                    ", [ApprenticeshipId]" +
+                    ", [Status]" +
+                    ", [StartDate]" +
+                    ", [EndDate]" +
+                    ", [Ukprn]" +
+                    ", [ProviderName]" +
+                    ", [StandardUId]" +
+                    ", [LarsCode]" +
+                    ", [StandardName]" +
+                    ", [FeedbackEligibility]" +
+                    ", [EligibilityCalculationDate]" +
+                    ", [CreatedOn]" +
+                    ", [UpdatedOn]" +
+                    ", [Withdrawn])" +
                 "VALUES " +
                     "(@id" +
                     ", @apprenticeId" +
