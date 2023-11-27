@@ -12,31 +12,60 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
     public class AddFeedbackTransactionTests : TestBase
     {
         [TestCaseSource(nameof(SingleApprenticeshipTestCases))]
-        public async Task GenerateFeedbackTransactions_VerifyEngagementEmails(EngagementEmailTestData testData)
+        public async Task GenerateFeedbackTransactions_SingleApprenticeships(EngagementEmailTestData apprenticeship)
         {
             using (var fixture = new AddFeedbackTransactionTestsFixture()
-                .WithApprenticeFeedbackTarget(testData.ApprenticeFeedbackTargetId, testData.ApprenticeshipId, testData.StartDate, testData.EndDate))
+                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ApprenticeshipId, apprenticeship.StartDate, apprenticeship.EndDate))
             {
-                var results = await fixture.GenerateFeedbackTransactions(testData.CurrentDate);
+                var results = await fixture.GenerateFeedbackTransactions(apprenticeship.CurrentDate);
 
-                foreach(var expectedTemplate in testData.ExpectedTemplates)
-                {
-                    await results.VerifyFeedbackTransactionExists(
-                        FeedbackTransactionHandler.Create(
-                            null, 
-                            testData.ApprenticeFeedbackTargetId, 
-                            null, 
-                            null, 
-                            null, 
-                            null, 
-                            expectedTemplate.SendAfterDate, 
-                            null, 
-                            expectedTemplate.TemplateName, 
-                            false));
-                }
+                await VerifyEngagementEmails(apprenticeship, results);
 
-                await results.VerifyFeedbackTransactionRowCount(testData.ExpectedTemplates.Count);
-                await results.VerifyFeedbackTransactionRowCount(testData.ApprenticeFeedbackTargetId, testData.ExpectedTemplates.Count);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ExpectedTemplates.Count);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExpectedTemplates.Count);
+            }
+        }
+
+        [Test]
+        public async Task GenerateFeedbackTransaction_MultipleApprenticeships()
+        {
+            var currentDate = new DateTime(2000, 01, 01);
+
+            var apprenticeshipOne = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
+                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6);
+
+            var apprenticeshipTwo = new EngagementEmailTestData(currentDate, 1, 9, Guid.NewGuid(), 1002)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
+                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9);
+
+            var apprenticeshipThree = new EngagementEmailTestData(currentDate, -3, 9, Guid.NewGuid(), 1003)
+                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
+                        .WithExpectedTemplateAtCurrentDate("AppMonthThree")
+                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9);
+
+            using (var fixture = new AddFeedbackTransactionTestsFixture()
+                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
+                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
+                .WithApprenticeFeedbackTarget(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ApprenticeshipId, apprenticeshipThree.StartDate, apprenticeshipThree.EndDate))
+            {
+                var results = await fixture.GenerateFeedbackTransactions(currentDate);
+
+                await VerifyEngagementEmails(apprenticeshipOne, results);
+                await VerifyEngagementEmails(apprenticeshipTwo, results);
+                await VerifyEngagementEmails(apprenticeshipThree, results);
+
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ExpectedTemplates.Count + apprenticeshipTwo.ExpectedTemplates.Count + apprenticeshipThree.ExpectedTemplates.Count);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ExpectedTemplates.Count);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ExpectedTemplates.Count);
             }
         }
 
@@ -294,6 +323,25 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             {
                 ExpectedTemplates.Add((ApprenticeFeedbackTargetId, templateName, sendAfterDate));
                 return this;
+            }
+        }
+
+        private static async Task VerifyEngagementEmails(EngagementEmailTestData apprenticeship, AddFeedbackTransactionTestsFixture results)
+        {
+            foreach (var expectedTemplate in apprenticeship.ExpectedTemplates)
+            {
+                await results.VerifyFeedbackTransactionExists(
+                FeedbackTransactionHandler.Create(
+                    null,
+                    apprenticeship.ApprenticeFeedbackTargetId,
+                    null,
+                    null,
+                    null,
+                    null,
+                    expectedTemplate.SendAfterDate,
+                    null,
+                    expectedTemplate.TemplateName,
+                    false));
             }
         }
 
