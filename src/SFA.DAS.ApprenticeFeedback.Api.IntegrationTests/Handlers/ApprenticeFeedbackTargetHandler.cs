@@ -29,7 +29,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
                     ", [EligibilityCalculationDate]" +
                     ", [CreatedOn]" +
                     ", [UpdatedOn]" +
-                    ", [Withdrawn])" +
+                    ", [Withdrawn]" +
+                    ", [IsTransfer]" +
+                    ", [DateTransferIdentified])" +
                 "VALUES " +
                     "(@id" +
                     ", @apprenticeId" +
@@ -46,7 +48,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
                     ", @eligibilityCalculationDate" +
                     ", @createdOn" +
                     ", @updatedOn" +
-                    ", @withdrawn);";
+                    ", @withdrawn" + 
+                    ", @isTransfer" + 
+                    ", @dateTransferIdentified);";
 
             DatabaseService.Execute(sql, apprenticeFeedbackTarget);
         }
@@ -76,7 +80,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
             DateTime? eligibilityCalculationDate,
             DateTime createdOn,
             DateTime updatedOn,
-            bool withdrawn)
+            bool withdrawn,
+            bool isTransfer,
+            DateTime? dateTransferIdentified)
         {
             return new ApprenticeFeedbackTargetModel
             {
@@ -95,7 +101,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
                 EligibilityCalculationDate = eligibilityCalculationDate,
                 CreatedOn = createdOn,
                 UpdatedOn = updatedOn,
-                Withdrawn = withdrawn
+                Withdrawn = withdrawn,
+                IsTransfer = isTransfer,
+                DateTransferIdentified = dateTransferIdentified
             };
         }
 

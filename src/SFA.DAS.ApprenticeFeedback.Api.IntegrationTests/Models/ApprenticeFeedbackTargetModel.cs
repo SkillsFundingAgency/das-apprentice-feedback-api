@@ -22,5 +22,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Models
         public DateTime CreatedOn { get; set; }
         public DateTime UpdatedOn { get; set; }
         public bool Withdrawn { get; set; }
+        public bool IsTransfer { get; set; }
+        public DateTime? DateTransferIdentified { get; set; }
     }
 }

@@ -6,13 +6,14 @@ using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.GenerateFeedbackTransactions
 {
     public class AddFeedbackTransactionTests : TestBase
     {
         [TestCaseSource(nameof(SingleApprenticeshipTestCases))]
-        public async Task GenerateFeedbackTransactions_SingleApprenticeships(EngagementEmailTestData apprenticeship)
+        public async Task GenerateFeedbackTransactions_SingleApprenticeship_CreatesFeedbackTransactions(EngagementEmailTestData apprenticeship)
         {
             using (var fixture = new AddFeedbackTransactionTestsFixture()
                 .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ApprenticeshipId, apprenticeship.StartDate, apprenticeship.EndDate))
@@ -21,13 +22,13 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 await VerifyEngagementEmails(apprenticeship, results);
 
-                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ExpectedTemplates.Count);
+                results.VerifyCount(apprenticeship.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExpectedTemplates.Count);
             }
         }
 
         [Test]
-        public async Task GenerateFeedbackTransaction_MultipleApprenticeships()
+        public async Task GenerateFeedbackTransaction_MultipleApprenticeships_CreatesFeedbackTransaction()
         {
             var currentDate = new DateTime(2000, 01, 01);
 
@@ -62,10 +63,131 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                 await VerifyEngagementEmails(apprenticeshipTwo, results);
                 await VerifyEngagementEmails(apprenticeshipThree, results);
 
-                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ExpectedTemplates.Count + apprenticeshipTwo.ExpectedTemplates.Count + apprenticeshipThree.ExpectedTemplates.Count);
+                results.VerifyCount(apprenticeshipOne.ExpectedTemplates.Count + apprenticeshipTwo.ExpectedTemplates.Count + apprenticeshipThree.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ExpectedTemplates.Count);
+            }
+        }
+
+        [Test]
+        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithExistingFeedbackTransactions_DoesNotRecreateFeedbackTransaction()
+        {
+            var currentDate = new DateTime(2000, 01, 01);
+
+            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
+                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
+                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6);
+
+            using (var fixture = new AddFeedbackTransactionTestsFixture()
+                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ApprenticeshipId, apprenticeship.StartDate, apprenticeship.EndDate)
+                .WithFeedbackTransactions(apprenticeship))
+            {
+                var results = await fixture.GenerateFeedbackTransactions(currentDate.AddDays(1));
+
+                await VerifyEngagementEmails(apprenticeship, results);
+
+                results.VerifyCount(0);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExpectedTemplates.Count);
+            }
+        }
+
+        [Test]
+        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WhenWithdrawn_DoesNotCreateFeedbackTransaction()
+        {
+            var currentDate = new DateTime(2000, 01, 01);
+
+            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001);
+
+            using (var fixture = new AddFeedbackTransactionTestsFixture()
+                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId,
+                    apprenticeship.ApprenticeshipId,
+                    apprenticeship.StartDate,
+                    apprenticeship.EndDate,
+                    FeedbackTargetStatus.Unknown,
+                    true))
+            {
+                var results = await fixture.GenerateFeedbackTransactions(currentDate);
+
+                results.VerifyCount(0);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, 0);
+            }
+        }
+
+        [Test]
+        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithTransfer_DoesNotCreateFeedbackTransaction()
+        {
+            var currentDate = new DateTime(2000, 01, 01);
+
+            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001);
+
+            using (var fixture = new AddFeedbackTransactionTestsFixture()
+                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, 
+                    apprenticeship.ApprenticeshipId, 
+                    apprenticeship.StartDate, 
+                    apprenticeship.EndDate,
+                    FeedbackTargetStatus.Unknown,
+                    false,
+                    true,
+                    currentDate))
+            {
+                var results = await fixture.GenerateFeedbackTransactions(currentDate);
+
+                results.VerifyCount(0);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, 0);
+            }
+        }
+
+        [TestCase(FeedbackTargetStatus.Unknown)]
+        [TestCase(FeedbackTargetStatus.NotYetActive)]
+        [TestCase(FeedbackTargetStatus.Active)]
+        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithNotComplete_DoesNotCreateFeedbackTransaction(FeedbackTargetStatus feedbackTargetStatus)
+        {
+            var currentDate = new DateTime(2000, 01, 01);
+
+            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001)
+                .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
+                .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
+                .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
+                .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6);
+
+
+            using (var fixture = new AddFeedbackTransactionTestsFixture()
+                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId,
+                    apprenticeship.ApprenticeshipId,
+                    apprenticeship.StartDate,
+                    apprenticeship.EndDate,
+                    feedbackTargetStatus))
+            {
+                var results = await fixture.GenerateFeedbackTransactions(currentDate);
+
+                await VerifyEngagementEmails(apprenticeship, results);
+
+                results.VerifyCount(apprenticeship.ExpectedTemplates.Count);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExpectedTemplates.Count);
+            }
+        }
+
+        [Test]
+        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithComplete_DoesNotCreateFeedbackTransaction()
+        {
+            var currentDate = new DateTime(2000, 01, 01);
+
+            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001);
+
+            using (var fixture = new AddFeedbackTransactionTestsFixture()
+                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId,
+                    apprenticeship.ApprenticeshipId,
+                    apprenticeship.StartDate,
+                    apprenticeship.EndDate,
+                    FeedbackTargetStatus.Complete))
+            {
+                var results = await fixture.GenerateFeedbackTransactions(currentDate);
+
+                results.VerifyCount(0);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, 0);
             }
         }
 
@@ -357,6 +479,21 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             public AddFeedbackTransactionTestsFixture()
             {
                 _feedbackTransactionContext = _databaseService.TestContext;
+            }
+
+            public AddFeedbackTransactionTestsFixture WithFeedbackTransactions(EngagementEmailTestData engagementEmailProgramme)
+            {
+                foreach (var expectedTemplate in engagementEmailProgramme.ExpectedTemplates)
+                {
+                    WithFeedbackTransaction(null,
+                        engagementEmailProgramme.ApprenticeFeedbackTargetId,
+                        engagementEmailProgramme.CurrentDate,
+                        expectedTemplate.SendAfterDate,
+                        null,
+                        expectedTemplate.TemplateName);
+                }
+
+                return this;
             }
 
             public async Task<AddFeedbackTransactionTestsFixture> GenerateFeedbackTransactions(DateTime dateTimeUtc)

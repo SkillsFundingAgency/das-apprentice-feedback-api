@@ -15,8 +15,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
         {
             var sql =
                 "INSERT INTO [FeedbackTransaction]" +
-                    "([Id] " +
-                    ", [ApprenticeFeedbackTargetId]" +
+                    "([ApprenticeFeedbackTargetId]" +
                     ", [EmailAddress]" +
                     ", [FirstName]" +
                     ", [TemplateId]" +
@@ -26,8 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
                     ", [TemplateName]" + 
                     ", [IsSuppressed]) " +
                 "VALUES " +
-                    "(@id" +
-                    ", @apprenticeFeedbackTargetId" +
+                    "(@apprenticeFeedbackTargetId" +
                     ", @emailAddress" +
                     ", @firstName" +
                     ", @templateId" +
