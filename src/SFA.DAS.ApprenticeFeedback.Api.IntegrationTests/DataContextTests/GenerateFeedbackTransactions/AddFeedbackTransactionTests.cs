@@ -10,7 +10,7 @@ using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.GenerateFeedbackTransactions
 {
-    public class AddFeedbackTransactionTests : TestBase
+    public class AddFeedbackTransactionTests : TestsBase
     {
         [TestCaseSource(nameof(SingleApprenticeshipTestCases))]
         public async Task GenerateFeedbackTransactions_SingleApprenticeship_CreatesFeedbackTransactions(EngagementEmailTestData apprenticeship)

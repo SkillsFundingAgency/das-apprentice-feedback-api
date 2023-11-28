@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests
 {
-    public class TestBase
+    public class TestsBase
     {
         private readonly DatabaseService _databaseService = new DatabaseService();
         
