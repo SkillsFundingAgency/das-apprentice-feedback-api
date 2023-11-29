@@ -14,7 +14,7 @@ SET NOCOUNT ON;
     BEGIN TRANSACTION T1;
 
     DECLARE @Count INT;
-    DECLARE @ExecutedUtcDate DATETIME = COALESCE(@specifiedUtcDate, GETUTCDATE())
+    DECLARE @CurrentUtcDate DATETIME = COALESCE(@specifiedUtcDate, GETUTCDATE())
 
     BEGIN TRY;
 
@@ -45,7 +45,7 @@ SET NOCOUNT ON;
         SELECT 
         CASE WHEN ep1.[MonthsBeforeEnd] IS NULL 
              THEN LEAST(DATEADD(month,[MonthsFromStart],[StartDate]),[EndDate])
-             ELSE GREATEST(LEAST(CONVERT(date,@ExecutedUtcDate),[EndDate]),[StartDate],DATEADD(month,0-[MonthsBeforeEnd],[EndDate])) END SendAfter,
+             ELSE GREATEST(LEAST(CONVERT(date,@CurrentUtcDate),[EndDate]),[StartDate],DATEADD(month,0-[MonthsBeforeEnd],[EndDate])) END SendAfter,
         [TemplateName] , [StartDate], [EndDate], aft.[Id] ApprenticeFeedbackTargetId,
         ep1.[Id] seqn
         FROM 
@@ -53,7 +53,7 @@ SET NOCOUNT ON;
             -- all potential active and new start targets
             SELECT [Id], [StartDate], [EndDate]
             -- start date to be from the start of the previous month
-            ,CASE WHEN [StartDate] > EOMONTH(DATEADD(month,-2,@ExecutedUtcDate)) THEN 'start' ELSE 'active' END +
+            ,CASE WHEN [StartDate] > EOMONTH(DATEADD(month,-2,@CurrentUtcDate)) THEN 'start' ELSE 'active' END +
              CASE WHEN DATEDIFF(month,[StartDate],[EndDate]) <= 24 THEN 'short' ELSE 'long' END [DurationType]
             ,DATEDIFF(month,[StartDate],[EndDate]) PlannedDuration
             FROM [dbo].[ApprenticeFeedbackTarget] aft1
@@ -62,7 +62,7 @@ SET NOCOUNT ON;
             AND [Withdrawn] = 0
             AND [StartDate] IS NOT NULL
             AND [EndDate] IS NOT NULL
-            AND [EndDate] >= DATEADD(month,-1,DATEADD(day,1,EOMONTH(@ExecutedUtcDate))) -- End date after start of the current month
+            AND [EndDate] >= DATEADD(month,-1,DATEADD(day,1,EOMONTH(@CurrentUtcDate))) -- End date after start of the current month
             AND [Status] != 3 -- i.e. not (yet) Complete
             -- that have not yet had Engagement Emails added
             AND NOT EXISTS (
@@ -75,7 +75,7 @@ SET NOCOUNT ON;
         CROSS JOIN [dbo].[EngagementEmails] ep1 
         WHERE ep1.[ProgrammeType] = aft.[DurationType]
         AND ( ep1.[MonthsBeforeEnd] IS NOT NULL -- this always includes the Start/Welcome email and PreEPA 
-              OR DATEADD(month,[MonthsFromStart],[StartDate]) BETWEEN DATEADD(month,-1,DATEADD(day,1,EOMONTH(@ExecutedUtcDate))) AND EOMONTH([EndDate])
+              OR DATEADD(month,[MonthsFromStart],[StartDate]) BETWEEN DATEADD(month,-1,DATEADD(day,1,EOMONTH(@CurrentUtcDate))) AND EOMONTH([EndDate])
             )
         )
 
@@ -97,7 +97,7 @@ SET NOCOUNT ON;
             FROM [dbo].[ApprenticeFeedbackTarget] aft1
             WHERE aft1.[Status] = 3 -- was completed
             OR aft1.[Withdrawn] = 1 -- was withdrawn
-            OR aft1.[EndDate] < DATEADD(month,-2,EOMONTH(@ExecutedUtcDate)) -- is beyond planned or estimated end date
+            OR aft1.[EndDate] < DATEADD(month,-2,EOMONTH(@CurrentUtcDate)) -- is beyond planned or estimated end date
             --
             UNION
             -- find superseded Apprenticeships
@@ -118,7 +118,7 @@ SET NOCOUNT ON;
             FROM [dbo].[FeedbackTransaction] ft1
             JOIN Old_Apprenticeships aft on aft.[Id] = ft1.[ApprenticeFeedbackTargetId]
             WHERE 1=1
-            AND ft1.[SendAfter] >= @ExecutedUtcDate
+            AND ft1.[SendAfter] >= @CurrentUtcDate
             AND ft1.[SentDate] IS NULL
             AND ft1.[TemplateName] IS NOT NULL
             AND ft1.[TemplateName] IN (SELECT [TemplateName] FROM [dbo].[EngagementEmails] ) 
@@ -138,7 +138,7 @@ SET NOCOUNT ON;
      IF @Error_Code = 0 AND XACT_STATE() = 1 
         COMMIT TRANSACTION T1;
         
-    SELECT @Count AS Count, @ExecutedUtcDate AS CreatedOn;
+    SELECT @Count AS Count, @CurrentUtcDate AS CreatedOn;
 
 END;
 

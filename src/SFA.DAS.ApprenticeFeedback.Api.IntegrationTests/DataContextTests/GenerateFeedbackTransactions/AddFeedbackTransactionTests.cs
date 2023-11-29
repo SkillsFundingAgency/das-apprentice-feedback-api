@@ -1,9 +1,4 @@
-﻿using FluentAssertions;
-using NLog.LayoutRenderers;
-using NUnit.Framework;
-using SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers;
-using SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Services;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;

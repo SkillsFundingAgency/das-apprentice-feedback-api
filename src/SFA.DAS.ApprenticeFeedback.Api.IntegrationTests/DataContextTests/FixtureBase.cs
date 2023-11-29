@@ -28,7 +28,21 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests
             bool isTransfer = false,
             DateTime? dateTransferIdentified = null)
         {
-            var apprenticeFeedbackTarget = ApprenticeFeedbackTargetHandler.Create(id, Guid.NewGuid(), apprenticeshipId,
+            return WithApprenticeFeedbackTarget(id, Guid.NewGuid(), apprenticeshipId, startDate, endDate, feedbackTargetStatus,
+                withdrawn, isTransfer, dateTransferIdentified);
+        }
+
+        public T WithApprenticeFeedbackTarget(Guid? id,
+            Guid apprenticeId,
+            long apprenticeshipId,
+            DateTime? startDate,
+            DateTime? endDate,
+            FeedbackTargetStatus feedbackTargetStatus = FeedbackTargetStatus.Unknown,
+            bool withdrawn = false,
+            bool isTransfer = false,
+            DateTime? dateTransferIdentified = null)
+        {
+            var apprenticeFeedbackTarget = ApprenticeFeedbackTargetHandler.Create(id, apprenticeId, apprenticeshipId,
                 feedbackTargetStatus, startDate, endDate, 12345678, string.Empty, string.Empty, 123, string.Empty,
                 FeedbackEligibilityStatus.Unknown, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, withdrawn, isTransfer, dateTransferIdentified);
 

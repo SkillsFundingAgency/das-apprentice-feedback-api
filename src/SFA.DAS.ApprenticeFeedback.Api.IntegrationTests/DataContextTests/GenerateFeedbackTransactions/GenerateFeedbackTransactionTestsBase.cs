@@ -47,7 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                 return this;
             }
 
-            public FeedbackTransactionTestData WithExistingTemplateSendAfterMonthsAfterStart(string templateName, int createdOnAfterMonths, int? sendAfterMonths, int? sentAfterMonths)
+            public FeedbackTransactionTestData WithExistingTemplateSendAfterMonthsAfterStart(string templateName, int createdOnAfterMonths, int? sendAfterMonths, int? sentAfterMonths = null)
             {
                 var createdOnAfterDate = CurrentDate.AddMonths(createdOnAfterMonths);
                 var sendAfterDate = sendAfterMonths != null ? StartDate.AddMonths(sendAfterMonths.Value) : (DateTime?)null;

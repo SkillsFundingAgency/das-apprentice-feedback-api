@@ -1,8 +1,4 @@
-﻿using FluentAssertions;
-using NUnit.Framework;
-using SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers;
-using SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Services;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -34,169 +30,79 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             }
         }
 
-        /*[Test]
-        public async Task GenerateFeedbackTransaction_MultipleApprenticeships_CreatesFeedbackTransaction()
+        [Test]
+        public async Task GenerateFeedbackTransaction_MultipleApprenticeships_RemovesOldSuperceededFeedbackTransactions()
         {
             var currentDate = new DateTime(2000, 01, 01);
 
-            var apprenticeshipOne = new FeedbackTransactionTestData(currentDate, 1, 6, Guid.NewGuid(), 1001)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppStart", 0, null)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthThree", 3, null)
-                        .WithExistingTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 6, null)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", 6, null);
+            var apprenticeId = Guid.NewGuid();
 
-            var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, 1, 9, Guid.NewGuid(), 1002)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppStart", 0, null)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthThree", 3, null)
-                        .WithExistingTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 6, null)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", 6, null)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthNine", 9, null);
+            var apprenticeshipOne = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppStart", -2, 0)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthThree", -2, 3)
+                        .WithExistingTemplateSendAfterMonthsBeforeEnd("AppPreEpa", -2, 6)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", -2, 6);
 
-            var apprenticeshipThree = new FeedbackTransactionTestData(currentDate, -3, 9, Guid.NewGuid(), 1003)
-                        .WithExistingTemplateAtCurrentDate("AppWelcome", null)
-                        .WithExistingTemplateAtCurrentDate("AppMonthThree")
-                        .WithExistingTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 6, null)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", 6, null)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthNine", 9, null);
+            var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 9, Guid.NewGuid(), 1002)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExistingTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9);
 
-            using (var fixture = new RemoveFeedbackTransactionFixture()
-                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ApprenticeshipId, apprenticeshipThree.StartDate, apprenticeshipThree.EndDate))
+            using (var fixture = new GenerateFeedbackTransactionTestsFixture()
+                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
+                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
+                .WithExistingFeedbackTransactions(apprenticeshipOne)
+                .WithExistingFeedbackTransactions(apprenticeshipTwo))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
 
-                await VerifyEngagementEmails(apprenticeshipOne, results);
-                await VerifyEngagementEmails(apprenticeshipTwo, results);
-                await VerifyEngagementEmails(apprenticeshipThree, results);
+                await results.VerifyExpectedTemplates(apprenticeshipOne);
+                await results.VerifyExpectedTemplates(apprenticeshipTwo);
 
-                results.VerifyCount(apprenticeshipOne.ExpectedTemplates.Count + apprenticeshipTwo.ExpectedTemplates.Count + apprenticeshipThree.ExpectedTemplates.Count);
+                results.VerifyCount(0);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ExpectedTemplates.Count);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ExpectedTemplates.Count);
             }
         }
 
-        [Test]
-        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithExistingFeedbackTransactions_DoesNotRecreateFeedbackTransaction()
+        [Ignore("Feedback transaction are created and then removed for the superceeded apprenticeship but count is reported as total created ")]
+        public async Task GenerateFeedbackTransaction_MultipleApprenticeships_RemovesNewSuperceededFeedbackTransactions()
         {
             var currentDate = new DateTime(2000, 01, 01);
 
-            var apprenticeship = new FeedbackTransactionTestData(currentDate, 1, 6, Guid.NewGuid(), 1001)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppStart", 0, null)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthThree", 3, null)
-                        .WithExistingTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 6, null)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", 6, null);
+            var apprenticeId = Guid.NewGuid();
 
-            using (var fixture = new RemoveFeedbackTransactionFixture()
-                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ApprenticeshipId, apprenticeship.StartDate, apprenticeship.EndDate)
-                .WithFeedbackTransactions(apprenticeship))
-            {
-                var results = await fixture.GenerateFeedbackTransactions(currentDate.AddDays(1));
+            var apprenticeshipOne = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001);
+            var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 9, Guid.NewGuid(), 1002)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9);
 
-                await VerifyEngagementEmails(apprenticeship, results);
-
-                results.VerifyCount(0);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExpectedTemplates.Count);
-            }
-        }
-
-        [Test]
-        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WhenWithdrawn_DoesNotCreateFeedbackTransaction()
-        {
-            var currentDate = new DateTime(2000, 01, 01);
-
-            var apprenticeship = new FeedbackTransactionTestData(currentDate, 1, 6, Guid.NewGuid(), 1001);
-
-            using (var fixture = new RemoveFeedbackTransactionFixture()
-                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId,
-                    apprenticeship.ApprenticeshipId,
-                    apprenticeship.StartDate,
-                    apprenticeship.EndDate,
-                    FeedbackTargetStatus.Unknown,
-                    true))
+            using (var fixture = new GenerateFeedbackTransactionTestsFixture()
+                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
+                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
+                .WithExistingFeedbackTransactions(apprenticeshipOne)
+                .WithExistingFeedbackTransactions(apprenticeshipTwo))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
 
-                results.VerifyCount(0);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, 0);
+                await results.VerifyExpectedTemplates(apprenticeshipOne);
+                await results.VerifyExpectedTemplates(apprenticeshipTwo);
+
+                results.VerifyCount(apprenticeshipTwo.ExpectedTemplates.Count);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ExpectedTemplates.Count);
             }
         }
-
-        [Test]
-        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithTransfer_DoesNotCreateFeedbackTransaction()
-        {
-            var currentDate = new DateTime(2000, 01, 01);
-
-            var apprenticeship = new FeedbackTransactionTestData(currentDate, 1, 6, Guid.NewGuid(), 1001);
-
-            using (var fixture = new RemoveFeedbackTransactionFixture()
-                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, 
-                    apprenticeship.ApprenticeshipId, 
-                    apprenticeship.StartDate, 
-                    apprenticeship.EndDate,
-                    FeedbackTargetStatus.Unknown,
-                    false,
-                    true,
-                    currentDate))
-            {
-                var results = await fixture.GenerateFeedbackTransactions(currentDate);
-
-                results.VerifyCount(0);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, 0);
-            }
-        }
-
-        [TestCase(FeedbackTargetStatus.Unknown)]
-        [TestCase(FeedbackTargetStatus.NotYetActive)]
-        [TestCase(FeedbackTargetStatus.Active)]
-        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithNotComplete_DoesNotCreateFeedbackTransaction(FeedbackTargetStatus feedbackTargetStatus)
-        {
-            var currentDate = new DateTime(2000, 01, 01);
-
-            var apprenticeship = new FeedbackTransactionTestData(currentDate, 1, 6, Guid.NewGuid(), 1001)
-                .WithExistingTemplateSendAfterMonthsAfterStart("AppStart", 0, null)
-                .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthThree", 3, null)
-                .WithExistingTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 6, null)
-                .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", 6, null);
-
-
-            using (var fixture = new RemoveFeedbackTransactionFixture()
-                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId,
-                    apprenticeship.ApprenticeshipId,
-                    apprenticeship.StartDate,
-                    apprenticeship.EndDate,
-                    feedbackTargetStatus))
-            {
-                var results = await fixture.GenerateFeedbackTransactions(currentDate);
-
-                await VerifyEngagementEmails(apprenticeship, results);
-
-                results.VerifyCount(apprenticeship.ExpectedTemplates.Count);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExpectedTemplates.Count);
-            }
-        }
-
-        [Test]
-        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithComplete_DoesNotCreateFeedbackTransaction()
-        {
-            var currentDate = new DateTime(2000, 01, 01);
-
-            var apprenticeship = new FeedbackTransactionTestData(currentDate, 1, 6, Guid.NewGuid(), 1001);
-
-            using (var fixture = new RemoveFeedbackTransactionFixture()
-                .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId,
-                    apprenticeship.ApprenticeshipId,
-                    apprenticeship.StartDate,
-                    apprenticeship.EndDate,
-                    FeedbackTargetStatus.Complete))
-            {
-                var results = await fixture.GenerateFeedbackTransactions(currentDate);
-
-                results.VerifyCount(0);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, 0);
-            }
-        }*/
 
         public static IEnumerable<TestCaseData> SingleApprenticeshipTestCases
         {
