@@ -37,9 +37,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                 Withdrawn = withdrawn;
             }
 
-            public FeedbackTransactionTestData WithExpectedTemplateSendAfterMonthsAfterStart(string templateName, int? createdOnAfterMonths, int? sendAfterMonths, int? sentAfterMonths)
+            public FeedbackTransactionTestData WithExpectedTemplateSendAfterMonthsAfterStart(string templateName, int? createdOnAfterMonths, int? sendAfterMonths, int? sentAfterMonths = null)
             {
-                var createdOnAfterDate = createdOnAfterMonths != null ? StartDate.AddMonths(createdOnAfterMonths.Value) : (DateTime?)null;
+                var createdOnAfterDate = createdOnAfterMonths != null ? CurrentDate.AddMonths(createdOnAfterMonths.Value) : (DateTime?)null;
                 var sendAfterDate = sendAfterMonths != null ? StartDate.AddMonths(sendAfterMonths.Value) : (DateTime?)null;
                 var sentAfterDate = sentAfterMonths != null ? StartDate.AddMonths(sentAfterMonths.Value) : (DateTime?)null;
 
@@ -49,7 +49,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
             public FeedbackTransactionTestData WithExistingTemplateSendAfterMonthsAfterStart(string templateName, int createdOnAfterMonths, int? sendAfterMonths, int? sentAfterMonths)
             {
-                var createdOnAfterDate = StartDate.AddMonths(createdOnAfterMonths);
+                var createdOnAfterDate = CurrentDate.AddMonths(createdOnAfterMonths);
                 var sendAfterDate = sendAfterMonths != null ? StartDate.AddMonths(sendAfterMonths.Value) : (DateTime?)null;
                 var sentAfterDate = sentAfterMonths != null ? StartDate.AddMonths(sentAfterMonths.Value) : (DateTime?)null;
 
@@ -57,27 +57,27 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                 return this;
             }
 
-            public FeedbackTransactionTestData WithExpectedTemplateSendAfterCurrentDate(string templateName, int? createdOnAfterMonths, int? sentAfterMonths)
+            public FeedbackTransactionTestData WithExpectedTemplateSendAfterCurrentDate(string templateName, int? createdOnAfterMonths, int? sentAfterMonths = null)
             {
-                var createdOnAfterDate = createdOnAfterMonths != null ? StartDate.AddMonths(createdOnAfterMonths.Value) : (DateTime?)null;
+                var createdOnAfterDate = createdOnAfterMonths != null ? CurrentDate.AddMonths(createdOnAfterMonths.Value) : (DateTime?)null;
                 var sentDate = sentAfterMonths != null ? StartDate.AddMonths(sentAfterMonths.Value) : (DateTime?)null;
 
                 ExpectedTemplates.Add((ApprenticeFeedbackTargetId, templateName, createdOnAfterDate, CurrentDate, sentDate));
                 return this;
             }
 
-            public FeedbackTransactionTestData WithExistingTemplateSendAfterCurrentDate(string templateName, int createdOnAfterMonths, int? sentAfterMonths)
+            public FeedbackTransactionTestData WithExistingTemplateSendAfterCurrentDate(string templateName, int createdOnAfterMonths, int? sentAfterMonths = null)
             {
-                var createdOnAfterDate = StartDate.AddMonths(createdOnAfterMonths);
+                var createdOnAfterDate = CurrentDate.AddMonths(createdOnAfterMonths);
                 var sentAfterDate = sentAfterMonths != null ? StartDate.AddMonths(sentAfterMonths.Value) : (DateTime?)null;
 
                 ExistingTemplates.Add((ApprenticeFeedbackTargetId, templateName, createdOnAfterDate, CurrentDate, sentAfterDate));
                 return this;
             }
 
-            public FeedbackTransactionTestData WithExpectedTemplateSendAfterMonthsBeforeEnd(string templateName, int? createdOnAfterMonths, int? sendAfterMonths, int? sentAfterMonths)
+            public FeedbackTransactionTestData WithExpectedTemplateSendAfterMonthsBeforeEnd(string templateName, int? createdOnAfterMonths, int? sendAfterMonths, int? sentAfterMonths = null)
             {
-                var createdOnAfterDate = createdOnAfterMonths != null ? StartDate.AddMonths(createdOnAfterMonths.Value) : (DateTime?)null;
+                var createdOnAfterDate = createdOnAfterMonths != null ? CurrentDate.AddMonths(createdOnAfterMonths.Value) : (DateTime?)null;
                 var sendAfterDate = sendAfterMonths != null ? EndDate.AddMonths(-sendAfterMonths.Value) : (DateTime?)null;
                 var sentDate = sentAfterMonths != null ? EndDate.AddMonths(-sentAfterMonths.Value) : (DateTime?)null;
 
@@ -85,9 +85,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                 return this;
             }
 
-            public FeedbackTransactionTestData WithExistingTemplateSendAfterMonthsBeforeEnd(string templateName, int createdOnAfterMonths, int? sendAfterMonths, int? sentAfterMonths)
+            public FeedbackTransactionTestData WithExistingTemplateSendAfterMonthsBeforeEnd(string templateName, int createdOnAfterMonths, int? sendAfterMonths, int? sentAfterMonths = null)
             {
-                var createdOnAfterDate = StartDate.AddMonths(createdOnAfterMonths);
+                var createdOnAfterDate = CurrentDate.AddMonths(createdOnAfterMonths);
                 var sendAfterDate = sendAfterMonths != null ? EndDate.AddMonths(-sendAfterMonths.Value) : (DateTime?)null;
                 var sentDate = sentAfterMonths != null ? EndDate.AddMonths(-sentAfterMonths.Value) : (DateTime?)null;
 
@@ -95,9 +95,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                 return this;
             }
 
-            public FeedbackTransactionTestData WithExistingTemplateSendAfterSpecifiedDate(string templateName, int createdOnAfterMonths, DateTime? sendAfterDate, int? sentAfterMonths)
+            public FeedbackTransactionTestData WithExistingTemplateSendAfterSpecifiedDate(string templateName, int createdOnAfterMonths, DateTime? sendAfterDate, int? sentAfterMonths = null)
             {
-                var createdOnAfterDate = StartDate.AddMonths(createdOnAfterMonths);
+                var createdOnAfterDate = CurrentDate.AddMonths(createdOnAfterMonths);
                 var sentDate = sentAfterMonths != null ? EndDate.AddMonths(-sentAfterMonths.Value) : (DateTime?)null;
 
                 ExistingTemplates.Add((ApprenticeFeedbackTargetId, templateName, createdOnAfterDate, sendAfterDate, sentDate));

@@ -1,4 +1,5 @@
 ﻿using FluentAssertions;
+using NLog.LayoutRenderers;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers;
 using SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Services;
@@ -10,17 +11,17 @@ using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.GenerateFeedbackTransactions
 {
-    public class AddFeedbackTransactionTests : TestsBase
+    public class AddFeedbackTransactionTests : GenerateFeedbackTransactionTestsBase
     {
         [TestCaseSource(nameof(SingleApprenticeshipTestCases))]
-        public async Task GenerateFeedbackTransactions_SingleApprenticeship_CreatesFeedbackTransactions(EngagementEmailTestData apprenticeship)
+        public async Task GenerateFeedbackTransactions_SingleApprenticeship_CreatesFeedbackTransactions(FeedbackTransactionTestData apprenticeship)
         {
-            using (var fixture = new AddFeedbackTransactionTestsFixture()
+            using (var fixture = new GenerateFeedbackTransactionTestsFixture()
                 .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ApprenticeshipId, apprenticeship.StartDate, apprenticeship.EndDate))
             {
                 var results = await fixture.GenerateFeedbackTransactions(apprenticeship.CurrentDate);
 
-                await VerifyEngagementEmails(apprenticeship, results);
+                await results.VerifyExpectedTemplates(apprenticeship);
 
                 results.VerifyCount(apprenticeship.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExpectedTemplates.Count);
@@ -32,36 +33,36 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         {
             var currentDate = new DateTime(2000, 01, 01);
 
-            var apprenticeshipOne = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6);
+            var apprenticeshipOne = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3, null)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6, null);
 
-            var apprenticeshipTwo = new EngagementEmailTestData(currentDate, 1, 9, Guid.NewGuid(), 1002)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9);
+            var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 9, Guid.NewGuid(), 1002)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3, null)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine",0 , 9, null);
 
-            var apprenticeshipThree = new EngagementEmailTestData(currentDate, -3, 9, Guid.NewGuid(), 1003)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtCurrentDate("AppMonthThree")
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9);
+            var apprenticeshipThree = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-3), 9, Guid.NewGuid(), 1003)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0, null)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppMonthThree", 0, null)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9, null);
 
-            using (var fixture = new AddFeedbackTransactionTestsFixture()
+            using (var fixture = new GenerateFeedbackTransactionTestsFixture()
                 .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
                 .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
                 .WithApprenticeFeedbackTarget(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ApprenticeshipId, apprenticeshipThree.StartDate, apprenticeshipThree.EndDate))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
 
-                await VerifyEngagementEmails(apprenticeshipOne, results);
-                await VerifyEngagementEmails(apprenticeshipTwo, results);
-                await VerifyEngagementEmails(apprenticeshipThree, results);
+                await fixture.VerifyExpectedTemplates(apprenticeshipOne);
+                await fixture.VerifyExpectedTemplates(apprenticeshipTwo);
+                await fixture.VerifyExpectedTemplates(apprenticeshipThree);
 
                 results.VerifyCount(apprenticeshipOne.ExpectedTemplates.Count + apprenticeshipTwo.ExpectedTemplates.Count + apprenticeshipThree.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
@@ -75,22 +76,22 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         {
             var currentDate = new DateTime(2000, 01, 01);
 
-            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6);
+            var apprenticeship = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppStart", 0, 0, 0)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 0, 3)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppPreEpa", 0, 0, 6)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 0, 6);
 
-            using (var fixture = new AddFeedbackTransactionTestsFixture()
+            using (var fixture = new GenerateFeedbackTransactionTestsFixture()
                 .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ApprenticeshipId, apprenticeship.StartDate, apprenticeship.EndDate)
-                .WithFeedbackTransactions(apprenticeship))
+                .WithExistingFeedbackTransactions(apprenticeship))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate.AddDays(1));
 
-                await VerifyEngagementEmails(apprenticeship, results);
+                await results.VerifyExpectedTemplates(apprenticeship);
 
                 results.VerifyCount(0);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExpectedTemplates.Count);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExistingTemplates.Count);
             }
         }
 
@@ -99,9 +100,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         {
             var currentDate = new DateTime(2000, 01, 01);
 
-            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001);
+            var apprenticeship = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001);
 
-            using (var fixture = new AddFeedbackTransactionTestsFixture()
+            using (var fixture = new GenerateFeedbackTransactionTestsFixture()
                 .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId,
                     apprenticeship.ApprenticeshipId,
                     apprenticeship.StartDate,
@@ -121,9 +122,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         {
             var currentDate = new DateTime(2000, 01, 01);
 
-            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001);
+            var apprenticeship = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001);
 
-            using (var fixture = new AddFeedbackTransactionTestsFixture()
+            using (var fixture = new GenerateFeedbackTransactionTestsFixture()
                 .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, 
                     apprenticeship.ApprenticeshipId, 
                     apprenticeship.StartDate, 
@@ -143,18 +144,18 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         [TestCase(FeedbackTargetStatus.Unknown)]
         [TestCase(FeedbackTargetStatus.NotYetActive)]
         [TestCase(FeedbackTargetStatus.Active)]
-        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithNotComplete_DoesNotCreateFeedbackTransaction(FeedbackTargetStatus feedbackTargetStatus)
+        public async Task GenerateFeedbackTransaction_SingleApprenticeship_WithNotComplete_DoesCreateFeedbackTransaction(FeedbackTargetStatus feedbackTargetStatus)
         {
             var currentDate = new DateTime(2000, 01, 01);
 
-            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001)
-                .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6);
+            var apprenticeship = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6);
 
 
-            using (var fixture = new AddFeedbackTransactionTestsFixture()
+            using (var fixture = new GenerateFeedbackTransactionTestsFixture()
                 .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId,
                     apprenticeship.ApprenticeshipId,
                     apprenticeship.StartDate,
@@ -163,7 +164,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
 
-                await VerifyEngagementEmails(apprenticeship, results);
+                await results.VerifyExpectedTemplates(apprenticeship);
 
                 results.VerifyCount(apprenticeship.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ExpectedTemplates.Count);
@@ -175,9 +176,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         {
             var currentDate = new DateTime(2000, 01, 01);
 
-            var apprenticeship = new EngagementEmailTestData(currentDate, 1, 6, Guid.NewGuid(), 1001);
+            var apprenticeship = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001);
 
-            using (var fixture = new AddFeedbackTransactionTestsFixture()
+            using (var fixture = new GenerateFeedbackTransactionTestsFixture()
                 .WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId,
                     apprenticeship.ApprenticeshipId,
                     apprenticeship.StartDate,
@@ -196,317 +197,211 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             get
             {
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), 1, 3, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 3))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(2000, 02, 01), 3, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 3))
                     .SetName("StartOneMonthsInFutureAndRunForThreeMonths");
-
+                
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), 1, 6, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(2000, 02, 01), 6, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6))
                     .SetName("StartOneMonthsInFutureAndRunForSixMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), 1, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(2000, 02, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartOneMonthsInFutureAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), 1, 18, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthEighteen", 18))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(2000, 02, 01), 18, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthEighteen", 0, 18))
                     .SetName("StartOneMonthsInFutureAndRunForEigheenMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), 1, 24, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthEighteen", 18))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(2000, 02, 01), 24, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthEighteen", 0, 18))
                     .SetName("StartOneMonthsInFutureAndRunForTwentyFourMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), 1, 36, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 12)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 24)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 36))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(2000, 02, 01), 36, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 12)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 24)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 36))
                     .SetName("StartOneMonthsInFutureAndRunForThirtySixMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), 1, 48, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 12)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 24)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 36)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 48))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(2000, 02, 01), 48, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 12)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 24)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 36)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 48))
                     .SetName("StartOneMonthsInFutureAndRunForFortyEightMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), 1, 60, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 12)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 24)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 36)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 48)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 60))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(2000, 02, 01), 60, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 12)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 24)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 36)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 48)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 60))
                     .SetName("StartOneMonthsInFutureAndRunForSixtyMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), 1, 72, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppStart", 0)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 12)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 24)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 36)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 48)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 60)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppAnnual", 72))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(2000, 02, 01), 72, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 12)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 24)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 36)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 48)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 60)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppAnnual", 0, 72))
                     .SetName("StartOneMonthsInFutureAndRunForSeventyTwoMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -1, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppStart")
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 12, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppStart", 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartOneMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -2, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 11, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartTwoMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -3, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthThree", 3)
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 10, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartThreeMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -4, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 09, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartFourMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -5, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 08, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartFiveMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -6, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtMonthsBeforeEnd("AppPreEpa", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthSix", 6)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 07, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartSixMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -7, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtCurrentDate("AppPreEpa")
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 06, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppPreEpa", 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartSevenMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -8, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtCurrentDate("AppPreEpa")
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 05, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppPreEpa", 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartEightMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -9, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtCurrentDate("AppPreEpa")
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthNine", 9)
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 04, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppPreEpa", 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartNineMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -10, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtCurrentDate("AppPreEpa")
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 03, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppPreEpa", 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartTenMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -11, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtCurrentDate("AppPreEpa")
-                        .WithExpectedTemplateAtMonthsAfterStart("AppMonthTwelve", 12))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 02, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppPreEpa", 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthTwelve", 0, 12))
                     .SetName("StartElevenMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -12, 12, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateAtCurrentDate("AppWelcome")
-                        .WithExpectedTemplateAtCurrentDate("AppPreEpa")
-                        .WithExpectedTemplateAtCurrentDate("AppMonthTwelve"))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1999, 01, 01), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppPreEpa", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("AppMonthTwelve", 0))
                     .SetName("StartTwelveMonthsInPastAndRunForTwelveMonths");
 
                 yield return new TestCaseData(
-                    new EngagementEmailTestData(new DateTime(2000, 01, 01), -13, 12, Guid.NewGuid(), 1001))
+                    new FeedbackTransactionTestData(new DateTime(2000, 01, 01), new DateTime(1998, 12, 01), 12, Guid.NewGuid(), 1001))
                     .SetName("StartThirteenMonthsInPastAndRunForTwelveMonths");
-            }
-        }
-
-        public class EngagementEmailTestData
-        {
-            public Guid ApprenticeFeedbackTargetId { get; set; }
-            public long ApprenticeshipId { get; set; }
-            public DateTime StartDate { get; set; }
-            public DateTime EndDate { get; set; }
-            public DateTime CurrentDate { get; set; }
-            public List<(Guid ApprenticeFeedbackTargetId, string TemplateName, DateTime SendAfterDate)> ExpectedTemplates { get; } 
-                = new List<(Guid ApprenticeFeedbackTargetId, string TemplateName, DateTime SendAfterDate)>();
-
-            public EngagementEmailTestData(DateTime currentDate, int startMonths, int lengthMonths, Guid apprenticeFeedbackTargetId, long apprenticeshipId)
-            {
-                CurrentDate = currentDate;
-                StartDate = currentDate.AddMonths(startMonths);
-                EndDate = StartDate.AddMonths(lengthMonths);
-                ApprenticeFeedbackTargetId = apprenticeFeedbackTargetId;
-                ApprenticeshipId = apprenticeshipId;
-            }
-
-            public EngagementEmailTestData WithExpectedTemplateAtMonthsAfterStart(string templateName, int months)
-            {
-                ExpectedTemplates.Add((ApprenticeFeedbackTargetId, templateName, StartDate.AddMonths(months)));
-                return this;
-            }
-
-            public EngagementEmailTestData WithExpectedTemplateAtCurrentDate(string templateName)
-            {
-                ExpectedTemplates.Add((ApprenticeFeedbackTargetId, templateName, CurrentDate));
-                return this;
-            }
-
-            public EngagementEmailTestData WithExpectedTemplateAtMonthsBeforeEnd(string templateName, int months)
-            {
-                ExpectedTemplates.Add((ApprenticeFeedbackTargetId, templateName, EndDate.AddMonths(-months)));
-                return this;
-            }
-
-            public EngagementEmailTestData WithExpectedTemplate(string templateName, DateTime sendAfterDate)
-            {
-                ExpectedTemplates.Add((ApprenticeFeedbackTargetId, templateName, sendAfterDate));
-                return this;
-            }
-        }
-
-        private static async Task VerifyEngagementEmails(EngagementEmailTestData apprenticeship, AddFeedbackTransactionTestsFixture results)
-        {
-            foreach (var expectedTemplate in apprenticeship.ExpectedTemplates)
-            {
-                await results.VerifyFeedbackTransactionExists(
-                FeedbackTransactionHandler.Create(
-                    null,
-                    apprenticeship.ApprenticeFeedbackTargetId,
-                    null,
-                    null,
-                    null,
-                    null,
-                    expectedTemplate.SendAfterDate,
-                    null,
-                    expectedTemplate.TemplateName,
-                    false));
-            }
-        }
-
-        private class AddFeedbackTransactionTestsFixture : FixtureBase<AddFeedbackTransactionTestsFixture>, IDisposable
-        {
-            private readonly DatabaseService _databaseService = new DatabaseService();
-            private readonly IFeedbackTransactionContext _feedbackTransactionContext;
-
-            public int _feedbackTransactionSentDateAgeDays = 90;
-            public int _count;
-
-
-            public AddFeedbackTransactionTestsFixture()
-            {
-                _feedbackTransactionContext = _databaseService.TestContext;
-            }
-
-            public AddFeedbackTransactionTestsFixture WithFeedbackTransactions(EngagementEmailTestData engagementEmailProgramme)
-            {
-                foreach (var expectedTemplate in engagementEmailProgramme.ExpectedTemplates)
-                {
-                    WithFeedbackTransaction(null,
-                        engagementEmailProgramme.ApprenticeFeedbackTargetId,
-                        engagementEmailProgramme.CurrentDate,
-                        expectedTemplate.SendAfterDate,
-                        null,
-                        expectedTemplate.TemplateName);
-                }
-
-                return this;
-            }
-
-            public async Task<AddFeedbackTransactionTestsFixture> GenerateFeedbackTransactions(DateTime dateTimeUtc)
-            {
-                var result = await _feedbackTransactionContext.GenerateFeedbackTransactionsAsync(_feedbackTransactionSentDateAgeDays, dateTimeUtc);
-                _count = result.Count;
-                return this;
-            }
-
-            public AddFeedbackTransactionTestsFixture VerifyCount(int count)
-            {
-                _count.Should().Be(count);
-                return this;
             }
         }
     }

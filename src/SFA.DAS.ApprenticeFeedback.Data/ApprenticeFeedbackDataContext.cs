@@ -174,26 +174,26 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
         }
 
-        public async Task<GenerateFeedbackTransactionsResult> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays, DateTime? createdOn)
+        public async Task<GenerateFeedbackTransactionsResult> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays, DateTime? specifiedUtcDate)
         {
-            DbParameter parameterFeedbackTransactionSentDateAgeDays = new SqlParameter
+            DbParameter parameterSentDateAgeDays = new SqlParameter
             {
-                ParameterName = "SentDateAgeDays",
+                ParameterName = "sentDateAgeDays",
                 SqlDbType = SqlDbType.Int,
                 Value = feedbackTransactionSentDateAgeDays
             };
 
-            DbParameter parameterCreatedOn = new SqlParameter
+            DbParameter parameterSpecifiedUtcDate = new SqlParameter
             {
-                ParameterName = "CreatedOn",
+                ParameterName = "specifiedUtcDate",
                 SqlDbType = SqlDbType.DateTime,
-                Value = createdOn
+                Value = specifiedUtcDate
             };
 
             var result =
                 await Set<GenerateFeedbackTransactionsResult>()
-                    .FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @SentDateAgeDays, @CreatedOn",
-                        new[] { parameterFeedbackTransactionSentDateAgeDays, parameterCreatedOn })
+                    .FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @sentDateAgeDays, @specifiedUtcDate",
+                        new[] { parameterSentDateAgeDays, parameterSpecifiedUtcDate })
                     .ToListAsync();
 
             return result.FirstOrDefault();
