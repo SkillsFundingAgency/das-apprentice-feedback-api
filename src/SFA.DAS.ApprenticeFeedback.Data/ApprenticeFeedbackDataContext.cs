@@ -180,18 +180,33 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
         public async Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays)
         {
-            DbParameter parameterFeedbackTransactionSentDateAgeDays = new SqlParameter
-            {
-                ParameterName = "SentDateAgeDays",
-                SqlDbType = SqlDbType.Int,
-                Value = feedbackTransactionSentDateAgeDays
-            };
+            var originalTimeout = Database.GetCommandTimeout();
 
-            IEnumerable<GenerateFeedbackTransactionsResult> result =
-                await Set<GenerateFeedbackTransactionsResult>().FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @SentDateAgeDays",
-                                                                           new[] { parameterFeedbackTransactionSentDateAgeDays })
-                                                               .ToListAsync();
-            return result;
+            try
+            {
+                // set command timeout to 30 minutes (1800 seconds) usually this operation would only 
+                // take seconds however when it first runs it will take considerably longer 
+                Database.SetCommandTimeout(1800);
+
+                DbParameter parameterFeedbackTransactionSentDateAgeDays = new SqlParameter
+                {
+                    ParameterName = "SentDateAgeDays",
+                    SqlDbType = SqlDbType.Int,
+                    Value = feedbackTransactionSentDateAgeDays
+                };
+
+                var result = await Set<GenerateFeedbackTransactionsResult>()
+                        .FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @SentDateAgeDays",
+                             new[] { parameterFeedbackTransactionSentDateAgeDays })
+                        .ToListAsync();
+
+                return result;
+            }
+            finally
+            {
+                // reset the command timeout to its original value
+                Database.SetCommandTimeout(originalTimeout);
+            }
         }
     }
 }
