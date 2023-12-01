@@ -9,6 +9,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using SFA.DAS.Testing.AutoFixture;
 using System;
 using System.Collections.Generic;
+using System.Configuration.Provider;
 using System.Linq;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
@@ -201,7 +202,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             var dateTimeHelper = new SpecifiedTimeProvider(now);
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(null, settings, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(null, null, settings, dateTimeHelper);
 
             // Assert
             using (new AssertionScope())
@@ -209,6 +210,35 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
                 target.Status.Should().Be((int)FeedbackTargetStatus.Complete);
                 target.EligibilityCalculationDate.Should().Be(now);
                 target.FeedbackEligibility.Should().Be((int)FeedbackEligibilityStatus.Deny_Complete);
+            }
+        }
+
+        [Test, RecursiveMoqAutoData]
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndLearnerIsNull_AndTargetUnknown_StoresMyApprenticeshipDetails(
+            MyApprenticeship myApprenticeship,
+            ApplicationSettings settings,
+            Domain.Entities.ApprenticeFeedbackTarget target)
+        {
+            // Arrange
+            target.Status = (int)FeedbackTargetStatus.Unknown;
+            var now = DateTime.UtcNow;
+            var dateTimeHelper = new SpecifiedTimeProvider(now);
+            myApprenticeship.TrainingCode = 10.ToString();
+
+            // Act
+            target.UpdateApprenticeshipFeedbackTarget(null, myApprenticeship, settings, dateTimeHelper);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                target.Status.Should().Be((int)FeedbackTargetStatus.Unknown);
+                target.EligibilityCalculationDate.Should().Be(now);
+                target.Ukprn.Should().Be(myApprenticeship.TrainingProviderId);
+                target.ProviderName.Should().Be(myApprenticeship.TrainingProviderName);
+                target.StandardUId.Should().Be(myApprenticeship.StandardUId);
+                target.LarsCode.Should().Be(int.TryParse(myApprenticeship.TrainingCode, out int parsedValue) ? (int?)parsedValue : null);
+                target.StartDate.Should().Be(myApprenticeship.StartDate);
+                target.EndDate.Should().Be(myApprenticeship.EndDate);
             }
         }
 
@@ -223,7 +253,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             target.Status = (int)FeedbackTargetStatus.Complete;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             using (new AssertionScope())
@@ -244,7 +274,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             Domain.Entities.ApprenticeFeedbackTarget target)
         {
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             using (new AssertionScope())
@@ -272,7 +302,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.ApprovalsStopDate = DateTime.Now.AddDays(-7);
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             using (new AssertionScope())
@@ -296,7 +326,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.LearnActEndDate = learner.ApprovalsStopDate.Value.AddDays(-7);
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             using (new AssertionScope())
@@ -321,7 +351,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.EstimatedEndDate = DateTime.Now.AddDays(-7);
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             using (new AssertionScope())
@@ -346,7 +376,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.IsTransfer = true;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             using (new AssertionScope())
@@ -371,7 +401,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.ApprovalsPauseDate = DateTime.Now.AddDays(-7);
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.ApprovalsPauseDate);
@@ -390,7 +420,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.LearnActEndDate = DateTime.Now.AddDays(-7);
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.LearnActEndDate);
@@ -409,7 +439,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.EstimatedEndDate = DateTime.Now.AddDays(-7);
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.EstimatedEndDate);
@@ -427,7 +457,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.LearnActEndDate = DateTime.Now.AddDays(-7);
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             target.EndDate.Should().Be(learner.LearnActEndDate);
@@ -446,7 +476,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             var previousCalculatedDate = target.EligibilityCalculationDate;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             using (new AssertionScope())
@@ -497,7 +527,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.CompletionStatus = completionStatus;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper);
 
             // Assert
             using (new AssertionScope())
@@ -545,7 +575,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.LearnStartDate = dateTimeHelper.Now;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper);
 
             // Assert
             using (new AssertionScope())
@@ -583,7 +613,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.LearnActEndDate = dateTimeHelper.Now;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper);
 
             // Assert
             using (new AssertionScope())
@@ -625,7 +655,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.LearnActEndDate = dateTimeHelper.Now;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper);
 
             // Assert
             using (new AssertionScope())
@@ -678,7 +708,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.IsTransfer = false;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             target.Withdrawn.Should().BeTrue();
@@ -704,7 +734,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
             learner.IsTransfer = false;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
 
             // Assert
             using (new AssertionScope())

@@ -351,3 +351,4 @@ MigrationBackup/
 
 src/.idea/.idea.SFA.DAS.ApprenticeFeedback.Api/.idea/
 /src/SFA.DAS.ApprenticeFeedback.Api.IntegrationTests/connectionStrings.Local.json
+/src/SFA.DAS.ApprenticeFeedback.Api.IntegrationTests/connectionStrings.Local.json

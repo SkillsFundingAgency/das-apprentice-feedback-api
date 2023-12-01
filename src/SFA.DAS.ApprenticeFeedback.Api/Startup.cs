@@ -56,6 +56,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(s => s.GetRequiredService<IOptions<ApplicationSettings>>().Value);
 
+            services.Configure<ApplicationUrls>(Configuration.GetSection("ApplicationUrls"));
+            services.AddSingleton(s => s.GetRequiredService<IOptions<ApplicationUrls>>().Value);
+
             services.Configure<AzureActiveDirectoryApiConfiguration>(Configuration.GetSection("AzureAd"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value);
             var azureAdConfiguration = Configuration.GetSection("AzureAd").Get<AzureActiveDirectoryApiConfiguration>();
