@@ -36,6 +36,33 @@ SET NOCOUNT ON;
 
         SET @Count = @@ROWCOUNT;
 
+        -- identify any apprenticeships which have redundant Email Engagement programmes 
+        -- from Feedback transactions where Apprenticeship has been replaced, withdrawn or superseded
+        -- or has past the ended date; and where the Apprentice has confirmed a more recent Apprenticeship
+        SELECT 
+            aft1.[Id]
+        INTO 
+            #OldApprenticeships
+        FROM [dbo].[ApprenticeFeedbackTarget] aft1
+        WHERE 
+            aft1.[Status] = 3 -- was completed
+            OR aft1.[Withdrawn] = 1 -- was withdrawn
+            OR aft1.[EndDate] < DATEADD(month,-2,EOMONTH(@CurrentUtcDate)) -- is beyond planned or estimated end date
+        UNION
+            -- find superseded Apprenticeships
+        SELECT 
+            aft2.[Id]
+        FROM 
+        (
+            SELECT 
+                [Id],
+                COUNT(*) OVER (PARTITION BY [ApprenticeId]) HowManyApprenticeships,
+                ROW_NUMBER() OVER (PARTITION BY [ApprenticeId] ORDER BY [CreatedOn] DESC, [ApprenticeshipId] DESC) seqn
+            FROM [dbo].[ApprenticeFeedbackTarget]
+        ) aft2
+        WHERE HowManyApprenticeships > 1
+        AND seqn > 1;
+
         -- This data will be inserted in to FeedbackTransaction
         -- Add the Email Engagement programme preset data for New Starts and Active targets
         WITH EmailSchedule
@@ -65,11 +92,18 @@ SET NOCOUNT ON;
             AND [EndDate] >= DATEADD(month,-1,DATEADD(day,1,EOMONTH(@CurrentUtcDate))) -- End date after start of the current month
             AND [Status] != 3 -- i.e. not (yet) Complete
             -- that have not yet had Engagement Emails added
-            AND NOT EXISTS (
-                SELECT null 
+            AND NOT EXISTS 
+            (
+                SELECT NULL 
                 FROM  [dbo].[FeedbackTransaction] ft1
                 JOIN [dbo].[EngagementEmails] ep1 on ep1.[TemplateName] = ft1.[TemplateName]
                 WHERE ft1.[ApprenticeFeedbackTargetId] = aft1.[Id]
+            )
+            AND NOT EXISTS
+            (
+               SELECT NULL
+               FROM #OldApprenticeships oa
+               WHERE oa.Id = aft1.[Id]
             )
         ) aft
         CROSS JOIN [dbo].[EngagementEmails] ep1 
@@ -87,36 +121,12 @@ SET NOCOUNT ON;
 
         SET @Count = @Count + @@ROWCOUNT;
         
-        -- remove any redundant Email Engagement programmes from Feedback transactions
-        -- where Apprenticeship has been replaced,  withdrawn or superseded
-        -- or has past the ended date
-        -- and where the Apprentice has confirmed a more recent Apprenticeship
-        WITH Old_Apprenticeships
-        AS (
-            SELECT aft1.[Id]
-            FROM [dbo].[ApprenticeFeedbackTarget] aft1
-            WHERE aft1.[Status] = 3 -- was completed
-            OR aft1.[Withdrawn] = 1 -- was withdrawn
-            OR aft1.[EndDate] < DATEADD(month,-2,EOMONTH(@CurrentUtcDate)) -- is beyond planned or estimated end date
-            --
-            UNION
-            -- find superseded Apprenticeships
-            SELECT aft2.[Id]
-            FROM (
-              SELECT [Id]
-              ,COUNT(*) OVER (PARTITION BY [ApprenticeId]) HowManyApprenticeships
-              ,ROW_NUMBER() OVER (PARTITION BY [ApprenticeId] ORDER BY [CreatedOn] DESC, [ApprenticeshipId] DESC) seqn
-              FROM [dbo].[ApprenticeFeedbackTarget]
-              ) aft2
-            WHERE HowManyApprenticeships > 1
-            AND seqn > 1
-        )
         --Remove pre-planned Engagement Email transactions that are no longer relevant
         MERGE INTO [dbo].[FeedbackTransaction] fbt
         USING (
             SELECT ft1.[Id]
             FROM [dbo].[FeedbackTransaction] ft1
-            JOIN Old_Apprenticeships aft on aft.[Id] = ft1.[ApprenticeFeedbackTargetId]
+            JOIN #OldApprenticeships oa on oa.[Id] = ft1.[ApprenticeFeedbackTargetId]
             WHERE 1=1
             AND ft1.[SendAfter] >= @CurrentUtcDate
             AND ft1.[SentDate] IS NULL

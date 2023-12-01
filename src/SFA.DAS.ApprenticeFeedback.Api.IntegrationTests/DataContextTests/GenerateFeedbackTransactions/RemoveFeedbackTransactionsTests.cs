@@ -72,7 +72,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             }
         }
 
-        [Ignore("Feedback transaction are created and then removed for the superceeded apprenticeship but count is reported as total created ")]
+        [Test]
         public async Task GenerateFeedbackTransaction_MultipleApprenticeships_RemovesNewSuperceededFeedbackTransactions()
         {
             var currentDate = new DateTime(2000, 01, 01);
