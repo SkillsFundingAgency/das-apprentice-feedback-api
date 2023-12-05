@@ -1,4 +1,4 @@
-﻿CREATE FUNCTION [dbo].[IdentityOldApprenticeships]
+﻿CREATE FUNCTION [dbo].[IdentifyOldApprenticeships]
 (
     @CurrentUtcDate DATETIME
 )

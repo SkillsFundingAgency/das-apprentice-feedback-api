@@ -76,7 +76,7 @@ SET NOCOUNT ON;
             AND NOT EXISTS
             (
                SELECT NULL
-               FROM [dbo].[IdentityOldApprenticeships](@CurrentUtcDate) oa
+               FROM [dbo].[IdentifyOldApprenticeships](@CurrentUtcDate) oa
                WHERE oa.Id = aft1.[Id]
             )
         ) aft
@@ -97,7 +97,7 @@ SET NOCOUNT ON;
         
         -- remove existing Engagement Email transactions that are for apprenticeships which are no longer relevant
         DELETE fbt FROM [dbo].[FeedbackTransaction] fbt
-        INNER JOIN [dbo].[IdentityOldApprenticeships](@CurrentUtcDate) oa on oa.[Id] = fbt.[ApprenticeFeedbackTargetId]
+        INNER JOIN [dbo].[IdentifyOldApprenticeships](@CurrentUtcDate) oa on oa.[Id] = fbt.[ApprenticeFeedbackTargetId]
         WHERE 1=1
             AND fbt.[SendAfter] >= @CurrentUtcDate
             AND fbt.[SentDate] IS NULL
