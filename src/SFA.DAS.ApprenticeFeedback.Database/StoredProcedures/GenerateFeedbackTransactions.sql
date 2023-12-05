@@ -36,33 +36,6 @@ SET NOCOUNT ON;
 
         SET @Count = @@ROWCOUNT;
 
-        -- identify any apprenticeships which have redundant Email Engagement programmes 
-        -- from Feedback transactions where Apprenticeship has been replaced, withdrawn or superseded
-        -- or has past the ended date; and where the Apprentice has confirmed a more recent Apprenticeship
-        SELECT 
-            aft1.[Id]
-        INTO 
-            #OldApprenticeships
-        FROM [dbo].[ApprenticeFeedbackTarget] aft1
-        WHERE 
-            aft1.[Status] = 3 -- was completed
-            OR aft1.[Withdrawn] = 1 -- was withdrawn
-            OR aft1.[EndDate] < DATEADD(month,-2,EOMONTH(@CurrentUtcDate)) -- is beyond planned or estimated end date
-        UNION
-            -- find superseded Apprenticeships
-        SELECT 
-            aft2.[Id]
-        FROM 
-        (
-            SELECT 
-                [Id],
-                COUNT(*) OVER (PARTITION BY [ApprenticeId]) HowManyApprenticeships,
-                ROW_NUMBER() OVER (PARTITION BY [ApprenticeId] ORDER BY [CreatedOn] DESC, [ApprenticeshipId] DESC) seqn
-            FROM [dbo].[ApprenticeFeedbackTarget]
-        ) aft2
-        WHERE HowManyApprenticeships > 1
-        AND seqn > 1;
-
         -- This data will be inserted in to FeedbackTransaction
         -- Add the Email Engagement programme preset data for New Starts and Active targets
         WITH EmailSchedule
@@ -99,10 +72,11 @@ SET NOCOUNT ON;
                 JOIN [dbo].[EngagementEmails] ep1 on ep1.[TemplateName] = ft1.[TemplateName]
                 WHERE ft1.[ApprenticeFeedbackTargetId] = aft1.[Id]
             )
+            -- that are not for apprenticeships which are no longer relevant
             AND NOT EXISTS
             (
                SELECT NULL
-               FROM #OldApprenticeships oa
+               FROM [dbo].[IdentityOldApprenticeships](@CurrentUtcDate) oa
                WHERE oa.Id = aft1.[Id]
             )
         ) aft
@@ -113,7 +87,7 @@ SET NOCOUNT ON;
             )
         )
 
-        -- add a new Email Engagement programme for any Apprenticeships that have recently started and do not yet have one setup
+        -- add new Engagement Email transactions for apprenticeships that do not yet have them
         INSERT INTO [dbo].[FeedbackTransaction] ([ApprenticeFeedbackTargetId] ,[CreatedOn] ,[SendAfter], [TemplateName])
         SELECT [ApprenticeFeedbackTargetId], COALESCE(@specifiedUtcDate, GETUTCDATE()) [CreatedOn], SendAfter, [TemplateName] 
         FROM EmailSchedule
@@ -121,21 +95,14 @@ SET NOCOUNT ON;
 
         SET @Count = @Count + @@ROWCOUNT;
         
-        --Remove pre-planned Engagement Email transactions that are no longer relevant
-        MERGE INTO [dbo].[FeedbackTransaction] fbt
-        USING (
-            SELECT ft1.[Id]
-            FROM [dbo].[FeedbackTransaction] ft1
-            JOIN #OldApprenticeships oa on oa.[Id] = ft1.[ApprenticeFeedbackTargetId]
-            WHERE 1=1
-            AND ft1.[SendAfter] >= @CurrentUtcDate
-            AND ft1.[SentDate] IS NULL
-            AND ft1.[TemplateName] IS NOT NULL
-            AND ft1.[TemplateName] IN (SELECT [TemplateName] FROM [dbo].[EngagementEmails] ) 
-        ) del
-        ON (fbt.[Id] = del.[Id])
-        WHEN MATCHED THEN
-        DELETE;
+        -- remove existing Engagement Email transactions that are for apprenticeships which are no longer relevant
+        DELETE fbt FROM [dbo].[FeedbackTransaction] fbt
+        INNER JOIN [dbo].[IdentityOldApprenticeships](@CurrentUtcDate) oa on oa.[Id] = fbt.[ApprenticeFeedbackTargetId]
+        WHERE 1=1
+            AND fbt.[SendAfter] >= @CurrentUtcDate
+            AND fbt.[SentDate] IS NULL
+            AND fbt.[TemplateName] IS NOT NULL
+            AND fbt.[TemplateName] IN (SELECT [TemplateName] FROM [dbo].[EngagementEmails] ) 
 
     END TRY
     BEGIN CATCH;

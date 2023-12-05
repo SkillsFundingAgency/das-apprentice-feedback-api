@@ -61,6 +61,7 @@
     <Folder Include="Scripts" />
     <Folder Include="Views" />
     <Folder Include="StoredProcedures" />
+    <Folder Include="Functions" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\ApprenticeFeedbackResult.sql" />
@@ -81,6 +82,7 @@
     <Build Include="Tables\FeedbackEligibilityStatus.sql" />
     <Build Include="Tables\FeedbackTargetStatus.sql" />
     <Build Include="Tables\FeedbackTransactionClick.sql" />
+    <Build Include="Functions\IdentityOldApprenticeships.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
