@@ -25,7 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             var result = await handler.Handle(command, CancellationToken.None);
 
             result.Should().BeOfType<GenerateFeedbackTransactionsCommandResponse>();
-            dataContext.Verify(s => s.GenerateFeedbackTransactionsAsync(settings.FeedbackTransactionSentDateAgeDays), Times.Once);
+            dataContext.Verify(s => s.GenerateFeedbackTransactionsAsync(settings.FeedbackTransactionSentDateAgeDays, null), Times.Once);
         }
     }
 }

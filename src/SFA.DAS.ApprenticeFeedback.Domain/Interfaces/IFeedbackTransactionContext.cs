@@ -11,7 +11,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
     public interface IFeedbackTransactionContext : IEntityContext<FeedbackTransaction>
     {
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
-        Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays);
+        Task<GenerateFeedbackTransactionsResult> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays, DateTime? specifiedUtcDate);
 
         public async Task<FeedbackTransaction> FindByIdIncludeFeedbackTargetAsync(long feedbackTransactionid)
             => await Entities

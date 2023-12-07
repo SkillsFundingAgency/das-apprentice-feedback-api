@@ -23,16 +23,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransa
         public async Task<GenerateFeedbackTransactionsCommandResponse> Handle(GenerateFeedbackTransactionsCommand request, CancellationToken cancellationToken)
         {
             int feedbackTransactionSentDateAgeDays = _settings.FeedbackTransactionSentDateAgeDays > 0 ? _settings.FeedbackTransactionSentDateAgeDays : 90;
-            IEnumerable<GenerateFeedbackTransactionsResult> result = await _transactionContext.GenerateFeedbackTransactionsAsync(feedbackTransactionSentDateAgeDays);
+            var result = await _transactionContext.GenerateFeedbackTransactionsAsync(feedbackTransactionSentDateAgeDays, null);
 
-            if (result == null || !result.Any())
-                return new GenerateFeedbackTransactionsCommandResponse();
-            else
-                return new GenerateFeedbackTransactionsCommandResponse
-                {
-                    Count = result.First().Count,
-                    CreatedOn = result.First().CreatedOn
-                };
+            return new GenerateFeedbackTransactionsCommandResponse
+            {
+                Count = result.Count,
+                CreatedOn = result.CreatedOn
+            };
         }
     }
 }

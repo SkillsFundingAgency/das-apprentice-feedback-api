@@ -8,9 +8,9 @@ using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -73,7 +73,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (_configuration == null || _azureServiceTokenProvider == null)
+            if (_configuration == null)
             {
                 return;
             }
@@ -81,7 +81,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             var connection = new SqlConnection
             {
                 ConnectionString = _configuration.DbConnectionString,
-                AccessToken = _azureServiceTokenProvider.GetAccessTokenAsync(AzureResource).Result
+                AccessToken = _azureServiceTokenProvider?.GetAccessTokenAsync(AzureResource).Result
             };
             optionsBuilder.UseSqlServer(connection);
         }
@@ -178,7 +178,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
         }
 
-        public async Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays)
+        public async Task<GenerateFeedbackTransactionsResult> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays, DateTime? specifiedUtcDate)
         {
             var originalTimeout = Database.GetCommandTimeout();
 
@@ -188,19 +188,27 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 // take seconds however when it first runs it will take considerably longer 
                 Database.SetCommandTimeout(1800);
 
-                DbParameter parameterFeedbackTransactionSentDateAgeDays = new SqlParameter
+                DbParameter parameterSentDateAgeDays = new SqlParameter
                 {
-                    ParameterName = "SentDateAgeDays",
+                    ParameterName = "sentDateAgeDays",
                     SqlDbType = SqlDbType.Int,
                     Value = feedbackTransactionSentDateAgeDays
                 };
 
-                var result = await Set<GenerateFeedbackTransactionsResult>()
-                        .FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @SentDateAgeDays",
-                             new[] { parameterFeedbackTransactionSentDateAgeDays })
-                        .ToListAsync();
+                DbParameter parameterSpecifiedUtcDate = new SqlParameter
+                {
+                    ParameterName = "specifiedUtcDate",
+                    SqlDbType = SqlDbType.DateTime,
+                    Value = specifiedUtcDate
+                };
 
-                return result;
+                var result =
+                await Set<GenerateFeedbackTransactionsResult>()
+                    .FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @sentDateAgeDays, @specifiedUtcDate",
+                        new[] { parameterSentDateAgeDays, parameterSpecifiedUtcDate })
+                    .ToListAsync();
+
+                return result.FirstOrDefault();
             }
             finally
             {
