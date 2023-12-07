@@ -8,5 +8,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
     {
         public Guid ApprenticeFeedbackTargetId { get; set; }
         public Learner Learner { get; set; }
+        public MyApprenticeship MyApprenticeship { get; set;}
     }
 }

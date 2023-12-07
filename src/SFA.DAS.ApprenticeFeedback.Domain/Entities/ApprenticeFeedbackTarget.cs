@@ -53,12 +53,11 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             };
         }
 
-        public void UpdateApprenticeshipFeedbackTarget(Learner learner, ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper)
+        public void UpdateApprenticeshipFeedbackTarget(Learner learner, MyApprenticeship myApprenticeship, ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper)
         {
             if (Status == (int)FeedbackTargetStatus.Complete)
             {
                 // If it has already been set to Complete, then we don't revert it.
-                // This shouldn't happen but is defensive.
                 return;
             }
 
@@ -66,15 +65,29 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             {
                 // Always update the eligibility calculation date to allow for the daily job.
                 EligibilityCalculationDate = dateTimeHelper.Now;
+
                 if (Status == (int)FeedbackTargetStatus.Active)
                 {
-                    // If Learner is null and the current record is active, Set the target status and eligibility to complete
-                    // The learner record won't be returned if it's superceded by a newer apprenticeship so we account for Null here to mark the record as complete.
-                    // If it's a different status we leave it be ( e.g. if not yet active as Learner record yet to be created )
+                    // If the feedback target is currently active then a learner record was previously recevied; if there is
+                    // no longer a learner record for a currently active feedback target then the apprenticeship may have been
+                    // superceeded and removed, in which case the feedback should be complete
                     Status = (int)FeedbackTargetStatus.Complete;
                     FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_Complete;
                 }
-                return;
+                else if (Status == (int)FeedbackTargetStatus.Unknown && myApprenticeship != null)
+                {
+                    // If the feedback target is not yet active then no learner record was previously received, initialize the
+                    // feedback target to default values obtained from the apprentice accounts so that the engagement email
+                    // programme can be created prior to a learner being received
+                    Ukprn = myApprenticeship.TrainingProviderId;
+                    ProviderName = myApprenticeship.TrainingProviderName;
+                    StandardUId = myApprenticeship.StandardUId;
+                    LarsCode = int.TryParse(myApprenticeship.TrainingCode, out int parsedValue) ? (int?)parsedValue : null;
+                    StartDate = myApprenticeship.StartDate;
+                    EndDate = myApprenticeship.EndDate;
+                }
+
+                return; 
             }
 
             ApprenticeshipStatus = GetApprenticeshipStatus(learner);
@@ -118,7 +131,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
                 } 
                 ?? learner.EstimatedEndDate;
 
-            SetStatusAndEligibility(learner, appSettings, dateTimeHelper);
+            SetStatusAndEligibility(appSettings, dateTimeHelper);
         }
 
         private ApprenticeshipStatus GetApprenticeshipStatus(Learner learner)
@@ -145,26 +158,24 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         /// <summary>
         /// Sets the Status and FeedbackEligibility Fields for the current Apprentice Feedback Target based on supplied data.
         /// </summary>
-        /// <param name="learner">Latest Learner information as supplied from the Assessors Service</param>
         /// <param name="appSettings">App Settings to provide configurable date time values for feedback rules</param>
         /// <param name="dateTimeHelper">DateTimeHelper interface to allow easier mocking for unit tests.</param>
-        public void SetStatusAndEligibility(Learner learner, ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper)
+        public void SetStatusAndEligibility(ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper)
         {
             if (HasApprenticeshipFinishedForFeedback(appSettings, dateTimeHelper))
             {
                 // If end date has passed, we set to complete no matter what, then have to setup the eligibility state.
                 Status = (int)FeedbackTargetStatus.Complete;
 
-                var apprenticeshipStatus = GetApprenticeshipStatus(learner);
                 if (HasProvidedFinalFeedback(LastFeedbackSubmittedDate))
                 {
                     FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_HasGivenFinalFeedback;
                 }
-                else if (apprenticeshipStatus == ApprenticeshipStatus.Stopped)
+                else if (ApprenticeshipStatus == ApprenticeshipStatus.Stopped)
                 {
                     FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_TooLateAfterWithdrawing;
                 }
-                else if (apprenticeshipStatus == ApprenticeshipStatus.Paused)
+                else if (ApprenticeshipStatus == ApprenticeshipStatus.Paused)
                 {
                     FeedbackEligibility = (int)FeedbackEligibilityStatus.Deny_TooLateAfterPausing;
                 }
