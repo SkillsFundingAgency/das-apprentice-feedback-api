@@ -12,6 +12,7 @@ using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 using SFA.DAS.ApprenticeFeedback.Api.Authorization;
 using SFA.DAS.ApprenticeFeedback.Api.Configuration;
+using SFA.DAS.ApprenticeFeedback.Api.TaskQueue;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
@@ -68,6 +69,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api
                 .AddApiAuthorization(isDevelopment);
 
             services.AddDatabaseRegistration(Configuration);
+
+            services.AddHostedService<TaskQueueHostedService>();
 
             services.AddHealthChecks()
                 .AddCheck<ApprenticeFeedbackHealthCheck>(nameof(ApprenticeFeedbackHealthCheck));
