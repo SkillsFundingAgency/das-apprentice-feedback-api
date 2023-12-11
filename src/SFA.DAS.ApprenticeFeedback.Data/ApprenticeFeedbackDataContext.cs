@@ -199,7 +199,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 {
                     ParameterName = "specifiedUtcDate",
                     SqlDbType = SqlDbType.DateTime,
-                    Value = specifiedUtcDate
+                    Value = specifiedUtcDate.HasValue ? specifiedUtcDate : DBNull.Value
                 };
 
                 var result =
