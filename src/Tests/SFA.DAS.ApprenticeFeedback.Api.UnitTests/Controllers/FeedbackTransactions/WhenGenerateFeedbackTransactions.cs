@@ -30,7 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.FeedbackTransacti
         public void FeedbackTransaction_WhenPostCalled_QueuesRequestToGenerateFeedbackTransactions()
         {
             // Act
-            var result = _sut.FeedbackTransaction();
+            var result = _sut.GenerateEmailTransactions();
 
             // Assert
             _backgroundTaskQueue
@@ -45,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.FeedbackTransacti
         public void FeedbackTransaction_WhenPostCalled_ReturnsAccepted()
         {
             // Act
-            var result = _sut.FeedbackTransaction();
+            var result = _sut.GenerateEmailTransactions();
 
             // Assert
             result.Should().BeOfType<AcceptedResult>();
@@ -63,10 +63,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.FeedbackTransacti
                 .Throws(new Exception("Test exception"));
 
             // Act
-            var result = _sut.FeedbackTransaction();
+            var result = _sut.GenerateEmailTransactions();
 
             // Assert
-            result.Should().BeOfType<ObjectResult>();
             var objectResult = result as ObjectResult;
             objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
         }

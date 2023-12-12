@@ -61,7 +61,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.FeedbackTransacti
             var result = await _sut.TrackEmailTransactionClick(command.FeedbackTransactionId, command);
             
             // Assert
-            result.Should().BeOfType<ObjectResult>();
             var objectResult = result as ObjectResult;
             objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
         }

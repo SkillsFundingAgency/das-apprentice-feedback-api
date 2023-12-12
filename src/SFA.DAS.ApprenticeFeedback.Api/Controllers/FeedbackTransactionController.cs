@@ -28,8 +28,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             _log = log;
         }
 
-        [HttpPost]
-        public IActionResult FeedbackTransaction()
+        [HttpPost("generate-email-transactions")]
+        public IActionResult GenerateEmailTransactions()
         {
             var requestName = "generate feedback transactions";
 

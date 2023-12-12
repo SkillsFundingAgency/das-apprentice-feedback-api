@@ -44,7 +44,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.TaskQueue
                         {
                             var started = DateTime.UtcNow;
                             var response = await scopedMediator.Send(request, token);
-                            var duration = started - DateTime.UtcNow;
+                            var duration = DateTime.UtcNow - started;
 
                             responseAction(response, duration, scopedLogger);
                         };
