@@ -178,7 +178,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
         }
 
-        public async Task<GenerateFeedbackTransactionsResult> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays, DateTime? specifiedUtcDate)
+        public async Task<GenerateFeedbackTransactionsResult> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays, DateTime? specifiedUtcDate, CancellationToken cancellationToken)
         {
             var originalTimeout = Database.GetCommandTimeout();
 
@@ -206,7 +206,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 await Set<GenerateFeedbackTransactionsResult>()
                     .FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @sentDateAgeDays, @specifiedUtcDate",
                         new[] { parameterSentDateAgeDays, parameterSpecifiedUtcDate })
-                    .ToListAsync();
+                    .ToListAsync(cancellationToken);
 
                 return result.FirstOrDefault();
             }

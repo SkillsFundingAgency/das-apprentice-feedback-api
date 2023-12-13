@@ -5,6 +5,7 @@ using SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTa
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
@@ -135,7 +136,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
             public async Task<GenerateFeedbackTransactionTestsFixture> GenerateFeedbackTransactions(DateTime dateTimeUtc)
             {
-                var result = await _feedbackTransactionContext.GenerateFeedbackTransactionsAsync(_feedbackTransactionSentDateAgeDays, dateTimeUtc);
+                var result = await _feedbackTransactionContext.GenerateFeedbackTransactionsAsync(_feedbackTransactionSentDateAgeDays, dateTimeUtc, CancellationToken.None);
                 _count = result.Count;
                 return this;
             }

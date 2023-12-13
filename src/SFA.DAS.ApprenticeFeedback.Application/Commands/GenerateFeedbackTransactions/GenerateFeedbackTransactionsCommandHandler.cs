@@ -1,9 +1,6 @@
 ﻿using MediatR;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
-using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,7 +20,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransa
         public async Task<GenerateFeedbackTransactionsCommandResponse> Handle(GenerateFeedbackTransactionsCommand request, CancellationToken cancellationToken)
         {
             int feedbackTransactionSentDateAgeDays = _settings.FeedbackTransactionSentDateAgeDays > 0 ? _settings.FeedbackTransactionSentDateAgeDays : 90;
-            var result = await _transactionContext.GenerateFeedbackTransactionsAsync(feedbackTransactionSentDateAgeDays, null);
+            var result = await _transactionContext.GenerateFeedbackTransactionsAsync(feedbackTransactionSentDateAgeDays, null, cancellationToken);
 
             return new GenerateFeedbackTransactionsCommandResponse
             {

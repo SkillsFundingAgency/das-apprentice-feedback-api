@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Api.Controllers;
+using SFA.DAS.ApprenticeFeedback.Api.TaskQueue;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.TrackEmailTransactionClick;
 using SFA.DAS.Testing.AutoFixture;
 using System;
@@ -14,16 +15,18 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.FeedbackTransaction
 {
-    public class TrackEmailTransactionClick
+    public class WhenTrackEmailTransactionClick
     {
         FeedbackTransactionController _sut;
-        Mock<IMediator> _mockMediator;
+        Mock<IMediator> _mediator;
+        Mock<IBackgroundTaskQueue> _backgroundTaskQueue;
 
         [SetUp]
         public void Setup()
         {
-            _mockMediator = new Mock<IMediator>();
-            _sut = new FeedbackTransactionController(_mockMediator.Object, Mock.Of<ILogger<FeedbackTransactionController>>());
+            _mediator = new Mock<IMediator>();
+            _backgroundTaskQueue = new Mock<IBackgroundTaskQueue>();
+            _sut = new FeedbackTransactionController(_mediator.Object, _backgroundTaskQueue.Object, Mock.Of<ILogger<FeedbackTransactionController>>());
         }
 
         [Test, RecursiveMoqAutoData]
@@ -31,12 +34,16 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.FeedbackTransacti
             TrackEmailTransactionClickCommand command,
             TrackEmailTransactionClickResponse response)
         {
-            _mockMediator.Setup(s => s.Send(
+            // Arrange
+            _mediator.Setup(s => s.Send(
                 It.IsAny<TrackEmailTransactionClickCommand>(),
                 It.IsAny<CancellationToken>())
             ).ReturnsAsync(response);
 
+            // Act
             var result = await _sut.TrackEmailTransactionClick(command.FeedbackTransactionId, command);
+            
+            // Assert
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(response);
         }
 
@@ -44,14 +51,18 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.FeedbackTransacti
         public async Task And_MediatorThrowsException_Then_ReturnBadRequest(
             TrackEmailTransactionClickCommand command)
         {
-            _mockMediator.Setup(s => s.Send(
+            // Arrange
+            _mediator.Setup(s => s.Send(
                 It.IsAny<TrackEmailTransactionClickCommand>(),
                 It.IsAny<CancellationToken>())
             ).Throws(new Exception());
 
+            // Act
             var result = await _sut.TrackEmailTransactionClick(command.FeedbackTransactionId, command);
-            result.Should().BeOfType<ObjectResult>();
-            Assert.AreEqual(StatusCodes.Status500InternalServerError, ((ObjectResult)result).StatusCode);
+            
+            // Assert
+            var objectResult = result as ObjectResult;
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
         }
     }
 }
