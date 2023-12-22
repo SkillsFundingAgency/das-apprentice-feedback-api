@@ -24,6 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
         public DateTime CreatedOn { get; private set; }
         public DateTime UpdatedOn { get; private set; }
         public bool Withdrawn { get; private set; }
+        public ApprenticeshipStatus ApprenticeshipStatus { get; set; }
 
         public static implicit operator ApprenticeFeedbackTarget(Entities.ApprenticeFeedbackTarget source)
         {
@@ -51,6 +52,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
                 CreatedOn = source.CreatedOn,
                 UpdatedOn = source.UpdatedOn,
                 Withdrawn = source.Withdrawn,
+                ApprenticeshipStatus = source.ApprenticeshipStatus
             };
         }
     }

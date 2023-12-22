@@ -7,9 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="2.1.24" />
     <PackageReference Include="FluentAssertions" Version="6.5.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="6.0.12" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="6.0.12" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.9.4" />
     <PackageReference Include="NUnit" Version="3.13.3" />
     <PackageReference Include="NUnit3TestAdapter" Version="4.3.1" />
@@ -22,5 +23,26 @@
   <ItemGroup>
     <ProjectReference Include="..\SFA.DAS.ApprenticeFeedback.Api\SFA.DAS.ApprenticeFeedback.Api.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="LookupData\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\SFA.DAS.ApprenticeFeedback.Database\Scripts\AddEngagementEmails.sql" Link="LookupData\AddEngagementEmails.sql">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="connectionStrings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="connectionStrings.local.json">
+      <DependentUpon>connectionStrings.json</DependentUpon>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 
 </Project>

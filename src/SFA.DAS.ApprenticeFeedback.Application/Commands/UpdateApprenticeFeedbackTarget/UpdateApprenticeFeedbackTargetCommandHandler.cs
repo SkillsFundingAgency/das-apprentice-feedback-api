@@ -38,7 +38,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedba
                 throw new InvalidOperationException(error);
             }
 
-            apprenticeFeedbackTarget.UpdateApprenticeshipFeedbackTarget(request.Learner, _appSettings, _dateTimeHelper);
+            apprenticeFeedbackTarget.UpdateApprenticeshipFeedbackTarget(request.Learner, request.MyApprenticeship, _appSettings, _dateTimeHelper);
             await _apprenticeFeedbackTargetContext.SaveChangesAsync();
 
             return new UpdateApprenticeFeedbackTargetCommandResponse { UpdatedApprenticeFeedbackTarget = apprenticeFeedbackTarget };

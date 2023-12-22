@@ -1,11 +1,13 @@
-﻿
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.ApprenticeFeedback.Api.TaskQueue;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransactions;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransaction;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.TrackEmailTransactionClick;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetFeedbackTransactions;
+using SFA.DAS.ApprenticeFeedback.Application.Extensions;
 using System;
 using System.Threading.Tasks;
 
@@ -16,27 +18,40 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
     public class FeedbackTransactionController : ControllerBase
     {
         private readonly IMediator _mediator;
+        private readonly IBackgroundTaskQueue _taskQueue;
         private readonly ILogger<FeedbackTransactionController> _log;
 
-        public FeedbackTransactionController(IMediator mediator, ILogger<FeedbackTransactionController> log)
+        public FeedbackTransactionController(IMediator mediator, IBackgroundTaskQueue taskQueue, ILogger<FeedbackTransactionController> log)
         {
             _mediator = mediator;
+            _taskQueue = taskQueue;
             _log = log;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> FeedbackTransaction()
+        [HttpPost("generate-email-transactions")]
+        public IActionResult GenerateEmailTransactions()
         {
+            var requestName = "generate feedback transactions";
+
             try
             {
-                _log.LogInformation("Starting FeedbackTransaction");
-                var result = await _mediator.Send(new GenerateFeedbackTransactionsCommand());
-                return Ok(result);
+                _log.LogInformation($"Received request to {requestName}");
+
+                _taskQueue.QueueBackgroundRequest(
+                    new GenerateFeedbackTransactionsCommand(), requestName, (response, duration, log) =>
+                    {
+                        var result = response as GenerateFeedbackTransactionsCommandResponse;
+                        log.LogInformation($"Completed request to {requestName}: Resulted in {result.Count} transactions with created date {result.CreatedOn} in {duration.ToReadableString()}");
+                    });
+
+                _log.LogInformation($"Queued request to {requestName}");
+                
+                return Accepted();
             }
             catch (Exception e)
             {
-                _log.LogError(e, "Error attempting to generate feedback transactions");
-                return StatusCode(StatusCodes.Status500InternalServerError, $"Error generating feedback transactions: {e.Message}");
+                _log.LogError(e, $"Error attempting to {requestName}");
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Error {requestName}: {e.Message}");
             }
         }
 
@@ -71,7 +86,22 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
                 _log.LogError(e, msg);
                 return StatusCode(StatusCodes.Status500InternalServerError, $"{msg}: {e.Message}");
             }
+        }
 
+        [HttpPost("{feedbackTransactionId}/track-click")]
+        public async Task<IActionResult> TrackEmailTransactionClick(long feedbackTransactionId, [FromBody] TrackEmailTransactionClickCommand command)
+        {
+            try
+            {
+                var result = await _mediator.Send(command);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                var msg = $"Error attempting to record feedback transaction id [{feedbackTransactionId}] email click";
+                _log.LogError(e, msg);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"{msg}: {e.Message}");
+            }
         }
     }
 }
