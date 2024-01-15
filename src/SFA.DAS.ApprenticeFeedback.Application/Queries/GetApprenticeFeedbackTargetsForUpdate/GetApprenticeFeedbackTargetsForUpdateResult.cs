@@ -5,6 +5,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
 {
     public class GetApprenticeFeedbackTargetsForUpdateResult
     {
-        public IEnumerable<ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; }
+        public IEnumerable<ApprenticeFeedbackTargetForUpdate> ApprenticeFeedbackTargets { get; set; }
     }
 }

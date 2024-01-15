@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Linq;
@@ -57,13 +58,18 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
                     .StatusNotCompleted()
                     .FeedbackEligibilityNotCalculatedRecently(_dateTimeHelper, _appSettings)
                     .NotGivenFeedbackRecently(_dateTimeHelper, _appSettings)
-                .OrderByDescending(aft => aft.CreatedOn)
-                .Take(request.BatchSize)
-                ;
+                    .OrderByDescending(aft => aft.CreatedOn)
+                    .Take(request.BatchSize)
+                    .Select(aft => new Domain.Models.ApprenticeFeedbackTargetForUpdate
+                    {
+                        ApprenticeFeedbackTargetId = aft.Id,
+                        ApprenticeId = aft.ApprenticeId,
+                        ApprenticeshipId = aft.ApprenticeshipId
+                    });
 
             return new GetApprenticeFeedbackTargetsForUpdateResult
             {
-                ApprenticeFeedbackTargets = apprenticeFeedbackTargets.Select(s => (Domain.Models.ApprenticeFeedbackTarget)s).ToList()
+                ApprenticeFeedbackTargets = await apprenticeFeedbackTargets.ToListAsync()
             };
         }
     }
