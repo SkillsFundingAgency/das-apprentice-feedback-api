@@ -45,7 +45,7 @@ CREATE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_Status]
 GO
 
 CREATE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_Status_CreatedOn]
-	ON [dbo].[ApprenticeFeedbackTarget] ( [Status], [CreatedOn] )
-	INCLUDE ( [ApprenticeId], [ApprenticeshipId], [StartDate], [EligibilityCalculationDate] )
+	ON [dbo].[ApprenticeFeedbackTarget] ( [Status] )
+	INCLUDE ( [ApprenticeId], [ApprenticeshipId], [StartDate], [EligibilityCalculationDate], [CreatedOn] )
 
 GO

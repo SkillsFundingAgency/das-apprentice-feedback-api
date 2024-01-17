@@ -58,7 +58,9 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
                     .StatusNotCompleted()
                     .FeedbackEligibilityNotCalculatedRecently(_dateTimeHelper, _appSettings)
                     .NotGivenFeedbackRecently(_dateTimeHelper, _appSettings)
-                    .OrderByDescending(aft => aft.CreatedOn)
+                    .OrderBy(aft => aft.EligibilityCalculationDate)
+                    .ThenBy(aft => aft.Status)
+                    .ThenByDescending(aft => aft.CreatedOn)
                     .Take(request.BatchSize)
                     .Select(aft => new Domain.Models.ApprenticeFeedbackTargetForUpdate
                     {
