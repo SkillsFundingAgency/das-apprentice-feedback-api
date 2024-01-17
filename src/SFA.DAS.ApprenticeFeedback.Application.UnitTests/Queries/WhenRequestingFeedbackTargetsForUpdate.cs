@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 {
@@ -44,7 +45,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 ApprenticeId = apprenticeId,
                 ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Complete
+                Status = (int)FeedbackTargetStatus.Complete
             };
         }
 
@@ -55,7 +56,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 ApprenticeId = apprenticeId,
                 ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active
+                Status = (int)FeedbackTargetStatus.Active
             };
         }
 
@@ -67,7 +68,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 ApprenticeId = apprenticeId,
                 ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active,
+                Status = (int)FeedbackTargetStatus.Active,
                 EligibilityCalculationDate = DateTime.UtcNow.AddDays(-2),
             };
         }
@@ -79,7 +80,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 ApprenticeId = apprenticeId,
                 ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active,
+                Status = (int)FeedbackTargetStatus.Active,
                 EligibilityCalculationDate = DateTime.UtcNow.AddDays(-100),
             };
         }
@@ -91,7 +92,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 ApprenticeId = apprenticeId,
                 ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active,
+                Status = (int)FeedbackTargetStatus.Active,
                 EligibilityCalculationDate = DateTime.UtcNow.AddDays(-100),
                 ApprenticeFeedbackResults = new List<Domain.Entities.ApprenticeFeedbackResult>()
                 {
@@ -103,15 +104,19 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             };
         }
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_EligibleToGiveFeedback(Guid apprenticeId, long apprenticeshipId)
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_EligibleToGiveFeedback(
+            Guid apprenticeId, 
+            long apprenticeshipId, 
+            FeedbackTargetStatus status = FeedbackTargetStatus.Active, 
+            int eligibilityCalculationDays = -100)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
                 ApprenticeId = apprenticeId,
                 ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active,
-                EligibilityCalculationDate = DateTime.UtcNow.AddDays(-100),
+                Status = (int)status,
+                EligibilityCalculationDate = DateTime.UtcNow.AddDays(eligibilityCalculationDays),
                 ApprenticeFeedbackResults = new List<Domain.Entities.ApprenticeFeedbackResult>()
                 {
                     new Domain.Entities.ApprenticeFeedbackResult()
@@ -444,11 +449,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             // Note that .NET 6 will NOT try to add these items in the order specified.
             context.ApprenticeFeedbackTargets.AddRange(new List<Domain.Entities.ApprenticeFeedbackTarget>
                 {
-                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 5),
-                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 6),
-                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 7),
-                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 8),
-                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 9),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 5, FeedbackTargetStatus.Active, -100),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 6, FeedbackTargetStatus.Active, -99),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 7, FeedbackTargetStatus.Active, -98),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 8, FeedbackTargetStatus.Active, -97),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 9, FeedbackTargetStatus.Active, -96),
                 });
             context.SaveChanges();
 
@@ -467,11 +472,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             var result = await handler.Handle(query, CancellationToken.None);
 
             // Assert
+            var expectedApprentices = context.ApprenticeFeedbackTargets
+                .OrderBy(aft => aft.EligibilityCalculationDate)
+                .ThenBy(aft => aft.Status)
+                .ThenByDescending(aft => aft.CreatedOn)
+                .Take(batchSize)
+                .Select(x => x.ApprenticeId);
 
-            var expectedApprentices = context.ApprenticeFeedbackTargets.Take(batchSize)
-                                                                     .Select(x => x.ApprenticeId);
-
-            var receivedApprentices = result.ApprenticeFeedbackTargets.Select(aft => aft.ApprenticeId);
+            var receivedApprentices = result.ApprenticeFeedbackTargets
+                .Select(aft => aft.ApprenticeId);
 
             receivedApprentices.Should().BeEquivalentTo(expectedApprentices);
         }
