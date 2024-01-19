@@ -44,7 +44,7 @@ CREATE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_Status]
 
 GO
 
-CREATE NONCLUSTERED INDEX IX_ApprenticeFeedbackTarget_Eligibility
+CREATE NONCLUSTERED INDEX [IX_ApprenticeFeedbackTarget_Eligibility]
 	ON [dbo].[ApprenticeFeedbackTarget] ([Status])
 	INCLUDE ([ApprenticeId], [ApprenticeshipId], [StartDate], [EndDate], [Ukprn], [ProviderName], [StandardUId], [LarsCode], [StandardName], [FeedbackEligibility], [EligibilityCalculationDate], [CreatedOn], [UpdatedOn], [Withdrawn], [IsTransfer], [DateTransferIdentified], [ApprenticeshipStatus])
 
