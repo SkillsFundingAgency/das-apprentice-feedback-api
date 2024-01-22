@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
+using SFA.DAS.ApprenticeFeedback.Domain.Models;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -52,7 +53,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
 
         public async Task<GetApprenticeFeedbackTargetsForUpdateResult> Handle(GetApprenticeFeedbackTargetsForUpdateQuery request, CancellationToken cancellationToken)
         {
-            var apprenticeFeedbackTargets = _apprenticeFeedbackTargetDataContext
+            var query = _apprenticeFeedbackTargetDataContext
                 .Entities
                     .HasStartedOrUnknown(_dateTimeHelper)
                     .StatusNotCompleted()
@@ -61,17 +62,20 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackTa
                     .OrderBy(aft => aft.EligibilityCalculationDate)
                     .ThenBy(aft => aft.Status)
                     .ThenByDescending(aft => aft.CreatedOn)
-                    .Take(request.BatchSize)
-                    .Select(aft => new Domain.Models.ApprenticeFeedbackTargetForUpdate
-                    {
-                        ApprenticeFeedbackTargetId = aft.Id,
-                        ApprenticeId = aft.ApprenticeId,
-                        ApprenticeshipId = aft.ApprenticeshipId
-                    });
+                    .Take(request.BatchSize);
+
+            var apprenticeFeedbackTargetsForUpdate = await query
+                .Select(aft => new ApprenticeFeedbackTargetForUpdate
+                {
+                    ApprenticeFeedbackTargetId = aft.Id,
+                    ApprenticeId = aft.ApprenticeId,
+                    ApprenticeshipId = aft.ApprenticeshipId
+                })
+                .ToListAsync();
 
             return new GetApprenticeFeedbackTargetsForUpdateResult
             {
-                ApprenticeFeedbackTargets = await apprenticeFeedbackTargets.ToListAsync()
+                ApprenticeFeedbackTargets = apprenticeFeedbackTargetsForUpdate
             };
         }
     }
