@@ -18,13 +18,13 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
     public class FeedbackTransactionController : ControllerBase
     {
         private readonly IMediator _mediator;
-        private readonly IBackgroundTaskQueue _taskQueue;
+        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
         private readonly ILogger<FeedbackTransactionController> _log;
 
-        public FeedbackTransactionController(IMediator mediator, IBackgroundTaskQueue taskQueue, ILogger<FeedbackTransactionController> log)
+        public FeedbackTransactionController(IMediator mediator, IBackgroundTaskQueue backgroundTaskQueue, ILogger<FeedbackTransactionController> log)
         {
             _mediator = mediator;
-            _taskQueue = taskQueue;
+            _backgroundTaskQueue = backgroundTaskQueue;
             _log = log;
         }
 
@@ -37,7 +37,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             {
                 _log.LogInformation($"Received request to {requestName}");
 
-                _taskQueue.QueueBackgroundRequest(
+                _backgroundTaskQueue.QueueBackgroundRequest(
                     new GenerateFeedbackTransactionsCommand(), requestName, (response, duration, log) =>
                     {
                         var result = response as GenerateFeedbackTransactionsCommandResponse;

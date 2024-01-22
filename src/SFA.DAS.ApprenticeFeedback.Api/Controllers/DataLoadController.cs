@@ -16,13 +16,13 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
     public class DataLoadController : Controller
     {
         private readonly IMediator _mediator;
-        private readonly IBackgroundTaskQueue _taskQueue;
+        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
         private readonly ILogger<DataLoadController> _logger;
 
-        public DataLoadController(IMediator mediator, IBackgroundTaskQueue taskQueue, ILogger<DataLoadController> logger)
+        public DataLoadController(IMediator mediator, IBackgroundTaskQueue backgroundTaskQueue, ILogger<DataLoadController> logger)
         {
             _mediator = mediator;
-            _taskQueue = taskQueue;
+            _backgroundTaskQueue = backgroundTaskQueue;
             _logger = logger;
         }
 
@@ -35,7 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             {
                 _logger.LogInformation($"Received request to {requestName}");
 
-                _taskQueue.QueueBackgroundRequest(
+                _backgroundTaskQueue.QueueBackgroundRequest(
                     new GenerateFeedbackSummariesCommand(), requestName, (response, duration, log) =>
                     {
                         var result = response as GenerateFeedbackSummariesCommandResponse;
