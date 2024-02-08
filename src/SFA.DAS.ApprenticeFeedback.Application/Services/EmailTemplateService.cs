@@ -35,6 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Services
                     { "Contact", $"{request.ApprenticeName}" },
                     { "ApprenticeFeedbackTargetId", $"{feedbackTransaction.ApprenticeFeedbackTargetId}" },
                     { "FeedbackTransactionId", $"{feedbackTransaction.Id}" },
+                    { "TemplateName", $"{feedbackTransaction.TemplateName}" },
                     { "ApprenticeFeedbackHostname", $"{_appUrls.ApprenticeFeedbackUrl}" },
                     { "ApprenticeAccountHostname", $"{_appUrls.ApprenticeAccountsUrl}" }
                 };
