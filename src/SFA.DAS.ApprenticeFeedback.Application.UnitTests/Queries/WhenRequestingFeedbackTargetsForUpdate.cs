@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 {
@@ -17,74 +18,81 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
     {
         #region Test Apprentice Feedback Targets
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_NotStarted(string providerName)
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_NotStarted(Guid apprenticeId, long apprenticeshipId)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
-                ProviderName = providerName,
+                ApprenticeId = apprenticeId,
+                ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(1),
             };
         }
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_UnknownStart(string providerName)
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_UnknownStart(Guid apprenticeId, long apprenticeshipId)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
-                ProviderName = providerName,
+                ApprenticeId = apprenticeId,
+                ApprenticeshipId = apprenticeshipId,
                 StartDate = null,
             };
         }
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_Completed(string providerName)
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_Completed(Guid apprenticeId, long apprenticeshipId)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
-                ProviderName = providerName,
+                ApprenticeId = apprenticeId,
+                ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Complete
+                Status = (int)FeedbackTargetStatus.Complete
             };
         }
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_NotCompletedOrWithdrawn(string providerName)
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_NotCompletedOrWithdrawn(Guid apprenticeId, long apprenticeshipId)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
-                ProviderName = providerName,
+                ApprenticeId = apprenticeId,
+                ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active
+                Status = (int)FeedbackTargetStatus.Active
             };
         }
 
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_EligibilityCalculatedRecently(string providerName)
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_EligibilityCalculatedRecently(Guid apprenticeId, long apprenticeshipId)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
-                ProviderName = providerName,
+                ApprenticeId = apprenticeId,
+                ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active,
+                Status = (int)FeedbackTargetStatus.Active,
                 EligibilityCalculationDate = DateTime.UtcNow.AddDays(-2),
             };
         }
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_NoFeedback(string providerName)
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_NoFeedback(Guid apprenticeId, long apprenticeshipId)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
-                ProviderName = providerName,
+                ApprenticeId = apprenticeId,
+                ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active,
+                Status = (int)FeedbackTargetStatus.Active,
                 EligibilityCalculationDate = DateTime.UtcNow.AddDays(-100),
             };
         }
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_FeedbackGivenRecently(string providerName)
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_FeedbackGivenRecently(Guid apprenticeId, long apprenticeshipId)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
-                ProviderName = providerName,
+                ApprenticeId = apprenticeId,
+                ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active,
+                Status = (int)FeedbackTargetStatus.Active,
                 EligibilityCalculationDate = DateTime.UtcNow.AddDays(-100),
                 ApprenticeFeedbackResults = new List<Domain.Entities.ApprenticeFeedbackResult>()
                 {
@@ -96,14 +104,19 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             };
         }
 
-        private static Domain.Entities.ApprenticeFeedbackTarget AFT_EligibleToGiveFeedback(string providerName)
+        private static Domain.Entities.ApprenticeFeedbackTarget AFT_EligibleToGiveFeedback(
+            Guid apprenticeId, 
+            long apprenticeshipId, 
+            FeedbackTargetStatus status = FeedbackTargetStatus.Active, 
+            int eligibilityCalculationDays = -100)
         {
             return new Domain.Entities.ApprenticeFeedbackTarget()
             {
-                ProviderName = providerName,
+                ApprenticeId = apprenticeId,
+                ApprenticeshipId = apprenticeshipId,
                 StartDate = DateTime.UtcNow.AddMonths(-6),
-                Status = (int)Domain.Models.Enums.FeedbackTargetStatus.Active,
-                EligibilityCalculationDate = DateTime.UtcNow.AddDays(-100),
+                Status = (int)status,
+                EligibilityCalculationDate = DateTime.UtcNow.AddDays(eligibilityCalculationDays),
                 ApprenticeFeedbackResults = new List<Domain.Entities.ApprenticeFeedbackResult>()
                 {
                     new Domain.Entities.ApprenticeFeedbackResult()
@@ -129,7 +142,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     UtcTimeProvider dateTimeHelper
                     )
                 {
-                    context.Add(AFT_NotStarted("Provider Name"));
+                    context.Add(AFT_NotStarted(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
@@ -147,7 +160,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     UtcTimeProvider dateTimeHelper
                     )
                 {
-                    context.Add(AFT_UnknownStart("Provider Name"));
+                    context.Add(AFT_UnknownStart(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
@@ -165,7 +178,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     UtcTimeProvider dateTimeHelper
                     )
                 {
-                    context.Add(AFT_Completed("Provider Name"));
+                    context.Add(AFT_Completed(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
@@ -185,7 +198,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context
                     )
                 {
-                    context.Add(AFT_Completed("Provider Name"));
+                    context.Add(AFT_Completed(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
@@ -202,7 +215,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context
                     )
                 {
-                    context.Add(AFT_NotCompletedOrWithdrawn("Provider Name"));
+                    context.Add(AFT_NotCompletedOrWithdrawn(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     var apprenticeFeedbackTargets = ((IApprenticeFeedbackTargetContext)context)
@@ -224,7 +237,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     ApplicationSettings appSettings
                     )
                 {
-                    context.Add(AFT_EligibilityCalculatedRecently("Provider Name"));
+                    context.Add(AFT_EligibilityCalculatedRecently(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     appSettings.EligibilityCalculationThrottleDays = 7;
@@ -245,7 +258,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     ApplicationSettings appSettings
                     )
                 {
-                    context.Add(AFT_FeedbackGivenRecently("Provider Name"));
+                    context.Add(AFT_FeedbackGivenRecently(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     appSettings.EligibilityCalculationThrottleDays = 7;
@@ -269,7 +282,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     ApplicationSettings appSettings
                     )
                 {
-                    context.Add(AFT_NoFeedback("Provider Name"));
+                    context.Add(AFT_NoFeedback(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     appSettings.RecentDenyPeriodDays = 7;
@@ -290,7 +303,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     ApplicationSettings appSettings
                     )
                 {
-                    context.Add(AFT_FeedbackGivenRecently("Provider Name"));
+                    context.Add(AFT_FeedbackGivenRecently(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     appSettings.RecentDenyPeriodDays = 7;
@@ -311,7 +324,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                     ApplicationSettings appSettings
                     )
                 {
-                    context.Add(AFT_EligibleToGiveFeedback("Provider Name"));
+                    context.Add(AFT_EligibleToGiveFeedback(Guid.NewGuid(), 1));
                     context.SaveChanges();
 
                     appSettings.RecentDenyPeriodDays = 7;
@@ -330,13 +343,20 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
         #region Test Cases
 
+        // Create the test data object
+        static List<Domain.Entities.ApprenticeFeedbackTarget> testCase4 = 
+            new List<Domain.Entities.ApprenticeFeedbackTarget>
+            {
+                AFT_EligibleToGiveFeedback(Guid.NewGuid(), 4)
+            };
+
         static TestCaseData[] FeedbackTargetTestData =
         {
             // Test case 0 - Apprenticeship has not started
             new TestCaseData(
                 new List<Domain.Entities.ApprenticeFeedbackTarget>
                 {
-                    AFT_NotStarted("Test Provider 0"),
+                    AFT_NotStarted(Guid.NewGuid(), 0)
                 },
                 1  // batch size
             ).Returns(
@@ -347,7 +367,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             new TestCaseData(
                 new List<Domain.Entities.ApprenticeFeedbackTarget>
                 {
-                    AFT_Completed("Test Provider 1"),
+                    AFT_Completed(Guid.NewGuid(), 1)
                 },
                 1  // batch size
             ).Returns(
@@ -358,7 +378,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             new TestCaseData(
                 new List<Domain.Entities.ApprenticeFeedbackTarget>
                 {
-                    AFT_EligibilityCalculatedRecently("Test Provider 2"),
+                    AFT_EligibilityCalculatedRecently(Guid.NewGuid(), 2)
                 },
                 1  // batch size
             ).Returns(
@@ -369,7 +389,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             new TestCaseData(
                 new List<Domain.Entities.ApprenticeFeedbackTarget>
                 {
-                    AFT_FeedbackGivenRecently("Test Provider 3"),
+                    AFT_FeedbackGivenRecently(Guid.NewGuid(), 3)
                 },
                 1  // batch size
             ).Returns(
@@ -377,17 +397,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             ),
 
             // Test case 4 - Eligible for feedback
-            new TestCaseData(
-                new List<Domain.Entities.ApprenticeFeedbackTarget>
-                {
-                    AFT_EligibleToGiveFeedback("Test Provider 4"),
-                },
+            new TestCaseData(testCase4,
                 1  // batch size
             ).Returns(
-                new List<Domain.Entities.ApprenticeFeedbackTarget>()
-                {
-                    AFT_EligibleToGiveFeedback("Test Provider 4")
-                }
+                testCase4
             )
         };
 
@@ -418,7 +431,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
             // Assert
             var expectedResult = (IEnumerable<Domain.Entities.ApprenticeFeedbackTarget>)FeedbackTargetTestData[testCaseIndex].ExpectedResult;
-            result.ApprenticeFeedbackTargets.Select(aft => aft.ProviderName).Should().BeEquivalentTo(expectedResult.Select(aft => aft.ProviderName));
+            
+            result.ApprenticeFeedbackTargets.Select(aft => aft.ApprenticeId).Should().BeEquivalentTo(expectedResult.Select(aft => aft.ApprenticeId));
         }
 
         [TestCase(0)]
@@ -435,11 +449,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             // Note that .NET 6 will NOT try to add these items in the order specified.
             context.ApprenticeFeedbackTargets.AddRange(new List<Domain.Entities.ApprenticeFeedbackTarget>
                 {
-                    AFT_EligibleToGiveFeedback("Test Provider 5"),
-                    AFT_EligibleToGiveFeedback("Test Provider 6"),
-                    AFT_EligibleToGiveFeedback("Test Provider 7"),
-                    AFT_EligibleToGiveFeedback("Test Provider 8"),
-                    AFT_EligibleToGiveFeedback("Test Provider 9"),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 5, FeedbackTargetStatus.Active, -100),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 6, FeedbackTargetStatus.Active, -99),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 7, FeedbackTargetStatus.Active, -98),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 8, FeedbackTargetStatus.Active, -97),
+                    AFT_EligibleToGiveFeedback(Guid.NewGuid(), 9, FeedbackTargetStatus.Active, -96),
                 });
             context.SaveChanges();
 
@@ -458,13 +472,17 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             var result = await handler.Handle(query, CancellationToken.None);
 
             // Assert
+            var expectedApprentices = context.ApprenticeFeedbackTargets
+                .OrderBy(aft => aft.EligibilityCalculationDate)
+                .ThenBy(aft => aft.Status)
+                .ThenByDescending(aft => aft.CreatedOn)
+                .Take(batchSize)
+                .Select(x => x.ApprenticeId);
 
-            var expectedProviders = context.ApprenticeFeedbackTargets.Take(batchSize)
-                                                                     .Select(x => x.ProviderName);
+            var receivedApprentices = result.ApprenticeFeedbackTargets
+                .Select(aft => aft.ApprenticeId);
 
-            var receivedProviders = result.ApprenticeFeedbackTargets.Select(aft => aft.ProviderName);
-
-            receivedProviders.Should().BeEquivalentTo(expectedProviders);
+            receivedApprentices.Should().BeEquivalentTo(expectedApprentices);
         }
 
         private static GetApprenticeFeedbackTargetsForUpdateQueryHandler GetHandler(ApprenticeFeedbackDataContext context)
