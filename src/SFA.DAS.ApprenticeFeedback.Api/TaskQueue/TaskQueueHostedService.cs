@@ -11,14 +11,14 @@ namespace SFA.DAS.ApprenticeFeedback.Api.TaskQueue
     public class TaskQueueHostedService : BackgroundService
     {
         private readonly ILogger<TaskQueueHostedService> _logger;
-        private readonly IBackgroundTaskQueue _taskQueue;
+        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
         private readonly IServiceProvider _serviceProvider;
 
-        public TaskQueueHostedService(IBackgroundTaskQueue taskQueue,
+        public TaskQueueHostedService(IBackgroundTaskQueue backgroundTaskQueue,
             ILogger<TaskQueueHostedService> logger,
             IServiceProvider serviceProvider)
         {
-            _taskQueue = taskQueue;
+            _backgroundTaskQueue = backgroundTaskQueue;
             _logger = logger;
             _serviceProvider = serviceProvider;
         }
@@ -29,7 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.TaskQueue
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                var (request, requestName, responseAction) = await _taskQueue.DequeueAsync(stoppingToken);
+                var (request, requestName, responseAction) = await _backgroundTaskQueue.DequeueAsync(stoppingToken);
 
                 // cannot use the default per-HTTP scope as it will be cleared when the request finishes
                 // this would introduce a race condition, create a new DI scope instead

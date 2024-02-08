@@ -155,27 +155,40 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
         public async Task GenerateFeedbackSummaries(int minimumNumberOfResponses, int reportingFeedbackCutoffMonths)
         {
-            var parameterRecentFeedbackMonths = new SqlParameter
+            var originalTimeout = Database.GetCommandTimeout();
+
+            try
             {
-                ParameterName = "recentFeedbackMonths",
-                SqlDbType = SqlDbType.Int,
-                Value = reportingFeedbackCutoffMonths,
-            };
+                // set command timeout to 5 minutes (300 seconds)
+                Database.SetCommandTimeout(300);
 
-            var parameterMinimumNumberOfReviews = new SqlParameter
+                var parameterRecentFeedbackMonths = new SqlParameter
+                {
+                    ParameterName = "recentFeedbackMonths",
+                    SqlDbType = SqlDbType.Int,
+                    Value = reportingFeedbackCutoffMonths,
+                };
+
+                var parameterMinimumNumberOfReviews = new SqlParameter
+                {
+                    ParameterName = "minimumNumberOfReviews",
+                    SqlDbType = SqlDbType.Int,
+                    Value = minimumNumberOfResponses,
+                };
+
+                await Database.ExecuteSqlRawAsync(
+                    "EXEC [dbo].[GenerateProviderAttributesSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
+                    parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
+
+                await Database.ExecuteSqlRawAsync(
+                    "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
+                    parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
+            }
+            finally
             {
-                ParameterName = "minimumNumberOfReviews",
-                SqlDbType = SqlDbType.Int,
-                Value = minimumNumberOfResponses,
-            };
-
-            await Database.ExecuteSqlRawAsync(
-                "EXEC [dbo].[GenerateProviderAttributesSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
-                parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
-
-            await Database.ExecuteSqlRawAsync(
-                "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
-                parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
+                // reset the command timeout to its original value
+                Database.SetCommandTimeout(originalTimeout);
+            }
         }
 
         public async Task<GenerateFeedbackTransactionsResult> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays, DateTime? specifiedUtcDate, CancellationToken cancellationToken)
