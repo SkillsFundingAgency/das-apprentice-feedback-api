@@ -12,6 +12,7 @@ using SFA.DAS.ApprenticeFeedback.Api.AppStart;
 using SFA.DAS.ApprenticeFeedback.Api.Authentication;
 using SFA.DAS.ApprenticeFeedback.Api.Authorization;
 using SFA.DAS.ApprenticeFeedback.Api.Configuration;
+using SFA.DAS.ApprenticeFeedback.Api.TaskQueue;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.Configuration.AzureTableStorage;
 using System.IO;
@@ -56,6 +57,9 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
             services.AddSingleton(s => s.GetRequiredService<IOptions<ApplicationSettings>>().Value);
 
+            services.Configure<ApplicationUrls>(Configuration.GetSection("ApplicationUrls"));
+            services.AddSingleton(s => s.GetRequiredService<IOptions<ApplicationUrls>>().Value);
+
             services.Configure<AzureActiveDirectoryApiConfiguration>(Configuration.GetSection("AzureAd"));
             services.AddSingleton(cfg => cfg.GetService<IOptions<AzureActiveDirectoryApiConfiguration>>().Value);
             var azureAdConfiguration = Configuration.GetSection("AzureAd").Get<AzureActiveDirectoryApiConfiguration>();
@@ -65,6 +69,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api
                 .AddApiAuthorization(isDevelopment);
 
             services.AddDatabaseRegistration(Configuration);
+
+            services.AddHostedService<TaskQueueHostedService>();
 
             services.AddHealthChecks()
                 .AddCheck<ApprenticeFeedbackHealthCheck>(nameof(ApprenticeFeedbackHealthCheck));
@@ -87,12 +93,18 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+            else
+            {
+                app.UseHsts();
+            }
+
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "SFA.DAS.ApprenticeFeedback.Api v1"));
 
             app.UseHttpsRedirection();
 
             app.UseRouting();
+            app.UseMiddleware<SecurityHeadersMiddleware>();
 
             app.UseAuthentication();
 

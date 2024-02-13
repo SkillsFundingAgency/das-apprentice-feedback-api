@@ -24,7 +24,8 @@
 
         public enum ApprenticeshipStatus
         {
-            InProgress = 0,
+            Unknown = 0,
+            InProgress = 1,
             Stopped = 2,
             Paused = 3,
         }

@@ -1,8 +1,10 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
+using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetFeedbackTransactions;
 using SFA.DAS.ApprenticeFeedback.Data;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -41,6 +43,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
     public class WhenRequestingFeedbackTransactionsToEmail
     {
+        private DateTime _utcNow;
+        
+        [SetUp]
+        public void Setup()
+        {
+            _utcNow = DateTime.UtcNow;
+        }
+        
         [Test, AutoMoqData]
         public async Task AndNoFeedbackTransactionsExist_ThenReturnEmpty(
             GetFeedbackTransactionsToEmailQuery query,
@@ -56,10 +66,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         public async Task AndAllFeedbackTransactionsHaveBeenSent_ThenReturnEmpty(
             GetFeedbackTransactionsToEmailQuery query,
             [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+            [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
             GetFeedbackTransactionsToEmailQueryHandler handler,
             List<Domain.Entities.FeedbackTransaction> response)
         {
-            response.SetSentDate(DateTime.UtcNow.AddDays(-10));
+            dateTimeHelper.Setup(s => s.Now).Returns(_utcNow);
+
+            response.SetSentDate(_utcNow.AddDays(-10));
             context.FeedbackTransactions.AddRange(response);
             context.SaveChanges();
 
@@ -72,11 +85,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         public async Task AndAllSendAftersAreFuture_ThenReturnEmpty(
             GetFeedbackTransactionsToEmailQuery query,
             [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+            [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
             GetFeedbackTransactionsToEmailQueryHandler handler,
             List<Domain.Entities.FeedbackTransaction> response)
         {
+            dateTimeHelper.Setup(s => s.Now).Returns(_utcNow);
+
             response.SetSentDate(null);
-            response.SetSendAfter(DateTime.Now.AddDays(10));
+            response.SetSendAfter(_utcNow.AddDays(10));
             context.FeedbackTransactions.AddRange(response);
             context.SaveChanges();
 
@@ -89,11 +105,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         public async Task AndAllFeedbackTransactionsAreReadyToSend_ThenReturnAllFeedbackTransactions(
             GetFeedbackTransactionsToEmailQuery query,
             [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+            [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
             GetFeedbackTransactionsToEmailQueryHandler handler,
             List<Domain.Entities.FeedbackTransaction> response)
         {
+            dateTimeHelper.Setup(s => s.Now).Returns(_utcNow);
+
             response.SetSentDate(null);
-            response.SetSendAfter(DateTime.Now.AddDays(-10));
+            response.SetSendAfter(_utcNow.AddDays(-10));
             context.FeedbackTransactions.AddRange(response);
             context.SaveChanges();
 
@@ -107,11 +126,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         public async Task AndAllFeedbackTransactionsAreReadyToSend_AndBatchSizeIsSpecified_ThenReturnFeedbackTransactionsBatch(
             GetFeedbackTransactionsToEmailQuery query,
             [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+            [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
             GetFeedbackTransactionsToEmailQueryHandler handler,
             List<Domain.Entities.FeedbackTransaction> response)
         {
+            dateTimeHelper.Setup(s => s.Now).Returns(_utcNow);
+
             response.SetSentDate(null);
-            response.SetSendAfter(DateTime.Now.AddDays(-10));
+            response.SetSendAfter(_utcNow.AddDays(-10));
             context.FeedbackTransactions.AddRange(response);
             context.SaveChanges();
 

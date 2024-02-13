@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Operations Version="1.0" xmlns="http://schemas.microsoft.com/sqlserver/dac/Serialization/2012/02">
+  <Operation Name="Rename Refactor" Key="9cd549c1-57f0-4f97-982f-f1e3d29e65d5" ChangeDateTime="12/05/2023 16:48:33">
+    <Property Name="ElementName" Value="[dbo].[IdentityOldApprenticeships]" />
+    <Property Name="ElementType" Value="SqlInlineTableValuedFunction" />
+    <Property Name="ParentElementName" Value="[dbo]" />
+    <Property Name="ParentElementType" Value="SqlSchema" />
+    <Property Name="NewName" Value="[IdentifyOldApprenticeships]" />
+  </Operation>
+</Operations>

@@ -9,9 +9,9 @@ using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -27,6 +27,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IProviderStarsSummaryContext,
         IExitSurveyContext,
         IFeedbackTransactionContext,
+        IFeedbackTransactionClickContext,
+        IEngagementEmailContext,
         IExclusionContext
     {
         private const string AzureResource = "https://database.windows.net/";
@@ -42,6 +44,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public virtual DbSet<ProviderStarsSummary> ProviderStarsSummary { get; set; } = null!;
         public virtual DbSet<Domain.Entities.ApprenticeExitSurvey> ApprenticeExitSurveys { get; set; } = null!;
         public virtual DbSet<FeedbackTransaction> FeedbackTransactions { get; set; }
+        public virtual DbSet<FeedbackTransactionClick> FeedbackTransactionClicks { get; set; }
+        public virtual DbSet<EngagementEmail> EngagementEmails { get; set; }
         public virtual DbSet<Exclusion> Exclusions { get; set; }
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<Domain.Entities.ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
@@ -53,6 +57,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         DbSet<ProviderStarsSummary> IEntityContext<ProviderStarsSummary>.Entities => ProviderStarsSummary;
         DbSet<ApprenticeExitSurvey> IEntityContext<ApprenticeExitSurvey>.Entities => ApprenticeExitSurveys;
         DbSet<FeedbackTransaction> IEntityContext<FeedbackTransaction>.Entities => FeedbackTransactions;
+        DbSet<FeedbackTransactionClick> IEntityContext<FeedbackTransactionClick>.Entities => FeedbackTransactionClicks;
+        DbSet<EngagementEmail> IEntityContext<EngagementEmail>.Entities => EngagementEmails;
         DbSet<Exclusion> IEntityContext<Exclusion>.Entities => Exclusions;
 
 
@@ -91,8 +97,10 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ProviderAttributeSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new FeedbackTransactionConfiguration());
+            modelBuilder.ApplyConfiguration(new FeedbackTransactionClickConfiguration());
             modelBuilder.ApplyConfiguration(new ExitSurveyAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new ExclusionsConfiguration());
+            modelBuilder.ApplyConfiguration(new EngagementEmailConfiguration());
             modelBuilder.Entity<GenerateFeedbackTransactionsResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
@@ -148,43 +156,79 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
         public async Task GenerateFeedbackSummaries(int minimumNumberOfResponses, int reportingFeedbackCutoffMonths)
         {
-            var parameterRecentFeedbackMonths = new SqlParameter
+            var originalTimeout = Database.GetCommandTimeout();
+
+            try
             {
-                ParameterName = "recentFeedbackMonths",
-                SqlDbType = SqlDbType.Int,
-                Value = reportingFeedbackCutoffMonths,
-            };
+                // set command timeout to 5 minutes (300 seconds)
+                Database.SetCommandTimeout(300);
 
-            var parameterMinimumNumberOfReviews = new SqlParameter
+                var parameterRecentFeedbackMonths = new SqlParameter
+                {
+                    ParameterName = "recentFeedbackMonths",
+                    SqlDbType = SqlDbType.Int,
+                    Value = reportingFeedbackCutoffMonths,
+                };
+
+                var parameterMinimumNumberOfReviews = new SqlParameter
+                {
+                    ParameterName = "minimumNumberOfReviews",
+                    SqlDbType = SqlDbType.Int,
+                    Value = minimumNumberOfResponses,
+                };
+
+                await Database.ExecuteSqlRawAsync(
+                    "EXEC [dbo].[GenerateProviderAttributesSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
+                    parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
+
+                await Database.ExecuteSqlRawAsync(
+                    "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
+                    parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
+            }
+            finally
             {
-                ParameterName = "minimumNumberOfReviews",
-                SqlDbType = SqlDbType.Int,
-                Value = minimumNumberOfResponses,
-            };
-
-            await Database.ExecuteSqlRawAsync(
-                "EXEC [dbo].[GenerateProviderAttributesSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
-                parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
-
-            await Database.ExecuteSqlRawAsync(
-                "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
-                parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
+                // reset the command timeout to its original value
+                Database.SetCommandTimeout(originalTimeout);
+            }
         }
 
-        public async Task<IEnumerable<GenerateFeedbackTransactionsResult>> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays)
+        public async Task<GenerateFeedbackTransactionsResult> GenerateFeedbackTransactionsAsync(int feedbackTransactionSentDateAgeDays, DateTime? specifiedUtcDate, CancellationToken cancellationToken)
         {
-            DbParameter parameterFeedbackTransactionSentDateAgeDays = new SqlParameter
-            {
-                ParameterName = "SentDateAgeDays",
-                SqlDbType = SqlDbType.Int,
-                Value = feedbackTransactionSentDateAgeDays
-            };
+            var originalTimeout = Database.GetCommandTimeout();
 
-            IEnumerable<GenerateFeedbackTransactionsResult> result =
-                await Set<GenerateFeedbackTransactionsResult>().FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @SentDateAgeDays",
-                                                                           new[] { parameterFeedbackTransactionSentDateAgeDays })
-                                                               .ToListAsync();
-            return result;
+            try
+            {
+                // set command timeout to 30 minutes (1800 seconds) usually this operation would only 
+                // take seconds however when it first runs it will take considerably longer 
+                Database.SetCommandTimeout(1800);
+
+                DbParameter parameterSentDateAgeDays = new SqlParameter
+                {
+                    ParameterName = "sentDateAgeDays",
+                    SqlDbType = SqlDbType.Int,
+                    Value = feedbackTransactionSentDateAgeDays
+                };
+
+                DbParameter parameterSpecifiedUtcDate = new SqlParameter
+                {
+                    ParameterName = "specifiedUtcDate",
+                    SqlDbType = SqlDbType.DateTime,
+                    Value = specifiedUtcDate.HasValue ? specifiedUtcDate : DBNull.Value
+                };
+
+                var result =
+                await Set<GenerateFeedbackTransactionsResult>()
+                    .FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @sentDateAgeDays, @specifiedUtcDate",
+                        new[] { parameterSentDateAgeDays, parameterSpecifiedUtcDate })
+                    .ToListAsync(cancellationToken);
+
+                return result.FirstOrDefault();
+            }
+            finally
+            {
+                // reset the command timeout to its original value
+                Database.SetCommandTimeout(originalTimeout);
+            }
         }
     }
 }
