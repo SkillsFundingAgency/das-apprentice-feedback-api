@@ -695,7 +695,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         }
 
         [Test, RecursiveMoqAutoData]
-        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsWithdrawn_SetsWithdrawnAndSendsEmail(
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsWithdrawn_SetsWithdrawnAndSendsEmail_AddingNewTransaction(
             Learner learner,
             ApplicationSettings settings,
             Mock<IDateTimeHelper> dateTimeHelper,
@@ -717,36 +717,80 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.UnitTests.Entities
         }
 
         [Test, RecursiveMoqAutoData]
-        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsWithdrawn_SetsWithdrawnAndSendsEmail_ReusingExistingTransaction(
+        public void WhenCalling_UpdateApprenticeshipFeedbackTarget_AndApprenticeshipIsWithdrawn_SetsWithdrawnAndSendsEmail_ReusingUnknownPendingEmailTransaction(
             Learner learner,
             ApplicationSettings settings,
-            Mock<IDateTimeHelper> dateTimeHelper,
-            Domain.Entities.FeedbackTransaction feedbackTransaction,
+            UtcTimeProvider utcTimeProvider,
             Domain.Entities.ApprenticeFeedbackTarget target)
         {
             // Arrange
             target.Withdrawn = false;
             target.FeedbackTransactions.Clear();
-            feedbackTransaction.ApprenticeFeedbackTargetId = target.Id;
-            feedbackTransaction.SentDate = null;
-            target.FeedbackTransactions.Add(feedbackTransaction);
-            learner.CompletionStatus = 3;
+
+            var plus30Days = utcTimeProvider.Now.AddDays(30);
+            var plus60Days = utcTimeProvider.Now.AddDays(60);
+            var plus90Days = utcTimeProvider.Now.AddDays(90);
+
+            var firstKnownPendingFeedbackTransaction = new Domain.Entities.FeedbackTransaction
+            {
+                SentDate = null,
+                SendAfter = plus30Days,
+                TemplateName = "FirstTemplateName",
+                ApprenticeFeedbackTargetId = target.Id
+            };
+
+            var secondKnownPendingFeedbackTransaction = new Domain.Entities.FeedbackTransaction
+            {
+                SentDate = null,
+                SendAfter = plus60Days,
+                TemplateName = "SecondTemplateName",
+                ApprenticeFeedbackTargetId = target.Id
+            };
+
+            var thirdKnownPendingFeedbackTransaction = new Domain.Entities.FeedbackTransaction
+            {
+                SentDate = null,
+                SendAfter = plus90Days,
+                TemplateName = "ThirdTemplateName",
+                ApprenticeFeedbackTargetId = target.Id
+            };
+
+            var unknownPendingFeedbackTransaction = new Domain.Entities.FeedbackTransaction
+            {
+                SentDate = null,
+                SendAfter = plus30Days,
+                TemplateName = null,
+                ApprenticeFeedbackTargetId = target.Id
+            };
+            
+            target.FeedbackTransactions.Add(firstKnownPendingFeedbackTransaction);
+            target.FeedbackTransactions.Add(unknownPendingFeedbackTransaction);
+            target.FeedbackTransactions.Add(secondKnownPendingFeedbackTransaction);
+            target.FeedbackTransactions.Add(thirdKnownPendingFeedbackTransaction);
+
+            learner.CompletionStatus = 3; // Stopped
             learner.IsTransfer = false;
 
             // Act
-            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, dateTimeHelper.Object);
+            target.UpdateApprenticeshipFeedbackTarget(learner, null, settings, utcTimeProvider);
 
             // Assert
             using (new AssertionScope())
             {
                 target.Withdrawn.Should().BeTrue();
-                target.FeedbackTransactions.Should().HaveCount(1);
+                target.FeedbackTransactions.Should().HaveCount(4);
 
-                var transaction = target.FeedbackTransactions.Single();
-                transaction.FirstName.Should().BeEmpty();
-                transaction.EmailAddress.Should().BeEmpty();
-                transaction.SendAfter.Should().BeNull();
-                transaction.ApprenticeFeedbackTargetId.Should().Be(target.Id);
+                var firstKnownFeedbackTransactionAfterUpdate = target.FeedbackTransactions.FirstOrDefault(p => p.TemplateName == "FirstTemplateName");
+                firstKnownFeedbackTransactionAfterUpdate.SendAfter.Should().Be(plus30Days);
+
+                var secondKnownFeedbackTransactionAfterUpdate = target.FeedbackTransactions.FirstOrDefault(p => p.TemplateName == "SecondTemplateName");
+                secondKnownFeedbackTransactionAfterUpdate.SendAfter.Should().Be(plus60Days);
+
+                var thirdKnownFeedbackTransactionAfterUpdate = target.FeedbackTransactions.FirstOrDefault(p => p.TemplateName == "ThirdTemplateName");
+                thirdKnownFeedbackTransactionAfterUpdate.SendAfter.Should().Be(plus90Days);
+
+                var unknownFeedbackTransactionAfterUpdate = target.FeedbackTransactions.FirstOrDefault(p => string.IsNullOrEmpty(p.TemplateName));
+                unknownFeedbackTransactionAfterUpdate.SendAfter.Should().BeNull();
             }
         }
     }
