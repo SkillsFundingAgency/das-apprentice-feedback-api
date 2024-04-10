@@ -53,6 +53,12 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
             };
         }
 
+        public void DeferUpdateApprenticeshipFeedbackTarget(IDateTimeHelper dateTimeHelper)
+        {
+            // Update the eligibility calculation date to defer the update to a later time
+            EligibilityCalculationDate = dateTimeHelper.Now;
+        }
+
         public void UpdateApprenticeshipFeedbackTarget(Learner learner, MyApprenticeship myApprenticeship, ApplicationSettings appSettings, IDateTimeHelper dateTimeHelper)
         {
             if (Status == (int)FeedbackTargetStatus.Complete)
