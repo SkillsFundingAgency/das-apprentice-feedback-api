@@ -38,7 +38,7 @@
     <None Update="connectionStrings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="connectionStrings.local.json">
+    <None Update="connectionStrings.Local.json">
       <DependentUpon>connectionStrings.json</DependentUpon>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

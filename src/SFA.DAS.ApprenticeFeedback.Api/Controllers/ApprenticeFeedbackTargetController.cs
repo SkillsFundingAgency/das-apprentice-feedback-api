@@ -72,7 +72,22 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             }
         }
 
-        [HttpGet("RequiresUpdate")]
+        [HttpPost("deferupdate")]
+        public async Task<IActionResult> ProcessDeferUpdate([FromBody] UpdateApprenticeFeedbackTargetDeferCommand request)
+        {
+            try
+            {
+                var result = await _mediator.Send(request);
+                return Ok(result.UpdatedApprenticeFeedbackTarget);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error attempting to defer update apprentice feedback target for ApprenticeFeedbackTargetId: {request.ApprenticeFeedbackTargetId}");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("requiresupdate")]
         public async Task<IActionResult> GetFeedbackTargetsForUpdate([FromQuery] GetApprenticeFeedbackTargetsForUpdateQuery request)
         {
             try
@@ -116,7 +131,5 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
                 return BadRequest();
             }
         }
-
-
     }
 }
