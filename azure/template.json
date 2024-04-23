@@ -70,7 +70,7 @@
         },
         "databaseSkuName": {
             "type": "string",
-            "defaultValue": "S0"
+            "defaultValue": "S1"
         },
         "databaseTier": {
             "type": "string",
