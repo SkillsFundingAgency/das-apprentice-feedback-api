@@ -80,6 +80,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: TEST DevTest Shared Resources
+  - group: TEST das-apprentice-feedback-api
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -110,6 +111,7 @@ stages:
   variables:
   - group: PreProd Management Resources
   - group: PreProd Shared Resources
+  - group: PreProd das-apprentice-feedback-api
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
