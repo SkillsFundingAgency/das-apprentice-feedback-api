@@ -1,4 +1,5 @@
-﻿using Microsoft.Azure.Services.AppAuthentication;
+﻿using Azure.Core;
+using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -32,7 +33,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
-        private readonly AzureServiceTokenProvider _azureServiceTokenProvider;
+        private readonly ChainedTokenCredential _chainedTokenCredentialProvider;
 
         public virtual DbSet<Domain.Entities.Attribute> Attributes { get; set; }
         public virtual DbSet<Domain.Entities.ApprenticeFeedbackTarget> ApprenticeFeedbackTargets { get; set; } = null!;
@@ -65,15 +66,15 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         {
         }
 
-        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, AzureServiceTokenProvider azureServiceTokenProvider) : base(options)
+        public ApprenticeFeedbackDataContext(IOptions<ApplicationSettings> config, DbContextOptions<ApprenticeFeedbackDataContext> options, ChainedTokenCredential chainedTokenCredentialProvider) : base(options)
         {
             _configuration = config.Value;
-            _azureServiceTokenProvider = azureServiceTokenProvider;
+            _chainedTokenCredentialProvider = chainedTokenCredentialProvider;
         }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (_configuration == null)
+            if (_configuration == null || _chainedTokenCredentialProvider == null)
             {
                 return;
             }
@@ -81,7 +82,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             var connection = new SqlConnection
             {
                 ConnectionString = _configuration.DbConnectionString,
-                AccessToken = _azureServiceTokenProvider?.GetAccessTokenAsync(AzureResource).Result
+                AccessToken = _chainedTokenCredentialProvider.GetTokenAsync(new TokenRequestContext(scopes: new string[] { AzureResource })).Result.Token
             };
             optionsBuilder.UseSqlServer(connection);
         }
