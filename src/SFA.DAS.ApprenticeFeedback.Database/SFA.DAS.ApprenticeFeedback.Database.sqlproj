@@ -96,6 +96,7 @@
     <None Include="Scripts\AddEngagementEmails.sql" />
     <None Include="Scripts\AddFeedbackTargetStatus.sql" />
     <None Include="Scripts\AddFeedbackEligibilityStatus.sql" />
+    <None Include="Scripts\TempAttributes.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment1.sql" />
