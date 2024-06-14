@@ -66,8 +66,7 @@ BEGIN
     WHEN MATCHED THEN
         UPDATE SET pas.Agree = upd.Agree,
                    pas.Disagree = upd.Disagree,
-                   pas.UpdatedOn = upd.UpdatedOn,
-				   pas.TimePeriod = @TimePeriod
+                   pas.UpdatedOn = upd.UpdatedOn
     WHEN NOT MATCHED BY TARGET THEN
         INSERT (Ukprn, AttributeId, Agree, Disagree, UpdatedOn, TimePeriod)
         VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, upd.UpdatedOn, @TimePeriod)
