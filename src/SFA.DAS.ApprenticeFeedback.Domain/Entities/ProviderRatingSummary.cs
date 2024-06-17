@@ -8,5 +8,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public string Rating { get; set; }
         public int RatingCount { get; set; }
         public DateTime UpdatedOn { get; set; }
+        public string TimePeriod { get; set; }
     }
 }

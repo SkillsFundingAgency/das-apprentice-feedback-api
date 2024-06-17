@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedback;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetails;
+using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetailsAnnual;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRatingSummary;
 using System;
 using System.Threading.Tasks;
@@ -64,6 +65,21 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, $"Error attempting to retrieve apprentice feedback rating summaries");
+                return BadRequest();
+            }
+        }
+
+        [HttpGet("{ukprn}/annual")]
+        public async Task<IActionResult> GetApprenticeFeedbackRatingSummaryAnnual(long ukprn)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetApprenticeFeedbackDetailsAnnualQuery { Ukprn = ukprn });
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Error attempting to retrieve annual apprentice feedback results for Ukprn: {ukprn}");
                 return BadRequest();
             }
         }
