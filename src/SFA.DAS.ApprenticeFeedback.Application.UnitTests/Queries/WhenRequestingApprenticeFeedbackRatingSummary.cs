@@ -3,6 +3,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRatingSummary;
 using SFA.DAS.ApprenticeFeedback.Data;
+using SFA.DAS.ApprenticeFeedback.Domain.Constants;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +21,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             GetApprenticeFeedbackRatingSummaryQueryHandler handler,
             IEnumerable<ProviderStarsSummary> providerStarsSummaries)
         {
+            providerStarsSummaries.ToList().ForEach(t =>
+            {
+                t.TimePeriod = ReviewDataPeriod.AggregatedData;
+            });
+
             context.ProviderStarsSummary.AddRange(providerStarsSummaries);
             context.SaveChanges();
 
