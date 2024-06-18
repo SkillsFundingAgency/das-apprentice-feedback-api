@@ -6,7 +6,7 @@
     RatingCount INT NOT NULL, 
     UpdatedOn DATETIME2,
     TimePeriod NVARCHAR(50) NOT NULL DEFAULT 'All',
-    PRIMARY KEY(Ukprn, Rating) 
+    PRIMARY KEY(Ukprn, Rating, TimePeriod) 
 )    
 
 GO
