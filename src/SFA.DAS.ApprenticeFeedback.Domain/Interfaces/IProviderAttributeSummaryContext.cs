@@ -12,6 +12,7 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
         public async Task<IEnumerable<ProviderAttributeSummary>> FindProviderAttributeSummaryAndIncludeAttributes(long ukprn)
             => await Entities.Where(r => r.Ukprn == ukprn && r.TimePeriod == ReviewDataPeriod.AggregatedData).Include(s => s.Attribute).ToListAsync();
 
-
+        public async Task<IEnumerable<ProviderAttributeSummary>> FindProviderAttributeSummaryAnnualAndIncludeAttributes(long ukprn)
+            => await Entities.Where(r => r.Ukprn == ukprn && r.TimePeriod != ReviewDataPeriod.AggregatedData).Include(s => s.Attribute).ToListAsync();
     }
 }

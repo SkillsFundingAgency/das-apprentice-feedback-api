@@ -23,9 +23,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDe
 
         public async Task<GetApprenticeFeedbackDetailsAnnualResult> Handle(GetApprenticeFeedbackDetailsAnnualQuery request, CancellationToken cancellationToken)
         {
+            var annualFeedbackList = new List<GetApprenticeFeedbackDetailAnnual>();
+
             var result = new GetApprenticeFeedbackDetailsAnnualResult()
             {
-                ApprenticeFeedbackDetailsAnnual = new List<GetApprenticeFeedbackDetailAnnual>()
+                AnnualApprenticeFeedbackDetails = annualFeedbackList
             };
 
             if (request.Ukprn == 0)
@@ -53,7 +55,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDe
                     TimePeriod = providerStarsSummary.TimePeriod
                 };
 
-                result.ApprenticeFeedbackDetailsAnnual.Append(annualApprenticeFeedback);
+                annualFeedbackList.Add(annualApprenticeFeedback);
             }
 
             return result;

@@ -5,7 +5,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDe
 {
     public class GetApprenticeFeedbackDetailsAnnualResult
     {
-        public IEnumerable<GetApprenticeFeedbackDetailAnnual> ApprenticeFeedbackDetailsAnnual { get; set; }
+        public IEnumerable<GetApprenticeFeedbackDetailAnnual> AnnualApprenticeFeedbackDetails { get; set; }
     }
 
     public class GetApprenticeFeedbackDetailAnnual
