@@ -71,7 +71,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         }
 
         [HttpGet("{ukprn}/annual")]
-        public async Task<IActionResult> GetApprenticeFeedbackRatingSummaryAnnual(long ukprn)
+        public async Task<IActionResult> GetApprenticeFeedbackSummaryAnnual(long ukprn)
         {
             try
             {
@@ -86,9 +86,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         }
 
         [HttpGet("{ukprn}/annual/{year}")]
-        public async Task<IActionResult> GetApprenticeFeedbackRatingSummaryForAcademicYear(long ukprn, string year)
+        public async Task<IActionResult> GetApprenticeFeedbackSummaryAcademicYear(long ukprn, string year)
         {
-            // add validation for the year input
             try
             {
                 var result = await _mediator.Send(new GetApprenticeFeedbackDetailsForAcademicYearQuery { Ukprn = ukprn, AcademicYear = year });
@@ -96,7 +95,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Error attempting to retrieve annual apprentice feedback results for Ukprn: {ukprn}");
+                _logger.LogError(e, $"Error attempting to retrieve annual apprentice feedback results for Ukprn: {ukprn} for year {year}");
                 return BadRequest();
             }
         }

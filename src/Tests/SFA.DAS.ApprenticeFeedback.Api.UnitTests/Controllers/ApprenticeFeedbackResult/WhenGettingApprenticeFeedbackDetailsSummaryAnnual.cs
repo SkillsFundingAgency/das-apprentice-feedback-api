@@ -24,7 +24,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
             [Greedy] ApprenticeFeedbackResultController controller)
         {
             mediator.Setup(m => m.Send(It.Is<GetApprenticeFeedbackDetailsAnnualQuery>(t => t.Ukprn == ukprn), It.IsAny<CancellationToken>())).ReturnsAsync(annualFeedbackResult);
-            var result = await controller.GetApprenticeFeedbackRatingSummaryAnnual(ukprn);
+            var result = await controller.GetApprenticeFeedbackSummaryAnnual(ukprn);
 
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(annualFeedbackResult);
         }
@@ -37,7 +37,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
         {
             var exception = new Exception("Error");
             mediator.Setup(m => m.Send(It.Is<GetApprenticeFeedbackDetailsAnnualQuery>(t => t.Ukprn == ukprn), It.IsAny<CancellationToken>())).ThrowsAsync(exception);
-            var result = await controller.GetApprenticeFeedbackRatingSummaryAnnual(ukprn);
+            var result = await controller.GetApprenticeFeedbackSummaryAnnual(ukprn);
 
             result.Should().BeOfType<BadRequestResult>();
         }
