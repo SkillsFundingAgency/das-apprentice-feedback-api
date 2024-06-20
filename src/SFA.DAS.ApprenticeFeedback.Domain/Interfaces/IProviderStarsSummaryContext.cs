@@ -11,5 +11,8 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
     {
         public async Task<IEnumerable<ProviderStarsSummary>> FindProviderStarsSummaryAnnual(long ukprn)
             => await Entities.Where(r => r.Ukprn == ukprn && r.TimePeriod != ReviewDataPeriod.AggregatedData).ToListAsync();
+
+        public async Task<ProviderStarsSummary> FindProviderStarsSummaryForAcademicYear(long ukprn, string acYear)
+            => await Entities.Where(r => r.Ukprn == ukprn && r.TimePeriod == acYear).SingleOrDefaultAsync();
     }
 }
