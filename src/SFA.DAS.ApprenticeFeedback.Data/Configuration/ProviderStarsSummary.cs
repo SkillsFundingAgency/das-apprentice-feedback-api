@@ -8,7 +8,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Configuration
         public void Configure(EntityTypeBuilder<Domain.Entities.ProviderStarsSummary> builder)
         {
             builder.ToTable("ProviderStarsSummary");
-            builder.HasKey(x => x.Ukprn);
+            builder.HasKey(x => new { x.Ukprn, x.TimePeriod });
         }
     }
 }
