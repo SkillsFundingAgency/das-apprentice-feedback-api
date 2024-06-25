@@ -1,8 +1,9 @@
 {
 	"info": {
-		"_postman_id": "a3d57a93-9224-4774-915c-5099355274b4",
+		"_postman_id": "dd8abbaa-b482-45e1-bde9-5320c9521b1f",
 		"name": "Apprentice Feedback - Inner API",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
+		"_exporter_id": "31157588"
 	},
 	"item": [
 		{
@@ -45,13 +46,9 @@
 			"request": {
 				"auth": {
 					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{authToken}}",
-							"type": "string"
-						}
-					]
+					"bearer": {
+						"token": "{{authToken}}"
+					}
 				},
 				"method": "POST",
 				"header": [
@@ -70,16 +67,7 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "{{inner-api-base-url}}/api/ApprenticeFeedbackTarget",
-					"host": [
-						"{{inner-api-base-url}}"
-					],
-					"path": [
-						"api",
-						"ApprenticeFeedbackTarget"
-					]
-				}
+				"url": "{{inner-api-base-url}}/api/ApprenticeFeedbackTarget"
 			},
 			"response": []
 		},
@@ -117,13 +105,9 @@
 			"request": {
 				"auth": {
 					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{authToken}}",
-							"type": "string"
-						}
-					]
+					"bearer": {
+						"token": "{{authToken}}"
+					}
 				},
 				"method": "POST",
 				"header": [
@@ -142,17 +126,7 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "{{inner-api-base-url}}/api/ApprenticeFeedbackTarget/update",
-					"host": [
-						"{{inner-api-base-url}}"
-					],
-					"path": [
-						"api",
-						"ApprenticeFeedbackTarget",
-						"update"
-					]
-				}
+				"url": "{{inner-api-base-url}}/api/ApprenticeFeedbackTarget/update"
 			},
 			"response": []
 		},
@@ -185,13 +159,9 @@
 			"request": {
 				"auth": {
 					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "{{authToken}}",
-							"type": "string"
-						}
-					]
+					"bearer": {
+						"token": "{{authToken}}"
+					}
 				},
 				"method": "POST",
 				"header": [
@@ -210,16 +180,7 @@
 						}
 					}
 				},
-				"url": {
-					"raw": "{{inner-api-base-url}}/api/ApprenticeFeedback",
-					"host": [
-						"{{inner-api-base-url}}"
-					],
-					"path": [
-						"api",
-						"ApprenticeFeedback"
-					]
-				}
+				"url": "{{inner-api-base-url}}/api/ApprenticeFeedback"
 			},
 			"response": []
 		},
@@ -261,17 +222,7 @@
 						"type": "text"
 					}
 				],
-				"url": {
-					"raw": "{{inner-api-base-url}}/api/ApprenticeFeedbackTarget/{{apprenticeId}}",
-					"host": [
-						"{{inner-api-base-url}}"
-					],
-					"path": [
-						"api",
-						"ApprenticeFeedbackTarget",
-						"{{apprenticeId}}"
-					]
-				}
+				"url": "{{inner-api-base-url}}/api/ApprenticeFeedbackTarget/{{apprenticeId}}"
 			},
 			"response": []
 		},
@@ -313,16 +264,7 @@
 						"type": "text"
 					}
 				],
-				"url": {
-					"raw": "{{inner-api-base-url}}/api/ProviderAttributes",
-					"host": [
-						"{{inner-api-base-url}}"
-					],
-					"path": [
-						"api",
-						"ProviderAttributes"
-					]
-				}
+				"url": "{{inner-api-base-url}}/api/ProviderAttributes"
 			},
 			"response": []
 		},
@@ -364,17 +306,7 @@
 						"type": "text"
 					}
 				],
-				"url": {
-					"raw": "{{inner-api-base-url}}/api/Providers/{{apprenticeId}}",
-					"host": [
-						"{{inner-api-base-url}}"
-					],
-					"path": [
-						"api",
-						"Providers",
-						"{{apprenticeId}}"
-					]
-				}
+				"url": "{{inner-api-base-url}}/api/Providers/{{apprenticeId}}"
 			},
 			"response": []
 		},
@@ -416,18 +348,71 @@
 						"type": "text"
 					}
 				],
-				"url": {
-					"raw": "{{inner-api-base-url}}/api/Providers/{{apprenticeId}}/{{ukprn}}",
-					"host": [
-						"{{inner-api-base-url}}"
-					],
-					"path": [
-						"api",
-						"Providers",
-						"{{apprenticeId}}",
-						"{{ukprn}}"
-					]
+				"url": "{{inner-api-base-url}}/api/Providers/{{apprenticeId}}/{{ukprn}}"
+			},
+			"response": []
+		},
+		{
+			"name": "ApprenticeFeedback - Get Annual Feedback",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET Apprentice Feedback Annual request\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
 				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Version",
+						"value": "1.0",
+						"type": "text"
+					}
+				],
+				"url": "{{inner-api-base-url}}/api/ApprenticeFeedbackResult/{{ukprn}}/annual"
+			},
+			"response": []
+		},
+		{
+			"name": "ApprenticeFeedback - Get Feedback By Academic Year",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Successful GET Apprentice Feedback Academic year request\", function () {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200]);\r",
+							"});\r",
+							"\r",
+							"var jsonData = pm.response.json();\r",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "X-Version",
+						"value": "1.0",
+						"type": "text"
+					}
+				],
+				"url": "{{inner-api-base-url}}/api/ApprenticeFeedbackResult/{{ukprn}}/annual/{{academic-year}}"
 			},
 			"response": []
 		}
