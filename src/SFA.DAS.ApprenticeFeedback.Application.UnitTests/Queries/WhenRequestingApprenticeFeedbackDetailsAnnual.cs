@@ -27,7 +27,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             result.AnnualApprenticeFeedbackDetails.Should().BeEmpty();
         }
 
-        // write the unit test case below for the scenario when the feedback details are returned
         [Test, AutoMoqData]
         public async Task ThenAnnualFeedbackDetailsAreReturned(
              GetApprenticeFeedbackDetailsAnnualQuery query,
