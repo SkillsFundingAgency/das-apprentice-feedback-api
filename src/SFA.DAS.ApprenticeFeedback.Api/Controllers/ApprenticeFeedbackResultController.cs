@@ -7,6 +7,7 @@ using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetail
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetailsForAcademicYear;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRatingSummary;
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
@@ -86,7 +87,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         }
 
         [HttpGet("{ukprn}/annual/{year}")]
-        public async Task<IActionResult> GetApprenticeFeedbackSummaryAcademicYear(long ukprn, string year)
+        public async Task<IActionResult> GetApprenticeFeedbackSummaryAcademicYear(long ukprn, [RegularExpression(@"^AY\d{4}$", ErrorMessage = "Academic year should be in the format 'AYdddd'")] string year)
         {
             try
             {
