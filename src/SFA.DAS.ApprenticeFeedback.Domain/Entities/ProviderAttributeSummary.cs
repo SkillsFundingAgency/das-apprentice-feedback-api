@@ -10,6 +10,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public int Agree { get; set; }
         public int Disagree { get; set; }
         public DateTime UpdatedOn { get; set; }
-        public String TimePeriod { get; set; }
+        public string TimePeriod { get; set; }
     }
 }
