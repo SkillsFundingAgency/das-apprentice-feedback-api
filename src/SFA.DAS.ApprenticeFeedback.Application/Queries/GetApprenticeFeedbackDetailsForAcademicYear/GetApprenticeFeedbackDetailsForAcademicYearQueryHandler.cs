@@ -34,6 +34,16 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDe
             var providerAttributeSummaries = await _providerAttributeSummaryContext.FindProviderAttributeSummaryPerAcademicYearAndIncludeAttributes(request.Ukprn, request.AcademicYear);
             var providerStarsSummary = await _providerStarsSummaryContext.FindProviderStarsSummaryForAcademicYear(request.Ukprn, request.AcademicYear);
 
+            if (providerAttributeSummaries == null || providerStarsSummary == null)
+            {
+                return new GetApprenticeFeedbackDetailsForAcademicYearResult
+                {
+                    Ukprn = request.Ukprn,
+                    ProviderAttribute = new List<AttributeResult>(),
+                    TimePeriod = request.AcademicYear
+                };
+            }
+
             return new GetApprenticeFeedbackDetailsForAcademicYearResult
             {
                 Ukprn = request.Ukprn,

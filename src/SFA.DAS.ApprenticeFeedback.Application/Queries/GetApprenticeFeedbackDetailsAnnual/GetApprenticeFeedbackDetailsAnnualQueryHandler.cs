@@ -38,6 +38,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDe
             var providerAttributeSummaries = await _providerAttributeSummaryContext.FindProviderAttributeSummaryAnnualAndIncludeAttributes(request.Ukprn);
             var providerStarsSummaries = await _providerStarsSummaryContext.FindProviderStarsSummaryAnnual(request.Ukprn);
 
+            if (providerAttributeSummaries == null || providerStarsSummaries == null)
+            {
+                return result;
+            }
+
             foreach (var providerStarsSummary in providerStarsSummaries)
             {
                 var annualApprenticeFeedback = new GetApprenticeFeedbackDetailAnnual
