@@ -5,37 +5,50 @@
 )
 AS
 BEGIN
-    DECLARE @CurrentYear INT = YEAR(GETDATE());
-    DECLARE @TimePeriods TABLE (TimePeriod VARCHAR(10));
-    INSERT INTO @TimePeriods (TimePeriod) VALUES ('All');
-    DECLARE @i INT = 0;
-    WHILE @i <= 5
+DECLARE @CurrentDate DATE = GETDATE();
+DECLARE @StartYear INT = YEAR(DATEADD(YEAR, -5, @CurrentDate));
+DECLARE @EndYear INT = YEAR(@CurrentDate);
+DECLARE @TimePeriods TABLE (ID INT IDENTITY(1,1), TimePeriod VARCHAR(10), StartDate DATETIME, EndDate DATETIME);
+DECLARE @AcademicStartYear INT;
+DECLARE @AcademicEndYear INT;
+DECLARE @TimePeriodTemp VARCHAR(10);
+
+WHILE @StartYear <= @EndYear
+BEGIN
+    IF @CurrentDate <= DATEFROMPARTS(@EndYear, 7, 31)
     BEGIN
-        DECLARE @StartYear INT = @CurrentYear - @i - 1;
-        DECLARE @EndYear INT = @CurrentYear - @i;
-        DECLARE @TimePeriodTemp VARCHAR(10) = CONCAT('AY', RIGHT(CAST(@StartYear AS VARCHAR), 2), RIGHT(CAST(@EndYear AS VARCHAR), 2));
-        INSERT INTO @TimePeriods (TimePeriod) VALUES (@TimePeriodTemp);
-        SET @i = @i + 1;
+        SET @AcademicStartYear = @EndYear - 1;
+        SET @AcademicEndYear = @EndYear;
     END
-    DECLARE @TimePeriod VARCHAR(10);
-    DECLARE @StartDate DATETIME, @EndDate DATETIME;
-    DECLARE TimePeriodCursor CURSOR FOR SELECT TimePeriod FROM @TimePeriods;
-    OPEN TimePeriodCursor;
-    FETCH NEXT FROM TimePeriodCursor INTO @TimePeriod;
-    WHILE @@FETCH_STATUS = 0
+    ELSE
     BEGIN
-        IF @TimePeriod = 'All'
+        SET @AcademicStartYear = @EndYear;
+        SET @AcademicEndYear = @EndYear + 1;
+    END
+	    SET @TimePeriodTemp = CONCAT('AY', RIGHT(CAST(@AcademicStartYear AS VARCHAR), 2), RIGHT(CAST(@AcademicEndYear AS VARCHAR), 2));
+        IF NOT EXISTS (SELECT 1 FROM @TimePeriods WHERE TimePeriod = @TimePeriodTemp)
         BEGIN
-            SET @StartDate = DATEADD(MONTH,-@recentFeedbackMonths,GETUTCDATE())
-            SET @EndDate = GETUTCDATE();
+            INSERT INTO @TimePeriods (TimePeriod, StartDate, EndDate) 
+	        VALUES (@TimePeriodTemp,DATETIMEFROMPARTS(@AcademicStartYear, 8, 1, 0, 0, 0, 0), DATETIMEFROMPARTS(@AcademicEndYear, 7, 31, 23, 59, 59, 997));
         END
-        ELSE
-        BEGIN
-           SET  @StartYear  = CAST('20' + SUBSTRING(@TimePeriod, 3, 2) AS INT);
-          SET  @EndYear  = CAST('20' + SUBSTRING(@TimePeriod, 5, 2) AS INT);
-            SET @StartDate = DATEFROMPARTS(@StartYear, 8, 1);
-            SET @EndDate = DATEFROMPARTS(@EndYear, 7, 31);
-        END
+
+    SET @EndYear -= 1;
+END
+
+DECLARE @TimePeriod VARCHAR(10);
+DECLARE @StartDate DATETIME;
+DECLARE @EndDate DATETIME;
+DECLARE @RowNum INT = 1;
+DECLARE @TotalRows INT = (SELECT COUNT(*) FROM @TimePeriods);
+
+WHILE @RowNum <= @TotalRows
+BEGIN
+    SELECT @TimePeriod = TimePeriod, @StartDate = StartDate, @EndDate = EndDate
+    FROM @TimePeriods
+    WHERE ID = @RowNum;
+	
+	DELETE FROM [dbo].[ProviderRatingSummary]
+    WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods);
 
         ;WITH LatestRatings AS (
             SELECT ar1.ApprenticeFeedbackTargetId, ar1.ProviderRating, aft.Ukprn
@@ -49,7 +62,8 @@ BEGIN
             WHERE FeedbackEligibility != 0
               AND ((DatetimeCompleted BETWEEN @StartDate AND @EndDate))
         )
-		    MERGE INTO [dbo].[ProviderRatingSummary]  prs
+
+	MERGE INTO [dbo].[ProviderRatingSummary]  prs
     USING (
     SELECT Ukprn, ProviderRating Rating, COUNT(*) RatingCount, GETUTCDATE() UpdatedOn
     FROM (
@@ -92,9 +106,41 @@ BEGIN
             INSERT (Ukprn, ReviewCount, Stars, TimePeriod)
             VALUES (upd.Ukprn, upd.ReviewCount, upd.Stars, @TimePeriod)
 WHEN NOT MATCHED BY SOURCE AND pss.TimePeriod = @TimePeriod THEN
-            DELETE;
-        FETCH NEXT FROM TimePeriodCursor INTO @TimePeriod;
-    END
-    CLOSE TimePeriodCursor;
-    DEALLOCATE TimePeriodCursor;
+            DELETE;  
+
+    SET @RowNum += 1;
+END
+
+-- Handle 'All' condition outside the loop
+DELETE FROM [dbo].[ProviderStarsSummary]
+	WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods);
+BEGIN
+    ;WITH ProviderRatingsWithTolerance AS (
+        SELECT
+            Ukprn,
+            SUM(ReviewCount) AS ReviewCount,
+			ROUND(AVG(CAST(Stars AS FLOAT)), 1) AS AvgRating
+        FROM
+            [dbo].[ProviderStarsSummary]
+        WHERE TimePeriod != 'All'
+        GROUP BY
+            Ukprn
+    )
+    MERGE INTO [dbo].[ProviderStarsSummary] pss
+    USING (
+        SELECT 
+            Ukprn,
+            ReviewCount,
+            ROUND(AvgRating, 0) AS Stars
+        FROM ProviderRatingsWithTolerance
+    ) upd
+    ON pss.Ukprn = upd.Ukprn AND pss.TimePeriod = 'All'
+    WHEN MATCHED THEN 
+        UPDATE SET pss.ReviewCount = upd.ReviewCount, pss.Stars = upd.Stars
+    WHEN NOT MATCHED BY TARGET THEN 
+        INSERT (Ukprn, ReviewCount, Stars, TimePeriod)
+        VALUES (upd.Ukprn, upd.ReviewCount, upd.Stars, 'All')
+    WHEN NOT MATCHED BY SOURCE AND pss.TimePeriod = 'All' THEN
+        DELETE;
+END
 END
