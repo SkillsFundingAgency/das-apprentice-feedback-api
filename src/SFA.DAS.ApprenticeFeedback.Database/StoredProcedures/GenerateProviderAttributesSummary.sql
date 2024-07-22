@@ -89,7 +89,7 @@ BEGIN
 
     SET @RowNum += 1;
 END
-
+BEGIN
     ;WITH AllResults AS (
         SELECT Ukprn, AttributeId, 
                SUM(Agree) AS Agree, 
@@ -113,4 +113,5 @@ END
         VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, upd.UpdatedOn, 'All')
 	WHEN NOT MATCHED BY SOURCE AND pas.TimePeriod = 'All' THEN
         DELETE;
+END
 END
