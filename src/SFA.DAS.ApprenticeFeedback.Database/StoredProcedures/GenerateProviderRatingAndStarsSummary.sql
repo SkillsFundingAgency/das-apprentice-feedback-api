@@ -1,6 +1,6 @@
 ﻿CREATE PROCEDURE [dbo].[GenerateProviderRatingAndStarsSummary]
 (
-    @recentFeedbackMonths INT,
+    @recentFeedbackMonths INT, --The parameter is not being used. It should be removed
     @minimumNumberOfReviews INT
 )
 AS
