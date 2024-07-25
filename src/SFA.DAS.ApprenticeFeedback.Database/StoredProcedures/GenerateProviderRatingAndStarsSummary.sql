@@ -113,7 +113,7 @@ END
 
 -- Handle 'All' condition outside the loop
 DELETE FROM [dbo].[ProviderStarsSummary]
-	WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods);
+	WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods) AND TimePeriod != 'All';
 BEGIN
     ;WITH ProviderRatingsWithTolerance AS (
         SELECT
