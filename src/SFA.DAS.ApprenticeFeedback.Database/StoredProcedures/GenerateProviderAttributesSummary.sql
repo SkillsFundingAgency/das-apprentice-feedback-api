@@ -62,12 +62,12 @@ BEGIN
        FROM (
             SELECT * FROM (
                 SELECT ROW_NUMBER() OVER (PARTITION BY ApprenticeFeedbackTargetId ORDER BY DateTimeCompleted DESC) seq, *
-                FROM [dbo].[ApprenticeFeedbackResult] WHERE ((DatetimeCompleted BETWEEN @StartDate AND @EndDate))
+                FROM [dbo].[ApprenticeFeedbackResult] WHERE ((DateTimeCompleted BETWEEN @StartDate AND @EndDate))
             ) ab1 WHERE seq = 1
             ) ar1
             JOIN [dbo].[ProviderAttribute] pa1 on pa1.ApprenticeFeedbackResultId = ar1.Id
             JOIN [dbo].[ApprenticeFeedbackTarget] aft on ar1.ApprenticeFeedbackTargetId = aft.Id
-    WHERE FeedbackEligibility != 0 AND ((DatetimeCompleted BETWEEN @StartDate AND @EndDate))
+    WHERE FeedbackEligibility != 0 AND ((DateTimeCompleted BETWEEN @StartDate AND @EndDate))
     )
     MERGE INTO [dbo].[ProviderAttributeSummary] pas
     USING (
