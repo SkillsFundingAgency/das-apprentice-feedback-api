@@ -160,8 +160,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
             try
             {
-                // set command timeout to 5 minutes (300 seconds)
-                Database.SetCommandTimeout(300);
+                // set command timeout to 10 minutes (300 seconds)
+                Database.SetCommandTimeout(600);
 
                 var parameterRecentFeedbackMonths = new SqlParameter
                 {
