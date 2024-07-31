@@ -48,15 +48,15 @@ DECLARE @EndDate DATETIME;
 DECLARE @RowNum INT = 1;
 DECLARE @TotalRows INT = (SELECT COUNT(*) FROM @TimePeriods);
 
+DELETE FROM [dbo].[ProviderRatingSummary]
+WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods);
+
 WHILE @RowNum <= @TotalRows
 BEGIN
     SELECT @TimePeriod = TimePeriod, @StartDate = StartDate, @EndDate = EndDate
     FROM @TimePeriods
     WHERE ID = @RowNum;
 	
-	DELETE FROM [dbo].[ProviderRatingSummary]
-    WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods);
-
         ;WITH LatestRatings AS (
             SELECT ar1.ApprenticeFeedbackTargetId, ar1.ProviderRating, aft.Ukprn
             FROM (
@@ -121,6 +121,7 @@ END
 -- Handle 'All' condition outside the loop
 DELETE FROM [dbo].[ProviderStarsSummary]
 	WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods) AND TimePeriod != 'All';
+
 BEGIN
     ;WITH ProviderRatingsWithTolerance AS (
         SELECT
