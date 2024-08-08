@@ -5,7 +5,8 @@
     Agree INT NOT NULL DEFAULT 0, 
     Disagree INT NOT NULL DEFAULT 0, 
     UpdatedOn Datetime2,
-	PRIMARY KEY(Ukprn, AttributeId) 
+	TimePeriod NVARCHAR(50) NOT NULL DEFAULT 'All',
+	PRIMARY KEY(Ukprn, AttributeId, TimePeriod) 
 )    
 ​
 GO
