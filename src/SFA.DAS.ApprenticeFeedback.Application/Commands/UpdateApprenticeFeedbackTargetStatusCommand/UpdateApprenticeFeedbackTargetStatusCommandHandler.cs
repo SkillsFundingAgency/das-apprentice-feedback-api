@@ -11,7 +11,7 @@ using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.UpdateApprenticeFeedbackTargetStatusCommand
 {
-    public class UpdateApprenticeFeedbackTargetStatusCommandHandler : IRequestHandler<UpdateApprenticeFeedbackTargetStatusCommand>
+    public class UpdateApprenticeFeedbackTargetStatusCommandHandler : IRequestHandler<UpdateApprenticeFeedbackTargetStatusCommand,Unit>
     {
         private readonly IApprenticeFeedbackTargetContext _apprenticeFeedbackTargetContext;
         private readonly ILogger<UpdateApprenticeFeedbackTargetCommandHandler> _logger;
