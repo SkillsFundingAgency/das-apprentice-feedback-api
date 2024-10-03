@@ -83,6 +83,8 @@
     <Build Include="Tables\FeedbackTargetStatus.sql" />
     <Build Include="Tables\FeedbackTransactionClick.sql" />
     <Build Include="Functions\IdentifyOldApprenticeships.sql" />
+    <Build Include="Tables\FeedbackTargetVariant.sql" />
+    <Build Include="Tables\FeedbackTargetVariant_Staging.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
