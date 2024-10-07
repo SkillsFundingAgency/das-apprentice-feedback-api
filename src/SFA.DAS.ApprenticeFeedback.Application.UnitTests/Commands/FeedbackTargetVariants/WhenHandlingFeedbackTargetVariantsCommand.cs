@@ -9,6 +9,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
 using MediatR;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 
 namespace SFA.DAS.ApprenticeFeedback.UnitTests.Application.Commands.ProcessFeedbackTargetVariants
 {
@@ -19,6 +20,7 @@ namespace SFA.DAS.ApprenticeFeedback.UnitTests.Application.Commands.ProcessFeedb
         private Mock<IFeedbackTargetVariant_StagingContext> _stagingContextMock;
         private Mock<IFeedbackTargetVariantContext> _contextMock;
         private Mock<ILogger<ProcessFeedbackTargetVariantsCommandHandler>> _loggerMock;
+        private ApplicationSettings _settings;
         private CancellationToken _cancellationToken;
 
         [SetUp]
@@ -27,10 +29,12 @@ namespace SFA.DAS.ApprenticeFeedback.UnitTests.Application.Commands.ProcessFeedb
             _stagingContextMock = new Mock<IFeedbackTargetVariant_StagingContext>();
             _contextMock = new Mock<IFeedbackTargetVariantContext>();
             _loggerMock = new Mock<ILogger<ProcessFeedbackTargetVariantsCommandHandler>>();
+            _settings = new ApplicationSettings { FeedbackTargetVariantBatchSize = 5};
             _handler = new ProcessFeedbackTargetVariantsCommandHandler(
                 _stagingContextMock.Object,
                 _contextMock.Object,
-                _loggerMock.Object);
+                _loggerMock.Object,
+                _settings);
             _cancellationToken = CancellationToken.None;
         }
 

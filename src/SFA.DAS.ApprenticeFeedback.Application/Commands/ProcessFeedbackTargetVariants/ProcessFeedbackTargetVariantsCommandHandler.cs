@@ -6,6 +6,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using System;
+using Microsoft.Extensions.Options;
+using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetVariants
 {
@@ -14,16 +16,18 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetV
         private readonly IFeedbackTargetVariant_StagingContext _stagingContext;
         private readonly IFeedbackTargetVariantContext _context;
         private readonly ILogger<ProcessFeedbackTargetVariantsCommandHandler> _logger;
-        private const int batchSize = 100; 
+        private readonly ApplicationSettings _appSettings;
 
         public ProcessFeedbackTargetVariantsCommandHandler(
             IFeedbackTargetVariant_StagingContext stagingContext,
             IFeedbackTargetVariantContext context,
-            ILogger<ProcessFeedbackTargetVariantsCommandHandler> logger)
+            ILogger<ProcessFeedbackTargetVariantsCommandHandler> logger,
+            ApplicationSettings appSettings)
         {
             _stagingContext = stagingContext;
             _context = context;
             _logger = logger;
+            _appSettings = appSettings;
         }
 
         public async Task<Unit> Handle(ProcessFeedbackTargetVariantsCommand request, CancellationToken cancellationToken)
@@ -65,7 +69,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetV
             var existingData = await _context.GetAll();
 
             var stagingIds = stagingData.Select(s => s.ApprenticeshipId).ToHashSet();
-            int changesCount = 0; 
+            int changesCount = 0;
+            int batchSize = _appSettings.FeedbackTargetVariantBatchSize;
 
             foreach (var stagingRecord in stagingData)
             {
@@ -116,7 +121,5 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetV
                 _logger.LogInformation($"Removed batch {i / batchSize + 1} with {batchToRemove.Count} records.");
             }
         }
-
-
     }
 }
