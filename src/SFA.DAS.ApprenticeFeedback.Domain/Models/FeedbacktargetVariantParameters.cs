@@ -1,10 +1,12 @@
-﻿using MediatR;
-using SFA.DAS.ApprenticeFeedback.Domain.Models;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetVariants
+namespace SFA.DAS.ApprenticeFeedback.Domain.Models
 {
-    public class ProcessFeedbackTargetVariantsCommand : IRequest
+    public  class FeedbackTargetVariantParameters
     {
         public bool ClearStaging { get; set; }
         public bool MergeStaging { get; set; }

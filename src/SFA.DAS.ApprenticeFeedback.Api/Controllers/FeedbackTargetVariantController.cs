@@ -15,39 +15,35 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
     public class FeedbackTargetVariantController : ControllerBase
     {
         private readonly IMediator _mediator;
-        //private readonly IBackgroundTaskQueue _backgroundTaskQueue;
+        private readonly IBackgroundTaskQueue _backgroundTaskQueue;
         private readonly ILogger<FeedbackTargetVariantController> _log;
 
-        public FeedbackTargetVariantController(IMediator mediator,ILogger<FeedbackTargetVariantController> log)
+        public FeedbackTargetVariantController(IMediator mediator,ILogger<FeedbackTargetVariantController> log, 
+            IBackgroundTaskQueue backgroundTaskQueue)
         {
             _mediator = mediator;
-            //_backgroundTaskQueue = backgroundTaskQueue;
+            _backgroundTaskQueue = backgroundTaskQueue;
             _log = log;
         }
 
         [HttpPost("process-variants")]
         public async Task<IActionResult> ProcessVariants(ProcessFeedbackTargetVariantsCommand command)
         {
-            var requestName = "process variants";
+            var requestName = "process feedback target variants";
 
             try
             {
-                //_log.LogInformation($"Received request to {requestName}");
+                _log.LogInformation($"Received request to {requestName}");
 
-                //_backgroundTaskQueue.QueueBackgroundRequest(
-                //    command, requestName, (response, duration, log) =>
-                //    {
-                //        //var result = response as GenerateFeedbackTargetVariantsCommandResponse;
-                //        log.LogInformation($"Completed request to {requestName}");
-                //    });
+                _backgroundTaskQueue.QueueBackgroundRequest(
+                    command, requestName, (response, duration, log) =>
+                    {
+                        log.LogInformation($"Completed request to {requestName}");
+                    });
 
-                //_log.LogInformation($"Queued request to {requestName}");
+                _log.LogInformation($"Queued request to {requestName}");
 
-                //return Accepted();
-
-                await _mediator.Send(command);
-
-                return Ok();
+                return Accepted();
             }
             catch (Exception e)
             {

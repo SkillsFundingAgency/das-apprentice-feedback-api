@@ -6,6 +6,5 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Models
     {
         public long ApprenticeshipId { get; set; }
         public string Variant { get; set; }
-
     }
 }
