@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using NLog;
 using SFA.DAS.ApprenticeFeedback.Api.TaskQueue;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetVariants;
 using SFA.DAS.ApprenticeFeedback.Application.Extensions;
 using System;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
@@ -33,7 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
 
             try
             {
-                _log.LogInformation($"Received request to {requestName}");
+                _log.LogInformation("Received request to {RequestName}", requestName);
 
                 _backgroundTaskQueue.QueueBackgroundRequest(
                     command, requestName, (response, duration, log) =>
@@ -41,7 +43,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
                         log.LogInformation($"Completed request to {requestName}");
                     });
 
-                _log.LogInformation($"Queued request to {requestName}");
+                _log.LogInformation("Queued request to {RequestName}", requestName);
 
                 return Accepted();
             }

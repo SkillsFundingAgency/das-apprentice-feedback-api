@@ -1,261 +1,140 @@
-﻿using NUnit.Framework;
-using Moq;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
+﻿using Moq;
+using NUnit.Framework;
 using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetVariants;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using System.Collections.Generic;
 using System.Linq;
-using MediatR;
-using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 
-namespace SFA.DAS.ApprenticeFeedback.UnitTests.Application.Commands.ProcessFeedbackTargetVariants
+namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 {
     [TestFixture]
     public class ProcessFeedbackTargetVariantsCommandHandlerTests
     {
+        private Mock<IFeedbackTargetVariant_StagingContext> _mockStagingContext;
+        private Mock<IFeedbackTargetVariantContext> _mockContext;
+        private Mock<ILogger<ProcessFeedbackTargetVariantsCommandHandler>> _mockLogger;
         private ProcessFeedbackTargetVariantsCommandHandler _handler;
-        private Mock<IFeedbackTargetVariant_StagingContext> _stagingContextMock;
-        private Mock<IFeedbackTargetVariantContext> _contextMock;
-        private Mock<ILogger<ProcessFeedbackTargetVariantsCommandHandler>> _loggerMock;
-        private ApplicationSettings _settings;
-        private CancellationToken _cancellationToken;
 
         [SetUp]
-        public void Setup()
+        public void SetUp()
         {
-            _stagingContextMock = new Mock<IFeedbackTargetVariant_StagingContext>();
-            _contextMock = new Mock<IFeedbackTargetVariantContext>();
-            _loggerMock = new Mock<ILogger<ProcessFeedbackTargetVariantsCommandHandler>>();
-            _settings = new ApplicationSettings { FeedbackTargetVariantBatchSize = 5};
+            _mockStagingContext = new Mock<IFeedbackTargetVariant_StagingContext>();
+            _mockContext = new Mock<IFeedbackTargetVariantContext>();
+            _mockLogger = new Mock<ILogger<ProcessFeedbackTargetVariantsCommandHandler>>();
+
             _handler = new ProcessFeedbackTargetVariantsCommandHandler(
-                _stagingContextMock.Object,
-                _contextMock.Object,
-                _loggerMock.Object,
-                _settings);
-            _cancellationToken = CancellationToken.None;
+                _mockStagingContext.Object,
+                _mockContext.Object,
+                _mockLogger.Object);
         }
 
         [Test]
-        public async Task Handle_WhenClearStagingIsTrue_ClearsStagingData()
+        public async Task Handle_Should_Clear_Staging_When_ClearStaging_Is_True()
         {
             // Arrange
-            var command = new ProcessFeedbackTargetVariantsCommand
+            var request = new ProcessFeedbackTargetVariantsCommand
             {
                 ClearStaging = true,
-                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>(),
-                MergeStaging = false
+                MergeStaging = false,
+                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>()
             };
-
-            var stagingData = new List<FeedbackTargetVariant_Staging>
-            {
-                new FeedbackTargetVariant_Staging { ApprenticeshipId = 1, Variant = "Variant1" },
-                new FeedbackTargetVariant_Staging { ApprenticeshipId = 2, Variant = "Variant2" }
-            };
-
-            _stagingContextMock.Setup(x => x.GetAll()).ReturnsAsync(stagingData);
 
             // Act
-            await _handler.Handle(command, _cancellationToken);
+            await _handler.Handle(request, CancellationToken.None);
 
             // Assert
-            _stagingContextMock.Verify(x => x.RemoveRange(stagingData), Times.Once);
+            _mockStagingContext.Verify(x => x.ClearFeedbackTargetVariant_Staging(), Times.Once);
         }
 
         [Test]
-        public async Task Handle_ImportsStagingData()
+        public async Task Handle_Should_Not_Clear_Staging_When_ClearStaging_Is_False()
         {
             // Arrange
-            var command = new ProcessFeedbackTargetVariantsCommand
+            var request = new ProcessFeedbackTargetVariantsCommand
             {
                 ClearStaging = false,
-                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>
-                {
-                    new Domain.Models.FeedbackTargetVariant { ApprenticeshipId = 1, Variant = "Variant1" },
-                    new Domain.Models.FeedbackTargetVariant { ApprenticeshipId = 2, Variant = "Variant2" }
-                },
-                MergeStaging = false
+                MergeStaging = false,
+                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>()
             };
 
             // Act
-            await _handler.Handle(command, _cancellationToken);
+            await _handler.Handle(request, CancellationToken.None);
 
             // Assert
-            _stagingContextMock.Verify(x => x.AddRange(It.Is<List<FeedbackTargetVariant_Staging>>(list =>
-                list.Count == 2 &&
-                list.Any(v => v.ApprenticeshipId == 1 && v.Variant == "Variant1") &&
-                list.Any(v => v.ApprenticeshipId == 2 && v.Variant == "Variant2"))), Times.Once);
-
-            _stagingContextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            _mockStagingContext.Verify(x => x.ClearFeedbackTargetVariant_Staging(), Times.Never);
         }
 
         [Test]
-        public async Task Handle_WhenMergeStagingIsTrue_MergesStagingData_AddsNewRecords()
+        public async Task Handle_Should_Import_FeedbackTargetVariants_To_Staging()
         {
             // Arrange
-            var command = new ProcessFeedbackTargetVariantsCommand
+            var feedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>()
+            {
+                new Domain.Models.FeedbackTargetVariant { ApprenticeshipId = 1, Variant = "Test Variant 1" },
+                new Domain.Models.FeedbackTargetVariant { ApprenticeshipId = 2, Variant = "Test Variant 2" }
+            };
+
+            var request = new ProcessFeedbackTargetVariantsCommand
             {
                 ClearStaging = false,
-                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>(),
-                MergeStaging = true
+                MergeStaging = false,
+                FeedbackTargetVariants = feedbackTargetVariants
             };
-
-            var stagingData = new List<FeedbackTargetVariant_Staging>
-            {
-                new FeedbackTargetVariant_Staging { ApprenticeshipId = 1, Variant = "Variant1" }
-            };
-
-            var existingData = new List<FeedbackTargetVariant>();
-
-            _stagingContextMock.Setup(x => x.GetAll()).ReturnsAsync(stagingData);
-            _contextMock.Setup(x => x.GetAll()).ReturnsAsync(existingData);
 
             // Act
-            await _handler.Handle(command, _cancellationToken);
+            await _handler.Handle(request, CancellationToken.None);
 
             // Assert
-            _contextMock.Verify(x => x.Add(It.Is<FeedbackTargetVariant>(v =>
-                v.ApprenticeshipId == 1 && v.Variant == "Variant1")), Times.Once);
-
-            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+            _mockStagingContext.Verify(x => x.AddRange(It.Is<List<FeedbackTargetVariant_Staging>>(list =>
+            list.Count == feedbackTargetVariants.Count &&
+                list.All(stagingItem =>
+                    feedbackTargetVariants.Any(originalItem =>
+                        originalItem.ApprenticeshipId == stagingItem.ApprenticeshipId &&
+                        originalItem.Variant == stagingItem.Variant
+                    )
+                )
+            )), Times.Once);
+            _mockStagingContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
-        public async Task Handle_WhenMergeStagingIsTrue_MergesStagingData_UpdatesExistingRecords()
+        public async Task Handle_Should_Merge_Staging_When_MergeStaging_Is_True()
         {
             // Arrange
-            var command = new ProcessFeedbackTargetVariantsCommand
+            var request = new ProcessFeedbackTargetVariantsCommand
             {
                 ClearStaging = false,
-                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>(),
-                MergeStaging = true
+                MergeStaging = true,
+                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>()
             };
-
-            var stagingData = new List<FeedbackTargetVariant_Staging>
-            {
-                new FeedbackTargetVariant_Staging { ApprenticeshipId = 1, Variant = "NewVariant" }
-            };
-
-            var existingData = new List<FeedbackTargetVariant>
-            {
-                new FeedbackTargetVariant { ApprenticeshipId = 1, Variant = "OldVariant" }
-            };
-
-            _stagingContextMock.Setup(x => x.GetAll()).ReturnsAsync(stagingData);
-            _contextMock.Setup(x => x.GetAll()).ReturnsAsync(existingData);
 
             // Act
-            await _handler.Handle(command, _cancellationToken);
+            await _handler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.AreEqual("NewVariant", existingData.First().Variant);
-            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce);
+            _mockContext.Verify(x => x.ImportIntoFeedbackTargetVariantFromStaging(), Times.Once);
         }
 
         [Test]
-        public async Task Handle_WhenMergeStagingIsTrue_RemovesRecordsNotInStaging()
+        public async Task Handle_Should_Not_Merge_Staging_When_MergeStaging_Is_False()
         {
             // Arrange
-            var command = new ProcessFeedbackTargetVariantsCommand
+            var request = new ProcessFeedbackTargetVariantsCommand
             {
                 ClearStaging = false,
-                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>(),
-                MergeStaging = true
-            };
-
-            var stagingData = new List<FeedbackTargetVariant_Staging>
-            {
-                new FeedbackTargetVariant_Staging { ApprenticeshipId = 1, Variant = "Variant1" }
-            };
-
-            var existingData = new List<FeedbackTargetVariant>
-            {
-                new FeedbackTargetVariant { ApprenticeshipId = 1, Variant = "Variant1" },
-                new FeedbackTargetVariant { ApprenticeshipId = 2, Variant = "Variant2" } // Should be removed
-            };
-
-            _stagingContextMock.Setup(x => x.GetAll()).ReturnsAsync(stagingData);
-            _contextMock.Setup(x => x.GetAll()).ReturnsAsync(existingData);
-
-            // Act
-            await _handler.Handle(command, _cancellationToken);
-
-            // Assert
-            _contextMock.Verify(x => x.RemoveRange(It.Is<List<FeedbackTargetVariant>>(list =>
-                list.Count == 1 && list.First().ApprenticeshipId == 2)), Times.Once);
-
-            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce);
-        }
-
-        [Test]
-        public async Task Handle_DoesNotClearStaging_WhenClearStagingIsFalse()
-        {
-            // Arrange
-            var command = new ProcessFeedbackTargetVariantsCommand
-            {
-                ClearStaging = false,
-                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>(),
-                MergeStaging = false
+                MergeStaging = false,
+                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>()
             };
 
             // Act
-            await _handler.Handle(command, _cancellationToken);
+            await _handler.Handle(request, CancellationToken.None);
 
             // Assert
-            _stagingContextMock.Verify(x => x.GetAll(), Times.Never);
-            _stagingContextMock.Verify(x => x.RemoveRange(It.IsAny<List<FeedbackTargetVariant_Staging>>()), Times.Never);
-        }
-
-        [Test]
-        public async Task Handle_DoesNotMergeStaging_WhenMergeStagingIsFalse()
-        {
-            // Arrange
-            var command = new ProcessFeedbackTargetVariantsCommand
-            {
-                ClearStaging = false,
-                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>(),
-                MergeStaging = false
-            };
-
-            // Act
-            await _handler.Handle(command, _cancellationToken);
-
-            // Assert
-            _contextMock.Verify(x => x.GetAll(), Times.Never);
-            _contextMock.Verify(x => x.Add(It.IsAny<FeedbackTargetVariant>()), Times.Never);
-            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);
-        }
-
-        [Test]
-        public async Task Handle_ProcessesBatches_CallsSaveChangesAfterBatchSizeChanges()
-        {
-            // Arrange
-            var command = new ProcessFeedbackTargetVariantsCommand
-            {
-                ClearStaging = false,
-                FeedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>(),
-                MergeStaging = true
-            };
-
-            var stagingData = Enumerable.Range(1, 150).Select(i => new FeedbackTargetVariant_Staging
-            {
-                ApprenticeshipId = i,
-                Variant = $"Variant{i}"
-            }).ToList();
-
-            var existingData = new List<FeedbackTargetVariant>();
-
-            _stagingContextMock.Setup(x => x.GetAll()).ReturnsAsync(stagingData);
-            _contextMock.Setup(x => x.GetAll()).ReturnsAsync(existingData);
-
-            // Act
-            await _handler.Handle(command, _cancellationToken);
-
-            // Assert
-            // Since batchSize is 100, SaveChangesAsync should be called at least twice
-            _contextMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeast(2));
+            _mockContext.Verify(x => x.ImportIntoFeedbackTargetVariantFromStaging(), Times.Never);
         }
     }
 }

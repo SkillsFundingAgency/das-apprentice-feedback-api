@@ -37,11 +37,12 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Services
             get
             {
                 var applicationSettings = Options.Create(new ApplicationSettings { DbConnectionString = Configuration.SqlConnectionStringTest });
-                var option = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>();
+                var optionsBuilder = new DbContextOptionsBuilder<ApprenticeFeedbackDataContext>()
+                    .UseSqlServer(applicationSettings.Value.DbConnectionString);
 
                 return new ApprenticeFeedbackDataContext(
                     applicationSettings, 
-                    option.Options,
+                    optionsBuilder.Options,
                     null);
             }
         }

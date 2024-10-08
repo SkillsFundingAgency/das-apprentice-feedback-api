@@ -238,5 +238,41 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 Database.SetCommandTimeout(originalTimeout);
             }
         }
+
+        public async Task ImportIntoFeedbackTargetVariantFromStaging()
+        {
+            var originalTimeout = Database.GetCommandTimeout();
+
+            try
+            {
+                // set command timeout to 20 minutes (1200 seconds)
+                Database.SetCommandTimeout(1200);
+
+                await Database.ExecuteSqlRawAsync("EXEC [dbo].[ImportIntoFeedbackTargetVariant_FromFeedbackTargetVariant_Staging]");
+            }
+            finally
+            {
+                // reset the command timeout to its original value
+                Database.SetCommandTimeout(originalTimeout);
+            }
+        }
+
+        public async Task ClearFeedbackTargetVariant_Staging()
+        {
+            var originalTimeout = Database.GetCommandTimeout();
+
+            try
+            {
+                // set command timeout to 20 minutes (1200 seconds)
+                Database.SetCommandTimeout(1200);
+
+                await Database.ExecuteSqlRawAsync("EXEC [dbo].[TruncateFeedbackTargetVariant_Staging]");
+            }
+            finally
+            {
+                // reset the command timeout to its original value
+                Database.SetCommandTimeout(originalTimeout);
+            }
+        }
     }
 }

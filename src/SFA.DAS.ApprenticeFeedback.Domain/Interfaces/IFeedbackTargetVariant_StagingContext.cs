@@ -10,13 +10,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
     {
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
-        public async Task<List<FeedbackTargetVariant_Staging>> GetAll()
-            => await Entities.ToListAsync();
-
         public async Task AddRange(List<FeedbackTargetVariant_Staging> feedbackTargetVariants)
             => await Entities.AddRangeAsync(feedbackTargetVariants);
 
-        public void RemoveRange(List<FeedbackTargetVariant_Staging> feedbackTargetVariants)
-            => Entities.RemoveRange(feedbackTargetVariants);
+        Task ClearFeedbackTargetVariant_Staging();
     }
 }
