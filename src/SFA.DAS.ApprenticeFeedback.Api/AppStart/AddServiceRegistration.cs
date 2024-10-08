@@ -28,6 +28,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
             services.AddScoped<IEngagementEmailContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IExitSurveyContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IExclusionContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
+            services.AddScoped<IFeedbackTargetVariantContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
+            services.AddScoped<IFeedbackTargetVariant_StagingContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddValidatorsFromAssembly(typeof(Application.Queries.GetFeedbackTransactionsToEmail.GetFeedbackTransactionsToEmailQueryValidator).Assembly);
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             services.AddTransient<IEmailTemplateService, EmailTemplateService>();

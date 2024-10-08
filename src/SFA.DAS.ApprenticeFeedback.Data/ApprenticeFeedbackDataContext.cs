@@ -29,7 +29,9 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         IFeedbackTransactionContext,
         IFeedbackTransactionClickContext,
         IEngagementEmailContext,
-        IExclusionContext
+        IExclusionContext,
+        IFeedbackTargetVariantContext,
+        IFeedbackTargetVariant_StagingContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -47,6 +49,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         public virtual DbSet<FeedbackTransactionClick> FeedbackTransactionClicks { get; set; }
         public virtual DbSet<EngagementEmail> EngagementEmails { get; set; }
         public virtual DbSet<Exclusion> Exclusions { get; set; }
+        public virtual DbSet<FeedbackTargetVariant> FeedbackTargetVariants { get; set; }
+        public virtual DbSet<FeedbackTargetVariant_Staging> FeedbackTargetVariants_Staging { get; set; }
 
         DbSet<ApprenticeFeedbackTarget> IEntityContext<Domain.Entities.ApprenticeFeedbackTarget>.Entities => ApprenticeFeedbackTargets;
         DbSet<ApprenticeFeedbackResult> IEntityContext<ApprenticeFeedbackResult>.Entities => ApprenticeFeedbackResults;
@@ -60,6 +64,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
         DbSet<FeedbackTransactionClick> IEntityContext<FeedbackTransactionClick>.Entities => FeedbackTransactionClicks;
         DbSet<EngagementEmail> IEntityContext<EngagementEmail>.Entities => EngagementEmails;
         DbSet<Exclusion> IEntityContext<Exclusion>.Entities => Exclusions;
+        DbSet<FeedbackTargetVariant> IEntityContext<FeedbackTargetVariant>.Entities => FeedbackTargetVariants;
+        DbSet<FeedbackTargetVariant_Staging> IEntityContext<FeedbackTargetVariant_Staging>.Entities => FeedbackTargetVariants_Staging;
 
 
         public ApprenticeFeedbackDataContext(DbContextOptions<ApprenticeFeedbackDataContext> options) : base(options)
@@ -101,6 +107,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             modelBuilder.ApplyConfiguration(new ExitSurveyAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new ExclusionsConfiguration());
             modelBuilder.ApplyConfiguration(new EngagementEmailConfiguration());
+            modelBuilder.ApplyConfiguration(new FeedbackTargetVariantConfiguration());
+            modelBuilder.ApplyConfiguration(new FeedbackTargetVariant_StagingConfiguration());
             modelBuilder.Entity<GenerateFeedbackTransactionsResult>().HasNoKey();
             base.OnModelCreating(modelBuilder);
         }
@@ -223,6 +231,42 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                     .ToListAsync(cancellationToken);
 
                 return result.FirstOrDefault();
+            }
+            finally
+            {
+                // reset the command timeout to its original value
+                Database.SetCommandTimeout(originalTimeout);
+            }
+        }
+
+        public async Task ImportIntoFeedbackTargetVariantFromStaging()
+        {
+            var originalTimeout = Database.GetCommandTimeout();
+
+            try
+            {
+                // set command timeout to 20 minutes (1200 seconds)
+                Database.SetCommandTimeout(1200);
+
+                await Database.ExecuteSqlRawAsync("EXEC [dbo].[ImportIntoFeedbackTargetVariant_FromFeedbackTargetVariant_Staging]");
+            }
+            finally
+            {
+                // reset the command timeout to its original value
+                Database.SetCommandTimeout(originalTimeout);
+            }
+        }
+
+        public async Task ClearFeedbackTargetVariant_Staging()
+        {
+            var originalTimeout = Database.GetCommandTimeout();
+
+            try
+            {
+                // set command timeout to 20 minutes (1200 seconds)
+                Database.SetCommandTimeout(1200);
+
+                await Database.ExecuteSqlRawAsync("EXEC [dbo].[TruncateFeedbackTargetVariant_Staging]");
             }
             finally
             {
