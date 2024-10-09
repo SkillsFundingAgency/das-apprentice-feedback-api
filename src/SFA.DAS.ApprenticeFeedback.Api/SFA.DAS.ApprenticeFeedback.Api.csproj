@@ -22,7 +22,7 @@
     <PackageReference Include="SFA.DAS.NServiceBus" Version="17.0.49" />
     <PackageReference Include="SFA.DAS.NServiceBus.SqlServer" Version="17.0.49" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="System.Text.Json" Version="6.0.2" />
+    <PackageReference Include="System.Text.Json" Version="6.0.10" />
   </ItemGroup>
 
   <ItemGroup>
