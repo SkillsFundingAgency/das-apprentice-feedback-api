@@ -4,7 +4,7 @@
 // Go to the properties of this new file and set the property 'Copy to Output Directory' to 'Copy Always'
 {
   "ConnectionStrings": {
-    "SqlConnectionString": "Data Source={LOCAL-DB-SERVER};Initial Catalog=SFA.DAS.ApprenticeFeedback.Database;Integrated Security=True;",
-    "SqlConnectionStringTest": "Data Source={LOCAL-DB-SERVER};Initial Catalog=SFA.DAS.ApprenticeFeedback.Database.Test;Integrated Security=True;"
+    "SqlConnectionString": "Data Source=YOUR_LOCAL_DB_SERVER;Initial Catalog=SFA.DAS.ApprenticeFeedback.Database;Integrated Security=True;TrustServerCertificate=True;",
+    "SqlConnectionStringTest": "Data Source=YOUR_LOCAL_DB_SERVER;Initial Catalog=SFA.DAS.ApprenticeFeedback.Database.Test;Integrated Security=True;TrustServerCertificate=True;"
   }
 }

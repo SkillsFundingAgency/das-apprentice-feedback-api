@@ -80,17 +80,16 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (_configuration == null || _chainedTokenCredentialProvider == null)
+            if (_configuration == null)
             {
                 return;
             }
 
-            var connection = new SqlConnection
+            optionsBuilder.UseSqlServer(new SqlConnection
             {
                 ConnectionString = _configuration.DbConnectionString,
-                AccessToken = _chainedTokenCredentialProvider.GetTokenAsync(new TokenRequestContext(scopes: new string[] { AzureResource })).Result.Token
-            };
-            optionsBuilder.UseSqlServer(connection);
+                AccessToken = GetAccessToken()
+            });
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -187,11 +186,11 @@ namespace SFA.DAS.ApprenticeFeedback.Data
 
                 await Database.ExecuteSqlRawAsync(
                     "EXEC [dbo].[GenerateProviderAttributesSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
-                    parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
+                    parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews );
 
                 await Database.ExecuteSqlRawAsync(
                     "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
-                    parameters: new[] { parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews });
+                    parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews);
             }
             finally
             {
@@ -227,7 +226,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 var result =
                 await Set<GenerateFeedbackTransactionsResult>()
                     .FromSqlRaw("EXEC dbo.GenerateFeedbackTransactions @sentDateAgeDays, @specifiedUtcDate",
-                        new[] { parameterSentDateAgeDays, parameterSpecifiedUtcDate })
+                        parameterSentDateAgeDays, parameterSpecifiedUtcDate)
                     .ToListAsync(cancellationToken);
 
                 return result.FirstOrDefault();
@@ -273,6 +272,24 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 // reset the command timeout to its original value
                 Database.SetCommandTimeout(originalTimeout);
             }
+        }
+
+        private string GetAccessToken()
+        {
+            if (_chainedTokenCredentialProvider != null)
+            {
+                var valueTask = _chainedTokenCredentialProvider.GetTokenAsync(new TokenRequestContext(new[] { AzureResource }));
+                if (valueTask.IsCompletedSuccessfully)
+                {
+                    return valueTask.Result.Token;
+                }
+                else
+                {
+                    return valueTask.AsTask().GetAwaiter().GetResult().Token;
+                }
+            }
+
+            return null;
         }
     }
 }

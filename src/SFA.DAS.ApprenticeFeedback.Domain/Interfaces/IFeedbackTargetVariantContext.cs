@@ -18,6 +18,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
         public void RemoveRange(List<FeedbackTargetVariant> feedbackTargetVariants)
             => Entities.RemoveRange(feedbackTargetVariants);
 
+        public async Task<FeedbackTargetVariant> FindByApprenticeshipId(long apprenticeshipId)
+            => await Entities.FindAsync(apprenticeshipId);
+
         Task ImportIntoFeedbackTargetVariantFromStaging();
     }
 }
