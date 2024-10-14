@@ -31,7 +31,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
                     "[ApprenticeshipId]" +
                     ", [Variant]" +
                 "FROM [FeedbackTargetVariant_Staging] " +
-                //$"WHERE (Id = @id OR @id IS NULL) " + // when @id is null then Id is not predicated
                     $"AND {NotNullQueryParam(feedbackTransaction, p => p.ApprenticeshipId)} " +
                     $"AND {NullQueryParam(feedbackTransaction, p => p.Variant)} ";
 
@@ -41,7 +40,6 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
         public static string Because(FeedbackTargetVariantModel feedbackTransaction)
         {
             var becauseMessage = $"Expected a FeedbackTransaction to exist with parameters: " +
-                                 //$"{BecauseParam(feedbackTransaction, p => p.Id, allowAny: true)}, " +
                                  $"{BecauseParam(feedbackTransaction, p => p.ApprenticeshipId)}, " +
                                  $"{BecauseParam(feedbackTransaction, p => p.Variant)}";
 
