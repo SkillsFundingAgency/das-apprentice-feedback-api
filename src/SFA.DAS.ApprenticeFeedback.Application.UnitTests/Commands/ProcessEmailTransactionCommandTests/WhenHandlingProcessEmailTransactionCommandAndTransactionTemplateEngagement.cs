@@ -62,7 +62,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsEngagementEmailContactAllowed = false;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, null, appSettings, appUrls);
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -113,7 +113,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsEngagementEmailContactAllowed = false;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -166,7 +166,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsEngagementEmailContactAllowed = false;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -219,7 +219,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsEngagementEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, null, appSettings, appUrls);
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -273,7 +273,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsEngagementEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -329,7 +329,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsEngagementEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -380,7 +380,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsEngagementEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, null, appSettings, appUrls);
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -431,14 +431,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsEngagementEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
 
             // Assert
             feedbackTransaction.IsSuppressed.Should().BeFalse();
-            feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == templateName)?.TemplateId);
+            feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.Find(p => p.TemplateName == templateName)?.TemplateId);
             feedbackTransaction.EmailAddress = command.ApprenticeEmailAddress;
             feedbackTransaction.FirstName = command.ApprenticeName;
             feedbackTransaction.SentDate.Should().Be(_utcNow);
@@ -487,7 +487,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsEngagementEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -495,10 +495,166 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             // Assert
             VerifyDoesSendEmail(nserviceBusMessageSession,
                 feedbackTransaction.EmailAddress,
-                appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == templateName).TemplateId,
+                appSettings.NotificationTemplates.Find(p => p.TemplateName == templateName).TemplateId,
                 feedbackTransaction.FirstName,
                 feedbackTransaction.ApprenticeFeedbackTargetId,
                 feedbackTransaction.Id,
+                templateName,
+                appUrls.ApprenticeFeedbackUrl,
+                appUrls.ApprenticeAccountsUrl);
+        }
+
+        [AutoMoqInlineAutoData("AppStart", "A")]
+        [AutoMoqInlineAutoData("AppMonthThree", "B")]
+        public async Task AndEngagementEmailSubscribed_WithVariant_ThenEmailResultSuccessfull(
+           string templateName,
+           string variantName,
+           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
+           [Frozen] Mock<IEmailTemplateService> emailTemplateService,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] ApplicationUrls appUrls,
+           [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut)
+        {
+            // Arrange
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Id = Guid.NewGuid()
+            };
+
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                Id = 101,
+                TemplateName = templateName,
+                IsSuppressed = false,
+                SentDate = null,
+                ApprenticeFeedbackTargetId = feedbackTarget.Id,
+                ApprenticeFeedbackTarget = feedbackTarget
+            };
+
+            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, dateTimeHelper, feedbackTransaction, false, true);
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEngagementEmailContactAllowed = true;
+
+            appSettings.NotificationTemplates.Add(new NotificationTemplate { TemplateName = $"{templateName}_{variantName}", TemplateId = Guid.NewGuid() });
+
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, variantName, appSettings, appUrls);
+
+            // Act
+            var result = await sut.Handle(command, CancellationToken.None);
+
+            // Assert
+            result.EmailSentStatus.Should().Be(EmailSentStatus.Successful);
+        }
+
+        [AutoMoqInlineAutoData("AppStart", "A")]
+        [AutoMoqInlineAutoData("AppMonthThree", "B")]
+        public async Task AndEngagementEmailSubscribed_WithVariant_ThenFeedbackTransactionUpdated(
+           string templateName,
+           string variantName,
+           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
+           [Frozen] Mock<IEmailTemplateService> emailTemplateService,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] ApplicationUrls appUrls,
+           [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut)
+        {
+            // Arrange
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Id = Guid.NewGuid()
+            };
+
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                Id = 101,
+                TemplateName = templateName,
+                IsSuppressed = false,
+                SentDate = null,
+                ApprenticeFeedbackTargetId = feedbackTarget.Id,
+                ApprenticeFeedbackTarget = feedbackTarget
+            };
+
+            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, dateTimeHelper, feedbackTransaction, false, true);
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEngagementEmailContactAllowed = true;
+
+            appSettings.NotificationTemplates.Add(new NotificationTemplate { TemplateName = $"{templateName}_{variantName}", TemplateId = Guid.NewGuid() });
+
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, variantName, appSettings, appUrls);
+
+            // Act
+            await sut.Handle(command, CancellationToken.None);
+
+            // Assert
+            feedbackTransaction.IsSuppressed.Should().BeFalse();
+            feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.Find(p => p.TemplateName == $"{templateName}_{variantName}")?.TemplateId);
+            feedbackTransaction.EmailAddress = command.ApprenticeEmailAddress;
+            feedbackTransaction.FirstName = command.ApprenticeName;
+            feedbackTransaction.SentDate.Should().Be(_utcNow);
+            feedbackTransaction.Variant.Should().Be(variantName);
+        }
+
+        [AutoMoqInlineAutoData("AppStart", "A")]
+        [AutoMoqInlineAutoData("AppMonthThree", "B")]
+        public async Task AndEngagementEmailSubscribed_WithVariant_ThenEngagementEmailSent(
+           string templateName,
+           string variantName,
+           [Frozen] Mock<IFeedbackTransactionContext> feedbackTransactionContext,
+           [Frozen] Mock<IExclusionContext> exclusionContext,
+           [Frozen] Mock<IEngagementEmailContext> engagementEmailContext,
+           [Frozen] Mock<IEmailTemplateService> emailTemplateService,
+           [Frozen] Mock<IMessageSession> nserviceBusMessageSession,
+           [Frozen] ApplicationSettings appSettings,
+           [Frozen] ApplicationUrls appUrls,
+           [Frozen] Mock<IDateTimeHelper> dateTimeHelper,
+           ProcessEmailTransactionCommand command,
+           ProcessEmailTransactionCommandHandler sut)
+        {
+            // Arrange
+            var feedbackTarget = new ApprenticeFeedbackTarget()
+            {
+                Id = Guid.NewGuid()
+            };
+
+            var feedbackTransaction = new FeedbackTransaction()
+            {
+                Id = 101,
+                TemplateName = templateName,
+                IsSuppressed = false,
+                SentDate = null,
+                ApprenticeFeedbackTargetId = feedbackTarget.Id,
+                ApprenticeFeedbackTarget = feedbackTarget
+            };
+
+            CommonSetup(feedbackTransactionContext, exclusionContext, engagementEmailContext, dateTimeHelper, feedbackTransaction, false, true);
+
+            command.FeedbackTransactionId = feedbackTransaction.Id;
+            command.IsEngagementEmailContactAllowed = true;
+
+            appSettings.NotificationTemplates.Add(new NotificationTemplate { TemplateName = $"{templateName}_{variantName}", TemplateId = Guid.NewGuid() });
+
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, templateName, variantName, appSettings, appUrls);
+
+            // Act
+            await sut.Handle(command, CancellationToken.None);
+
+            // Assert
+            VerifyDoesSendEmail(nserviceBusMessageSession,
+                feedbackTransaction.EmailAddress,
+                appSettings.NotificationTemplates.Find(p => p.TemplateName == $"{templateName}_{variantName}").TemplateId,
+                feedbackTransaction.FirstName,
+                feedbackTransaction.ApprenticeFeedbackTargetId,
+                feedbackTransaction.Id,
+                $"{templateName}_{variantName}",
                 appUrls.ApprenticeFeedbackUrl,
                 appUrls.ApprenticeAccountsUrl);
         }

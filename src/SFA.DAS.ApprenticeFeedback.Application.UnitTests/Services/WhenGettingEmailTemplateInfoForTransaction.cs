@@ -257,7 +257,100 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Services
             }
         }
 
-        private void AssertTokens(Dictionary<string, string> tokens, ProcessEmailTransactionCommand command, FeedbackTransaction feedbackTransaction, ApplicationUrls appUrls)
+        [Test]
+        [AutoMoqData]
+        public async Task AndVariantIsAvailable_ThenReturnVariantTemplate(
+        [Frozen] Mock<IFeedbackTransactionContext> mockFeedbackTransactionContext,
+        [Frozen] Mock<IFeedbackTargetVariantContext> mockFeedbackTargetVariantContext,
+        [Frozen] ApplicationSettings appSettings,
+        [Frozen] ApplicationUrls appUrls,
+        FeedbackTransaction feedbackTransaction,
+        ProcessEmailTransactionCommand command,
+        EmailTemplateService sut)
+        {
+            // Arrange
+            feedbackTransaction.TemplateName = "AppStart";
+            var variant = "A";
+            var variantTemplateName = $"{feedbackTransaction.TemplateName}_{variant}";
+
+            mockFeedbackTargetVariantContext
+                .Setup(x => x.FindByApprenticeshipId(feedbackTransaction.ApprenticeFeedbackTarget.ApprenticeshipId))
+                .ReturnsAsync(new FeedbackTargetVariant { ApprenticeshipId = feedbackTransaction.ApprenticeFeedbackTarget.ApprenticeshipId, Variant = variant });
+
+            appSettings.NotificationTemplates.Add(new NotificationTemplate { TemplateName = variantTemplateName, TemplateId = Guid.NewGuid() });
+
+            // Act
+            var result = await sut.GetEmailTemplateInfoForTransaction(feedbackTransaction, command);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Name.Should().Be(variantTemplateName);
+                result.Id.Should().Be(appSettings.NotificationTemplates.Single(p => p.TemplateName == variantTemplateName).TemplateId);
+                AssertTokens(result.Tokens, command, feedbackTransaction, appUrls);
+            }
+        }
+
+        [Test]
+        [AutoMoqData]
+        public async Task AndVariantIsAvailable_ButNoVariantTemplate_ThenReturnBaseTemplate(
+        [Frozen] Mock<IFeedbackTransactionContext> mockFeedbackTransactionContext,
+        [Frozen] Mock<IFeedbackTargetVariantContext> mockFeedbackTargetVariantContext,
+        [Frozen] ApplicationSettings appSettings,
+        [Frozen] ApplicationUrls appUrls,
+        FeedbackTransaction feedbackTransaction,
+        ProcessEmailTransactionCommand command,
+        EmailTemplateService sut)
+        {
+            // Arrange
+            feedbackTransaction.TemplateName = "AppStart";
+            var variant = "A";
+
+            mockFeedbackTargetVariantContext
+                .Setup(x => x.FindByApprenticeshipId(feedbackTransaction.ApprenticeFeedbackTarget.ApprenticeshipId))
+                .ReturnsAsync(new FeedbackTargetVariant { Variant = variant });
+
+            // Act
+            var result = await sut.GetEmailTemplateInfoForTransaction(feedbackTransaction, command);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Name.Should().Be(feedbackTransaction.TemplateName);
+                result.Id.Should().Be(appSettings.NotificationTemplates.Single(p => p.TemplateName == feedbackTransaction.TemplateName).TemplateId);
+                AssertTokens(result.Tokens, command, feedbackTransaction, appUrls);
+            }
+        }
+
+        [Test]
+        [AutoMoqData]
+        public async Task AndNoVariantAvailable_ThenReturnBaseTemplate(
+        [Frozen] Mock<IFeedbackTransactionContext> mockFeedbackTransactionContext,
+        [Frozen] Mock<IFeedbackTargetVariantContext> mockFeedbackTargetVariantContext,
+        [Frozen] ApplicationSettings appSettings,
+        [Frozen] ApplicationUrls appUrls,
+        FeedbackTransaction feedbackTransaction,
+        ProcessEmailTransactionCommand command,
+        EmailTemplateService sut)
+        {
+            // Arrange
+            feedbackTransaction.TemplateName = "AppStart";
+            mockFeedbackTargetVariantContext.Setup(x => x.FindByApprenticeshipId(feedbackTransaction.ApprenticeFeedbackTarget.ApprenticeshipId))
+                .ReturnsAsync((FeedbackTargetVariant)null);
+
+            // Act
+            var result = await sut.GetEmailTemplateInfoForTransaction(feedbackTransaction, command);
+
+            // Assert
+            using (new AssertionScope())
+            {
+                result.Name.Should().Be(feedbackTransaction.TemplateName);
+                result.Id.Should().Be(appSettings.NotificationTemplates.Single(p => p.TemplateName == feedbackTransaction.TemplateName).TemplateId);
+                AssertTokens(result.Tokens, command, feedbackTransaction, appUrls);
+            }
+        }
+
+        private static void AssertTokens(Dictionary<string, string> tokens, ProcessEmailTransactionCommand command, FeedbackTransaction feedbackTransaction, ApplicationUrls appUrls)
         {
             tokens.Should().ContainKey("Contact").WhoseValue.Equals(command.ApprenticeName);
             tokens.Should().ContainKey("ApprenticeFeedbackTargetId").WhoseValue.Equals(feedbackTransaction.ApprenticeFeedbackTargetId.ToString());

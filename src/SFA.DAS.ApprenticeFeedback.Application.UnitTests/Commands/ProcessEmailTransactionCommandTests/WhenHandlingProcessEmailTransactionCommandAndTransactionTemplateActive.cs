@@ -51,7 +51,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = false;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", null, appSettings, appUrls);
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -91,7 +91,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = false;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -132,7 +132,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = false;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -175,7 +175,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = false;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", null, appSettings, appUrls);
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -218,7 +218,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = false;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -262,7 +262,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = false;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -304,7 +304,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", null, appSettings, appUrls);
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -348,7 +348,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Active", null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -356,10 +356,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             // Assert
             VerifyDoesSendEmail(nserviceBusMessageSession,
                 feedbackTransaction.EmailAddress,
-                appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Active").TemplateId,
+                appSettings.NotificationTemplates.Find(p => p.TemplateName == "Active").TemplateId,
                 feedbackTransaction.FirstName,
                 feedbackTransaction.ApprenticeFeedbackTargetId,
                 feedbackTransaction.Id,
+                "Active",
                 appUrls.ApprenticeFeedbackUrl,
                 appUrls.ApprenticeAccountsUrl);
         }

@@ -8,6 +8,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Services
 {
     public interface IEmailTemplateService
     {
-        Task<(Guid? Id, string Name, Dictionary<string, string> Tokens)> GetEmailTemplateInfoForTransaction(FeedbackTransaction feedbackTransaction, ProcessEmailTransactionCommand request);
+        Task<(Guid? Id, string Name, string Variant, Dictionary<string, string> Tokens)> GetEmailTemplateInfoForTransaction(FeedbackTransaction feedbackTransaction, ProcessEmailTransactionCommand request);
     }
 }

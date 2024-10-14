@@ -62,34 +62,43 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             }
         }
 
-        protected void SetupEmailTemplateService(
+        protected static void SetupEmailTemplateService(
             Mock<IEmailTemplateService> emailTemplateService,
             FeedbackTransaction feedbackTransaction,
-            ProcessEmailTransactionCommand command, string templateName,
+            ProcessEmailTransactionCommand command, 
+            string templateName,
+            string variant,
             ApplicationSettings appSettings,
             ApplicationUrls appUrls)
         {
+            var templateNameIncludingVariant = string.IsNullOrEmpty(variant)
+                ? templateName
+                : $"{templateName}_{variant}";
+
             emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
-                .ReturnsAsync((appSettings.NotificationTemplates.FirstOrDefault(p =>
-                    p.TemplateName == templateName).TemplateId,
+                .ReturnsAsync((appSettings.NotificationTemplates.Find(p =>
+                    p.TemplateName == templateNameIncludingVariant).TemplateId,
                     templateName,
+                    variant,
                     new Dictionary<string, string>()
                     {
                         { "Contact", $"{command.ApprenticeName}" },
-                        { "ApprenticeFeedbackTargetId", $"{feedbackTransaction.ApprenticeFeedbackTargetId}" },
-                        { "FeedbackTransactionId", $"{feedbackTransaction.Id}" },
-                        { "ApprenticeFeedbackHostname", $"{appUrls.ApprenticeFeedbackUrl}" },
-                        { "ApprenticeAccountHostname", $"{appUrls.ApprenticeAccountsUrl}" }
+                        { "ApprenticeFeedbackTargetId", feedbackTransaction.ApprenticeFeedbackTargetId.ToString() },
+                        { "FeedbackTransactionId", feedbackTransaction.Id.ToString() },
+                        { "TemplateName", templateNameIncludingVariant },
+                        { "ApprenticeFeedbackHostname", appUrls.ApprenticeFeedbackUrl },
+                        { "ApprenticeAccountHostname", appUrls.ApprenticeAccountsUrl }
                     }));
         }
 
-        protected void VerifyDoesSendEmail(
+        protected static void VerifyDoesSendEmail(
             Mock<IMessageSession> nserviceBusMessageSession,
             string recipientsAddress,
             Guid templateId,
             string contact,
             Guid apprenticeFeedbackTargetId,
             long feedbackTransactionId,
+            string templateName,
             string apprenticeFeedbackHostname,
             string apprenticeAccountHostname)
         {
@@ -99,11 +108,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
                 t.Tokens["Contact"] == contact &&
                 t.Tokens["ApprenticeFeedbackTargetId"] == apprenticeFeedbackTargetId.ToString() &&
                 t.Tokens["FeedbackTransactionId"] == feedbackTransactionId.ToString() &&
+                t.Tokens["TemplateName"] == templateName &&
                 t.Tokens["ApprenticeFeedbackHostname"] == apprenticeFeedbackHostname &&
                 t.Tokens["ApprenticeAccountHostname"] == apprenticeAccountHostname), It.IsAny<SendOptions>()), Times.Once);
         }
 
-        protected void VerifyDoesNotSendEmail(Mock<IMessageSession> nserviceBusMessageSession)
+        protected static void VerifyDoesNotSendEmail(Mock<IMessageSession> nserviceBusMessageSession)
         {
             nserviceBusMessageSession.Verify(s => s.Send(It.IsAny<SendEmailCommand>(), It.IsAny<SendOptions>()), Times.Never);
         }

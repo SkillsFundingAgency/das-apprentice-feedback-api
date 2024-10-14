@@ -56,7 +56,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.IsFeedbackEmailContactAllowed = false;
 
             emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
-                .ReturnsAsync((null, null, new Dictionary<string, string>()));
+                .ReturnsAsync((null, null, null, new Dictionary<string, string>()));
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -103,10 +103,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.IsFeedbackEmailContactAllowed = false;
 
             emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
-                .ReturnsAsync((null, null, new Dictionary<string, string>()));
+                .ReturnsAsync((null, null, null, new Dictionary<string, string>()));
 
             // Act
-            var result = await sut.Handle(command, CancellationToken.None);
+            await sut.Handle(command, CancellationToken.None);
 
             // Assert
             _mockFeedbackTransactionDbSet.Verify(m => m.Remove(It.Is<FeedbackTransaction>(p => p.Id == feedbackTransaction.Id)), Times.Never);
@@ -151,7 +151,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.IsFeedbackEmailContactAllowed = false;
 
             emailTemplateService.Setup(p => p.GetEmailTemplateInfoForTransaction(feedbackTransaction, command))
-                .ReturnsAsync((null, null, new Dictionary<string, string>()));
+                .ReturnsAsync((null, null, null, new Dictionary<string, string>()));
 
             // Act
             await sut.Handle(command, CancellationToken.None);

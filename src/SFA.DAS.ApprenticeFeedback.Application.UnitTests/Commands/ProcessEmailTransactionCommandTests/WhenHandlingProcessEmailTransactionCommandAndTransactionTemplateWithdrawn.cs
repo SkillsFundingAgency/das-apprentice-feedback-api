@@ -50,7 +50,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", null, appSettings, appUrls);
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -89,13 +89,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
 
             // Assert
-            feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId);
+            feedbackTransaction.TemplateId.Should().Be(appSettings.NotificationTemplates.Find(p => p.TemplateName == "Withdrawn")?.TemplateId);
         }
 
         [Test, AutoMoqData]
@@ -129,7 +129,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -137,10 +137,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             // Assert
             VerifyDoesSendEmail(nserviceBusMessageSession,
                 feedbackTransaction.EmailAddress,
-                appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn").TemplateId,
+                appSettings.NotificationTemplates.Find(p => p.TemplateName == "Withdrawn").TemplateId,
                 feedbackTransaction.FirstName,
                 feedbackTransaction.ApprenticeFeedbackTargetId,
                 feedbackTransaction.Id,
+                "Withdrawn",
                 appUrls.ApprenticeFeedbackUrl,
                 appUrls.ApprenticeAccountsUrl);
         }
@@ -181,7 +182,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", null, appSettings, appUrls);
 
             // Act
             var result = await sut.Handle(command, CancellationToken.None);
@@ -227,7 +228,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);
@@ -273,7 +274,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands.ProcessEmail
             command.FeedbackTransactionId = feedbackTransaction.Id;
             command.IsFeedbackEmailContactAllowed = true;
 
-            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", appSettings, appUrls);
+            SetupEmailTemplateService(emailTemplateService, feedbackTransaction, command, "Withdrawn", null, appSettings, appUrls);
 
             // Act
             await sut.Handle(command, CancellationToken.None);

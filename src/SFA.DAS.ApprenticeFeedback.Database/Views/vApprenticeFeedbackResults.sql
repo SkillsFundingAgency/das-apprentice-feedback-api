@@ -1,7 +1,7 @@
 ﻿
 CREATE VIEW vApprenticeFeedbackResults
 AS
-SELECT id
+SELECT Id
     ,CASE [Status] WHEN 0 THEN 'Unknown' WHEN 1 THEN 'Inactive' WHEN 2 THEN 'Active' WHEN 3 THEN 'Completed' END ApprenticeFeedbackStatus
     ,[Ukprn]
     ,[ProviderName]
@@ -23,30 +23,30 @@ LEFT JOIN (
     SELECT [ApprenticeFeedbackTargetId]
             ,[DateTimeCompleted]
             ,CASE [ProviderRating] WHEN 'VeryPoor' THEN 'Very Poor' ElSE [ProviderRating]  END [ProviderRating] 
-            ,MAX(CASE WHEN at1.attributeid = 1 THEN AttributeName ELSE NULL END) Attribute1Name
-            ,MAX(CASE WHEN at1.attributeid = 1 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute1Value
-            ,MAX(CASE WHEN at1.attributeid = 2 THEN AttributeName ELSE NULL END) Attribute2Name
-            ,MAX(CASE WHEN at1.attributeid = 2 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute2Value
-            ,MAX(CASE WHEN at1.attributeid = 3 THEN AttributeName ELSE NULL END) Attribute3Name
-            ,MAX(CASE WHEN at1.attributeid = 3 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute3Value
-            ,MAX(CASE WHEN at1.attributeid = 4 THEN AttributeName ELSE NULL END) Attribute4Name
-            ,MAX(CASE WHEN at1.attributeid = 4 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute4Value
-            ,MAX(CASE WHEN at1.attributeid = 5 THEN AttributeName ELSE NULL END) Attribute5Name
-            ,MAX(CASE WHEN at1.attributeid = 5 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute5Value
-            ,MAX(CASE WHEN at1.attributeid = 6 THEN AttributeName ELSE NULL END) Attribute6Name
-            ,MAX(CASE WHEN at1.attributeid = 6 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute6Value
-            ,MAX(CASE WHEN at1.attributeid = 7 THEN AttributeName ELSE NULL END) Attribute7Name
-            ,MAX(CASE WHEN at1.attributeid = 7 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute7Value
-            ,MAX(CASE WHEN at1.attributeid = 8 THEN AttributeName ELSE NULL END) Attribute8Name
-            ,MAX(CASE WHEN at1.attributeid = 8 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute8Value
-            ,MAX(CASE WHEN at1.attributeid = 9 THEN AttributeName ELSE NULL END) Attribute9Name
-            ,MAX(CASE WHEN at1.attributeid = 9 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute9Value
-            ,MAX(CASE WHEN at1.attributeid = 10 THEN AttributeName ELSE NULL END) Attribute10Name
-            ,MAX(CASE WHEN at1.attributeid = 10 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute10Value
-            ,MAX(CASE WHEN at1.attributeid = 11 THEN AttributeName ELSE NULL END) Attribute11Name
-            ,MAX(CASE WHEN at1.attributeid = 11 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute11Value
-            ,MAX(CASE WHEN at1.attributeid = 12 THEN AttributeName ELSE NULL END) Attribute12Name
-            ,MAX(CASE WHEN at1.attributeid = 12 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute12Value
+            ,MAX(CASE WHEN at1.AttributeId = 1 THEN AttributeName ELSE NULL END) Attribute1Name
+            ,MAX(CASE WHEN at1.AttributeId = 1 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute1Value
+            ,MAX(CASE WHEN at1.AttributeId = 2 THEN AttributeName ELSE NULL END) Attribute2Name
+            ,MAX(CASE WHEN at1.AttributeId = 2 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute2Value
+            ,MAX(CASE WHEN at1.AttributeId = 3 THEN AttributeName ELSE NULL END) Attribute3Name
+            ,MAX(CASE WHEN at1.AttributeId = 3 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute3Value
+            ,MAX(CASE WHEN at1.AttributeId = 4 THEN AttributeName ELSE NULL END) Attribute4Name
+            ,MAX(CASE WHEN at1.AttributeId = 4 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute4Value
+            ,MAX(CASE WHEN at1.AttributeId = 5 THEN AttributeName ELSE NULL END) Attribute5Name
+            ,MAX(CASE WHEN at1.AttributeId = 5 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute5Value
+            ,MAX(CASE WHEN at1.AttributeId = 6 THEN AttributeName ELSE NULL END) Attribute6Name
+            ,MAX(CASE WHEN at1.AttributeId = 6 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute6Value
+            ,MAX(CASE WHEN at1.AttributeId = 7 THEN AttributeName ELSE NULL END) Attribute7Name
+            ,MAX(CASE WHEN at1.AttributeId = 7 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute7Value
+            ,MAX(CASE WHEN at1.AttributeId = 8 THEN AttributeName ELSE NULL END) Attribute8Name
+            ,MAX(CASE WHEN at1.AttributeId = 8 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute8Value
+            ,MAX(CASE WHEN at1.AttributeId = 9 THEN AttributeName ELSE NULL END) Attribute9Name
+            ,MAX(CASE WHEN at1.AttributeId = 9 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute9Value
+            ,MAX(CASE WHEN at1.AttributeId = 10 THEN AttributeName ELSE NULL END) Attribute10Name
+            ,MAX(CASE WHEN at1.AttributeId = 10 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute10Value
+            ,MAX(CASE WHEN at1.AttributeId = 11 THEN AttributeName ELSE NULL END) Attribute11Name
+            ,MAX(CASE WHEN at1.AttributeId = 11 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute11Value
+            ,MAX(CASE WHEN at1.AttributeId = 12 THEN AttributeName ELSE NULL END) Attribute12Name
+            ,MAX(CASE WHEN at1.AttributeId = 12 THEN (CASE AttributeValue WHEN 0 THEN 'False' ELSE 'True' END) ELSE NULL END) Attribute12Value
 
     FROM ( 
       -- get latest feedback for each feedback target

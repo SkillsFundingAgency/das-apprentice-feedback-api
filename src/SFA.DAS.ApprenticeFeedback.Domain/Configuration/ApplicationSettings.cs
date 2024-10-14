@@ -47,6 +47,10 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
         /// Number of days to wait before reprocessing a feedback transaction email (eg. 90)
         /// </summary>
         public int FeedbackEmailProcessingRetryWaitDays { get; set; }
+        /// <summary>
+        /// Number of database changes to treat as a single batch when importing FeedbackTargetVariantion 
+        /// </summary>
+        public int FeedbackTargetVariantBatchSize { get; set; }
 
         public List<NotificationTemplate> NotificationTemplates { get; set; }
     }

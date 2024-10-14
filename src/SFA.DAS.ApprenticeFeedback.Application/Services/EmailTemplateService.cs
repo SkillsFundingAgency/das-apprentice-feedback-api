@@ -12,23 +12,26 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Services
     public class EmailTemplateService : IEmailTemplateService
     {
         private readonly IFeedbackTransactionContext _feedbackTransactionContext;
+        private readonly IFeedbackTargetVariantContext _feedbackTargetVariantContext;
         private readonly ApplicationSettings _appSettings;
         private readonly ApplicationUrls _appUrls;
 
         public EmailTemplateService(
-            IFeedbackTransactionContext feedbackTransactionContext, 
+            IFeedbackTransactionContext feedbackTransactionContext,
+            IFeedbackTargetVariantContext feedbackTargetVariantContext,
             ApplicationSettings appSettings, 
             ApplicationUrls appUrls)
         {
             _feedbackTransactionContext = feedbackTransactionContext;
+            _feedbackTargetVariantContext = feedbackTargetVariantContext;
             _appSettings = appSettings;
             _appUrls = appUrls;
         }
 
-        public async Task<(Guid? Id, string Name, Dictionary<string, string> Tokens)> GetEmailTemplateInfoForTransaction(FeedbackTransaction feedbackTransaction, ProcessEmailTransactionCommand request)
+        public async Task<(Guid? Id, string Name, string Variant, Dictionary<string, string> Tokens)> GetEmailTemplateInfoForTransaction(FeedbackTransaction feedbackTransaction, ProcessEmailTransactionCommand request)
         {
-            Guid? templateId = null;
-            string templateName = null;
+            (string templateName, string variant) template = (null, null);
+
             Dictionary<string, string> tokens =
                 new Dictionary<string, string>()
                 {
@@ -43,32 +46,47 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Services
             if (feedbackTransaction.TemplateName == null)
             {
                 // if the Apprentice Feedback Target is Withdrawn, that takes precedent over giving feedback.
-                if (feedbackTransaction.ApprenticeFeedbackTarget.Withdrawn == true)
+                if (feedbackTransaction.ApprenticeFeedbackTarget.Withdrawn)
                 {
                     // if a withdrawn email hasn't been sent already, send a withdrawn template
-                    var targetTransactions = await _feedbackTransactionContext.FindByApprenticeFeedbackTargetId(feedbackTransaction.ApprenticeFeedbackTargetId);
-                    var withdrawnFeedbackEmailTemplateId = _appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == "Withdrawn")?.TemplateId;
-                    var previousWithdrawnEmailSent = targetTransactions.Any(t => t.SentDate != null && t.TemplateId == withdrawnFeedbackEmailTemplateId);
-
-                    if (!previousWithdrawnEmailSent)
+                    var previousFeedbackTransactions = await _feedbackTransactionContext.FindByApprenticeFeedbackTargetId(feedbackTransaction.ApprenticeFeedbackTargetId);
+                    if (!previousFeedbackTransactions.Any(t => t.SentDate != null && t.TemplateId == GetTemplateId("Withdrawn")))
                     {
-                        templateName = "Withdrawn";
+                        template.templateName = "Withdrawn";
                     }
                 }
 
-                if (templateName == null && feedbackTransaction.ApprenticeFeedbackTarget.IsActiveAndEligible())
+                if (template.templateName == null && feedbackTransaction.ApprenticeFeedbackTarget.IsActiveAndEligible())
                 {
-                    templateName = "Active";
+                    template.templateName = "Active";
                 }
             }
             else
             {
-                templateName = feedbackTransaction.TemplateName;
+                var feedbackTargetVariant = await _feedbackTargetVariantContext.FindByApprenticeshipId(feedbackTransaction.ApprenticeFeedbackTarget.ApprenticeshipId);
+                if(feedbackTargetVariant != null)
+                {
+                    var variantTemplateName = $"{feedbackTransaction.TemplateName}_{feedbackTargetVariant.Variant}";
+                    if(GetTemplateId(variantTemplateName) != null)
+                    {
+                        template.templateName = variantTemplateName;
+                        template.variant = feedbackTargetVariant.Variant;
+                        tokens["TemplateName"] = variantTemplateName;
+                    }
+                }
+
+                if(template.templateName == null)
+                {
+                    template.templateName = feedbackTransaction.TemplateName;
+                }
             }
 
-            templateId = _appSettings.NotificationTemplates.FirstOrDefault(p => p.TemplateName == templateName)?.TemplateId;
+            return (GetTemplateId(template.templateName), template.templateName, template.variant, tokens);
+        }
 
-            return (templateId, templateName, tokens);
+        private Guid? GetTemplateId(string templateName)
+        {
+            return _appSettings.NotificationTemplates.Find(p => p.TemplateName == templateName)?.TemplateId;
         }
     }
 }
