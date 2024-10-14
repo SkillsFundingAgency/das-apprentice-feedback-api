@@ -8,10 +8,9 @@ BEGIN
         INSERT (ApprenticeshipId, Variant)
         VALUES (SOURCE.ApprenticeshipId, SOURCE.Variant)
     WHEN MATCHED THEN
-        UPDATE SET TARGET.Variant = SOURCE.Variant;
-
-    DELETE FROM [dbo].[FeedbackTargetVariant]
-    WHERE ApprenticeshipId NOT IN (SELECT ApprenticeshipId FROM [dbo].[FeedbackTargetVariant_Staging]);
+        UPDATE SET TARGET.Variant = SOURCE.Variant
+    WHEN NOT MATCHED BY SOURCE THEN
+        DELETE;
 
     RETURN 0;
 END;
