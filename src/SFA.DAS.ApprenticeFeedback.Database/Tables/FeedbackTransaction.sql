@@ -9,19 +9,18 @@
 	[SendAfter] DATETIME,
 	[SentDate] DATETIME,
 	[TemplateName] VARCHAR(100) NULL,
-	[IsSuppressed] BIT NOT NULL DEFAULT 0 
+	[IsSuppressed] BIT NOT NULL DEFAULT 0,
+	[Variant] VARCHAR(100) NULL 
 )
 GO
 
 CREATE NONCLUSTERED INDEX [IX_FeedbackTransaction_ApprenticeFeedbackTarget]
 ON [dbo].[FeedbackTransaction] ( [ApprenticeFeedbackTargetId] )
 INCLUDE ( [SentDate], [TemplateName] );
-
 GO
 
 CREATE NONCLUSTERED INDEX [IX_FeedbackTransaction_CreatedOn]
 ON [dbo].[FeedbackTransaction] ( [CreatedOn] )
 INCLUDE ( [ApprenticeFeedbackTargetId], [SentDate], [SendAfter], [TemplateName] );
-
 GO
 
