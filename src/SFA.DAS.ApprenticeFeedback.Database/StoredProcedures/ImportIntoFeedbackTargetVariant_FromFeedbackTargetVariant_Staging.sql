@@ -7,10 +7,9 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN
         INSERT (ApprenticeshipId, Variant)
         VALUES (SOURCE.ApprenticeshipId, SOURCE.Variant)
-    WHEN MATCHED THEN
-        UPDATE SET TARGET.Variant = SOURCE.Variant
-    WHEN NOT MATCHED BY SOURCE THEN
+    WHEN MATCHED AND source.Variant IS NOT NULL AND target.Variant != source.Variant THEN
+        UPDATE SET target.Variant = source.Variant
+    WHEN MATCHED AND source.Variant IS NULL THEN
         DELETE;
-
     RETURN 0;
 END;

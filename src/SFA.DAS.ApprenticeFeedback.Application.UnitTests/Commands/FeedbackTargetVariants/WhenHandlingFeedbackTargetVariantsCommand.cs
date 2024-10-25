@@ -75,7 +75,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
             var feedbackTargetVariants = new List<Domain.Models.FeedbackTargetVariant>()
             {
                 new Domain.Models.FeedbackTargetVariant { ApprenticeshipId = 1, Variant = "Test Variant 1" },
-                new Domain.Models.FeedbackTargetVariant { ApprenticeshipId = 2, Variant = "Test Variant 2" }
+                new Domain.Models.FeedbackTargetVariant { ApprenticeshipId = 2, Variant = "Test Variant 2" },
+                new Domain.Models.FeedbackTargetVariant { ApprenticeshipId = 3, Variant = null }
             };
 
             var request = new ProcessFeedbackTargetVariantsCommand
