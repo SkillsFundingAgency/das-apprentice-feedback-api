@@ -21,7 +21,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
         private readonly IEngagementEmailContext _engagementEmailContext;
         private readonly IExclusionContext _exclusionContext;
         private readonly ApplicationSettings _appSettings;
-        private readonly ApplicationUrls _appUrls;
         private readonly IDateTimeHelper _dateTimeHelper;
         private readonly IEmailTemplateService _emailTemplateService;
         private readonly ILogger<ProcessEmailTransactionCommandHandler> _logger;
@@ -32,7 +31,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             IEngagementEmailContext engagementEmailContext,
             IExclusionContext exclusionContext,
             ApplicationSettings appSettings,
-            ApplicationUrls appUrls,
             IDateTimeHelper dateTimeHelper,
             IEmailTemplateService emailTemplateService,
             ILogger<ProcessEmailTransactionCommandHandler> logger,
@@ -42,7 +40,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             _engagementEmailContext = engagementEmailContext;
             _exclusionContext = exclusionContext;
             _appSettings = appSettings;
-            _appUrls = appUrls;
             _dateTimeHelper = dateTimeHelper;
             _emailTemplateService = emailTemplateService;
             _logger = logger;
@@ -120,6 +117,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             else if (emailTemplateInfo.Id.HasValue)
             {
                 feedbackTransaction.TemplateId = emailTemplateInfo.Id;
+                feedbackTransaction.Variant = emailTemplateInfo.Variant;
                 feedbackTransaction.EmailAddress = request.ApprenticeEmailAddress;
                 feedbackTransaction.FirstName = request.ApprenticeName;
                 feedbackTransaction.SentDate = _dateTimeHelper.Now;
@@ -131,11 +129,10 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             if (sendStatus == EmailSentStatus.Successful)
             {
                 await SendEmailViaNserviceBus(
-                    request.ApprenticeEmailAddress
-                    , emailTemplateInfo.Id.ToString()
-                    , emailTemplateInfo.Name
-                    , emailTemplateInfo.Tokens
-                    );
+                    request.ApprenticeEmailAddress, 
+                    emailTemplateInfo.Id.ToString(),
+                    emailTemplateInfo.Name,
+                    emailTemplateInfo.Tokens);
             }
 
             return new ProcessEmailTransactionResponse(feedbackTransaction.Id, sendStatus);
@@ -146,12 +143,12 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransactio
             try
             {
                 var emailCommand = new SendEmailCommand(templateId, toAddress, personalisationTokens);
-                _logger.LogInformation($"Sending {templateName} email ({templateId}) to {toAddress}");
+                _logger.LogInformation("Sending {TemplateName} email ({TemplateId}) to {ToAddress}", templateName, templateId, toAddress);
                 await _messageSession.Send(emailCommand);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, $"Error sending {templateName} email ({templateId}) to {toAddress}");
+                _logger.LogError(ex, "Error sending {TemplateName} email ({TemplateId}) to {ToAddress}", templateName, templateId, toAddress);
             }
         }
     }

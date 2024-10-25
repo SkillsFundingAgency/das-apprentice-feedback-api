@@ -1,0 +1,17 @@
+﻿namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
+{
+    public class FeedbackTargetVariant_Staging
+    {
+        public long ApprenticeshipId { get; set; }
+        public string Variant { get; set; }
+
+        public static implicit operator FeedbackTargetVariant_Staging(Models.FeedbackTargetVariant source)
+        {
+            return new FeedbackTargetVariant_Staging
+            {
+                ApprenticeshipId = source.ApprenticeshipId,
+                Variant = source.Variant
+            };
+        }
+    }
+}
