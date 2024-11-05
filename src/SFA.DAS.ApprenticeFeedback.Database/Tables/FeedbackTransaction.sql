@@ -9,7 +9,8 @@
 	[SendAfter] DATETIME,
 	[SentDate] DATETIME,
 	[TemplateName] VARCHAR(100) NULL,
-	[IsSuppressed] BIT NOT NULL DEFAULT 0 
+	[IsSuppressed] BIT NOT NULL DEFAULT 0, 
+	[Variant] VARCHAR(100) NULL 
 )
 GO
 
