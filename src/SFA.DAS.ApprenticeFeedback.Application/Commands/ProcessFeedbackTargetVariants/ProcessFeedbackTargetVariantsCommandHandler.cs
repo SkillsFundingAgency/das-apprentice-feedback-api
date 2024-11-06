@@ -11,7 +11,7 @@ using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetVariants
 {
-    public class ProcessFeedbackTargetVariantsCommandHandler : IRequestHandler<ProcessFeedbackTargetVariantsCommand>
+    public class ProcessFeedbackTargetVariantsCommandHandler : IRequestHandler<ProcessFeedbackTargetVariantsCommand,Unit>
     {
         private readonly IFeedbackTargetVariant_StagingContext _stagingContext;
         private readonly IFeedbackTargetVariantContext _context;

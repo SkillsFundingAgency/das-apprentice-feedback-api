@@ -107,7 +107,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         {
             try
             {
-                var result = await _mediator.Send(request);
+                await _mediator.Send(request);
                 return Ok();
             }
             catch (Exception e)
