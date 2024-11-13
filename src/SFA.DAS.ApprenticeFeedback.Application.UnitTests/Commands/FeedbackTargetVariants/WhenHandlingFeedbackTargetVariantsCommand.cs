@@ -98,7 +98,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
                         originalItem.Variant == stagingItem.Variant
                     )
                 )
-            ), CancellationToken.None), Times.Once);
+            )), Times.Once);
+            _mockStagingContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
