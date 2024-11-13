@@ -1,31 +1,28 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 
 namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 {
     public interface IFeedbackTargetVariant_StagingContext : IEntityContext<FeedbackTargetVariant_Staging>
     {
-        ChangeTracker ChangeTracker { get; }
-        
-        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        DbContext DbContext { get; }
 
         public async Task AddRange(List<FeedbackTargetVariant_Staging> feedbackTargetVariants, CancellationToken cancellationToken = default)
         {
-            await Entities.AddRangeAsync(feedbackTargetVariants, cancellationToken);
+            var sqlValues = feedbackTargetVariants
+                .Select(v => $"({v.ApprenticeshipId}, '{v.Variant}')")
+                .ToList();
 
-            // set each entity state to Detached as there is no key in the staging table to allow duplicates
-            foreach (var entity in ChangeTracker.Entries())
-            {
-                entity.State = EntityState.Detached;
-            }
+            var sql = $@"
+                INSERT INTO FeedbackTargetVariant_Staging (ApprenticeshipId, Variant)
+                VALUES {string.Join(", ", sqlValues)};";
 
-            await SaveChangesAsync(cancellationToken);
+            await DbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
         }
-
 
         Task ClearFeedbackTargetVariant_Staging();
     }
