@@ -39,7 +39,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetV
             }
 
             return Unit.Value;
-
         }
     }
 }
