@@ -60,6 +60,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         {
             try
             {
+                _logger.LogError($"Started");
                 var result = await _mediator.Send(new GetApprenticeFeedbackRatingSummaryQuery());
 
                 return Ok(result.RatingSummaries);

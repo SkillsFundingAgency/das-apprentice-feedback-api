@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using NLog;
 using SFA.DAS.ApprenticeFeedback.Api.TaskQueue;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetVariants;
 using SFA.DAS.ApprenticeFeedback.Application.Extensions;
