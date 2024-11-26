@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 
@@ -13,15 +15,21 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 
         public async Task AddRange(List<FeedbackTargetVariant_Staging> feedbackTargetVariants, CancellationToken cancellationToken = default)
         {
-            var sqlValues = feedbackTargetVariants
-                .Select(v => $"({v.ApprenticeshipId}, '{v.Variant}')")
-                .ToList();
-
-            var sql = $@"
+            var sql = @"
                 INSERT INTO FeedbackTargetVariant_Staging (ApprenticeshipId, Variant)
-                VALUES {string.Join(", ", sqlValues)};";
+                VALUES (@ApprenticeshipId, @Variant);";
 
-            await DbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+            var feedbackTargetVariantsParameters = feedbackTargetVariants.Select(v =>
+                new object[]
+                {
+                    new SqlParameter("@ApprenticeshipId", v.ApprenticeshipId),
+                    new SqlParameter("@Variant", v.Variant ?? (object)DBNull.Value)
+                }).ToList();
+
+            foreach (var feedbackTargetVariantParameters in feedbackTargetVariantsParameters)
+            {
+                await DbContext.Database.ExecuteSqlRawAsync(sql, feedbackTargetVariantParameters, cancellationToken);
+            }
         }
 
         Task ClearFeedbackTargetVariant_Staging();
