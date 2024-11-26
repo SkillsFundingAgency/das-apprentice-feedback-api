@@ -1,13 +1,9 @@
-﻿using MediatR;
-using Microsoft.Extensions.Logging;
-using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.ApprenticeFeedback.Domain.Entities;
-using System;
-using Microsoft.Extensions.Options;
-using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
+using MediatR;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 
 namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetVariants
 {
@@ -33,24 +29,16 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessFeedbackTargetV
             {
                 await _stagingContext.ClearFeedbackTargetVariant_Staging();
             }
-            
-            await ImportStagingData(request);
 
-            if(request.MergeStaging) 
+            await _stagingContext.AddRange(
+                request.FeedbackTargetVariants.Select(v => (Domain.Entities.FeedbackTargetVariant_Staging)v).ToList());
+
+            if (request.MergeStaging) 
             {
                 await _context.ImportIntoFeedbackTargetVariantFromStaging();
             }
 
             return Unit.Value;
-
-        }
-
-        private async Task ImportStagingData(ProcessFeedbackTargetVariantsCommand request)
-        {
-            await _stagingContext.AddRange(
-                request.FeedbackTargetVariants.Select(v => (Domain.Entities.FeedbackTargetVariant_Staging)v).ToList());
-
-            await _stagingContext.SaveChangesAsync();
         }
     }
 }

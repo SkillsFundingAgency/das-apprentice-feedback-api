@@ -11,7 +11,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data.Configuration
         public void Configure(EntityTypeBuilder<FeedbackTargetVariant_Staging> builder)
         {
             builder.ToTable("FeedbackTargetVariant_Staging")
-                   .HasKey(x => x.ApprenticeshipId);
+                .HasNoKey();
         }
     }
 }
