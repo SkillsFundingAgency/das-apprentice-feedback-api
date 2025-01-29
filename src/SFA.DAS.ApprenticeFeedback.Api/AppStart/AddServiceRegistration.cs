@@ -14,7 +14,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.AppStart
     {
         public static void AddServices(this IServiceCollection services)
         {
-            services.AddMediatR(typeof(CreateApprenticeFeedbackCommand).Assembly);
+            services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(typeof(CreateApprenticeFeedbackCommand).Assembly));
             services.AddScoped<IApprenticeFeedbackTargetContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IApprenticeFeedbackResultContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
             services.AddScoped<IAttributeContext>(s => s.GetRequiredService<ApprenticeFeedbackDataContext>());
