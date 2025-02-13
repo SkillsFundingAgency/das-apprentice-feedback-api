@@ -2,7 +2,7 @@
 CREATE TABLE #ExitSurveyTempAttributes
 (
 	[AttributeId] INT,
-	[AttributeName] NVARCHAR(100),
+	[AttributeName] NVARCHAR(150),
 	[Category] NVARCHAR(100),
 	[AttributeType] NVARCHAR(100),
 	[Ordering] INT
