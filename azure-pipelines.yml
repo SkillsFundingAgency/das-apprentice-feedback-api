@@ -65,6 +65,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: AT DevTest Shared Resources
+  - group: AT das-apprentice-feedback-api
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
