@@ -1,4 +1,10 @@
-﻿using Azure.Core;
+﻿using System;
+using System.Data;
+using System.Data.Common;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Azure.Core;
 using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -8,12 +14,6 @@ using SFA.DAS.ApprenticeFeedback.Data.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Configuration;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
-using System;
-using System.Data;
-using System.Data.Common;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace SFA.DAS.ApprenticeFeedback.Data
 {
@@ -127,6 +127,8 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             return (await base.SaveChangesAsync(acceptAllChangesOnSuccess,
                           cancellationToken));
         }
+
+        public DbContext DbContext => this;
 
         private void OnBeforeSaving()
         {

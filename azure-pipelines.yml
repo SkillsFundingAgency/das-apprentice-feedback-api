@@ -31,7 +31,7 @@ resources:
   - repository: das-platform-building-blocks
     type: github
     name: SkillsFundingAgency/das-platform-building-blocks
-    ref: refs/tags/2.1.28
+    ref: refs/tags/3.0.0
     endpoint: SkillsFundingAgency
   - repository: das-platform-automation
     type: github
@@ -65,6 +65,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: AT DevTest Shared Resources
+  - group: AT das-apprentice-feedback-api
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -96,6 +97,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: TEST2 DevTest Shared Resources
+  - group: TEST2 das-apprentice-feedback-api
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -158,6 +160,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: DEMO DevTest Shared Resources
+  - group: DEMO das-apprentice-feedback-api
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
