@@ -53,8 +53,11 @@ SET NOCOUNT ON;
             -- all potential active and new start targets
             SELECT [Id], [StartDate], [EndDate]
             -- start date to be from the start of the previous month
-            ,CASE WHEN [StartDate] > EOMONTH(DATEADD(month,-2,@CurrentUtcDate)) THEN 'start' ELSE 'active' END +
-             CASE WHEN DATEDIFF(month,[StartDate],[EndDate]) <= 24 THEN 'short' ELSE 'long' END [DurationType]
+            ,
+            CASE WHEN [StandardUId] LIKE 'FA%' THEN 'foundation' ELSE
+                CASE WHEN [StartDate] > EOMONTH(DATEADD(month,-2,@CurrentUtcDate)) THEN 'start' ELSE 'active' END +
+                CASE WHEN DATEDIFF(month,[StartDate],[EndDate]) <= 24 THEN 'short' ELSE 'long' END 
+            END [DurationType]
             ,DATEDIFF(month,[StartDate],[EndDate]) PlannedDuration
             FROM [dbo].[ApprenticeFeedbackTarget] aft1
             WHERE 1=1

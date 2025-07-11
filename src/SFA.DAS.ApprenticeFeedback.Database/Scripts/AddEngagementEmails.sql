@@ -53,7 +53,12 @@ VALUES
 (50, 'activelong', 36, null, 'AppAnnual'),
 (51, 'activelong', 48, null, 'AppAnnual'),
 (52, 'activelong', 60, null, 'AppAnnual'),
-(53, 'activelong', 72, null, 'AppAnnual');
+(53, 'activelong', 72, null, 'AppAnnual'),
+
+(54, 'foundation', 0, 8, 'FoundationAppWelcome'),
+(55, 'foundation', 1, 6, 'FoundationAppPreEPA'),
+(56, 'foundation', 3, null, 'FoundationAppMonthThree'),
+(57, 'foundation', 6, null, 'FoundationAppMonthSix');
 
 
 
