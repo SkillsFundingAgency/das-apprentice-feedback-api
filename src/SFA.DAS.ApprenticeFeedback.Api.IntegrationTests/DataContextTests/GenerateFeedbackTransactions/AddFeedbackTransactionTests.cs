@@ -29,7 +29,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         {
             using (var fixture = new GenerateFeedbackTransactionTestsFixture().WithApprenticeFeedbackTarget(apprenticeship.ApprenticeFeedbackTargetId, apprenticeship.ApprenticeshipId, apprenticeship.StartDate, apprenticeship.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA0"))
             {
-                var results = await fixture.GenerateFeedbackTransactions(apprenticeship.CurrentDate);
+            var results = await fixture.GenerateFeedbackTransactions(apprenticeship.CurrentDate);
                 await fixture.VerifyExpectedTemplates(apprenticeship);
                 await fixture.VerifyFeedbackTransactionNotExists(new Models.FeedbackTransactionModel()
                 {
@@ -87,30 +87,21 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                         .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6, null)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9, null);
 
-            var apprenticeshipFourFoundation = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 8, Guid.NewGuid(), 1004)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppWelcome", 0, 0, null)
-                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null);
-
             using (var fixture = new GenerateFeedbackTransactionTestsFixture()
                 .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
                 .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ApprenticeshipId, apprenticeshipThree.StartDate, apprenticeshipThree.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipFourFoundation.ApprenticeFeedbackTargetId, apprenticeshipFourFoundation.ApprenticeshipId, apprenticeshipFourFoundation.StartDate, apprenticeshipFourFoundation.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA0"))
+                .WithApprenticeFeedbackTarget(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ApprenticeshipId, apprenticeshipThree.StartDate, apprenticeshipThree.EndDate))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
 
                 await fixture.VerifyExpectedTemplates(apprenticeshipOne);
                 await fixture.VerifyExpectedTemplates(apprenticeshipTwo);
                 await fixture.VerifyExpectedTemplates(apprenticeshipThree);
-                await fixture.VerifyExpectedTemplates(apprenticeshipFourFoundation);
 
-                results.VerifyCount(apprenticeshipOne.ExpectedTemplates.Count + apprenticeshipTwo.ExpectedTemplates.Count + apprenticeshipThree.ExpectedTemplates.Count + apprenticeshipFourFoundation.ExpectedTemplates.Count);
+                results.VerifyCount(apprenticeshipOne.ExpectedTemplates.Count + apprenticeshipTwo.ExpectedTemplates.Count + apprenticeshipThree.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ExpectedTemplates.Count);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ExpectedTemplates.Count);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeshipFourFoundation.ApprenticeFeedbackTargetId, apprenticeshipFourFoundation.ExpectedTemplates.Count);
             }
         }
 
@@ -120,35 +111,41 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             var currentDate = new DateTime(2000, 01, 01);
 
             var apprenticeshipOne = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3, null)
-                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6, null);
-
-            var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 9, Guid.NewGuid(), 1002)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3, null)
-                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9, null);
-
-            var apprenticeshipThree = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-3), 9, Guid.NewGuid(), 1003)
-                        .WithExpectedTemplateSendAfterCurrentDate("AppWelcome", 0, null)
-                        .WithExpectedTemplateSendAfterCurrentDate("AppMonthThree", 0, null)
-                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9, null);
-
-            var apprenticeshipFourFoundation = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 8, Guid.NewGuid(), 1004)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppWelcome", 0, 0, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6, null)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3, null)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null);
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6, null);
+
+
+            var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 8, Guid.NewGuid(), 1002)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6, null);
+
+
+
+            var apprenticeshipThree = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-3), 8, Guid.NewGuid(), 1003)
+                       .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
+                       .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
+                       .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3, null)
+                       .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null)
+                       .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6, null);
+
+            var apprenticeshipFourFoundation = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 8, Guid.NewGuid(), 1004)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6, null);
+
 
             using (var fixture = new GenerateFeedbackTransactionTestsFixture()
-                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ApprenticeshipId, apprenticeshipThree.StartDate, apprenticeshipThree.EndDate)
+                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA0")
+                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA0")
+                .WithApprenticeFeedbackTarget(apprenticeshipThree.ApprenticeFeedbackTargetId, apprenticeshipThree.ApprenticeshipId, apprenticeshipThree.StartDate, apprenticeshipThree.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA0")
                 .WithApprenticeFeedbackTarget(apprenticeshipFourFoundation.ApprenticeFeedbackTargetId, apprenticeshipFourFoundation.ApprenticeshipId, apprenticeshipFourFoundation.StartDate, apprenticeshipFourFoundation.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA0"))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
@@ -196,7 +193,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             var currentDate = new DateTime(2000, 01, 01);
 
             var apprenticeship = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0, 0)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0, 0)
                         .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 0, 3)
                         .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppPreEpa", 0, 0, 6)
                         .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 0, 6);
@@ -346,10 +343,11 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             var currentDate = new DateTime(2000, 01, 01);
 
             var apprenticeship = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
-                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppWelcome", 0, 0)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
                 .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                 .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEpa", 0, 6)
-                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6);
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6);
 
 
             using (var fixture = new GenerateFeedbackTransactionTestsFixture()
@@ -634,72 +632,80 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 8, Guid.NewGuid(), 1001)
-                .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
-                .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
+                .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6, null)
                 .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3, null)
-                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null)).SetName("StartFoundationOneMonthInFutureAndRunForEightMonths");
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6, null)).SetName("StartFoundationOneMonthInFutureAndRunForEightMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
-                .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
-                .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
+                .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6, null)
                 .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3, null)
-                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null)).SetName("StartFoundationOneMonthInFutureAndRunForSixMonths");
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6, null)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6, null)).SetName("StartFoundationOneMonthInFutureAndRunForSixMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 3, Guid.NewGuid(), 1001)
-                .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
-                .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
-                .WithExpectedTemplateSendAfterCurrentDate("FoundationAppMonthThree",3)).SetName("StartFoundationOneMonthInFutureAndRunForThreeMonths");
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppPreEPA",0, 0)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree",0,3)).SetName("StartFoundationOneMonthInFutureAndRunForThreeMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-1), 8, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0,6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)).SetName("StartFoundationOneMonthInThePastAndRunForEightMonths");
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6)).SetName("StartFoundationOneMonthInThePastAndRunForEightMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-2), 8, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)).SetName("StartFoundationTwoMonthsInThePastAndRunForEightMonths");
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6)).SetName("StartFoundationTwoMonthsInThePastAndRunForEightMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-3), 8, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)).SetName("StartFoundationThreeMonthsInThePastAndRunForEightMonths");
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6)).SetName("StartFoundationThreeMonthsInThePastAndRunForEightMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-4), 8, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6)
                         ).SetName("StartFoundationFourMonthsInThePastAndRunForEightMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-5), 8, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)).SetName("StartFoundationFiveMonthsInThePastAndRunForEightMonths");
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6)).SetName("StartFoundationFiveMonthsInThePastAndRunForEightMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-6), 8, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)).SetName("StartFoundationSixMonthsInThePastAndRunForEightMonths");
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthNine", 0, 6)).SetName("StartFoundationSixMonthsInThePastAndRunForEightMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-7), 8, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)).SetName("StartFoundationSevenMonthsInThePastAndRunForEightMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-8), 8, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppWelcome", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)).SetName("StartFoundationEightMonthsInThePastAndRunForEightMonths");
             }
         }
