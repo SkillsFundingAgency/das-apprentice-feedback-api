@@ -138,7 +138,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         }
 
         [Test]
-        public async Task GenerateFeedbackTransaction_MultipleApprenticeships_RemovesNewSuperceededFeedbackTransactions()
+        public async Task GenerateFeedbackTransaction_MultipleFoundationApprenticeships_RemovesNewSuperceededFeedbackTransactions()
         {
             var currentDate = new DateTime(2000, 01, 01);
 
@@ -152,8 +152,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7);
 
             using (var fixture = new GenerateFeedbackTransactionTestsFixture()
-                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
+                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA")
+                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA")
                 .WithExistingFeedbackTransactions(apprenticeshipOne)
                 .WithExistingFeedbackTransactions(apprenticeshipTwo))
             {
@@ -169,7 +169,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         }
 
         [Test]
-        public async Task GenerateFeedbackTransaction_MultipleFoundationApprenticeships_RemovesNewSuperceededFeedbackTransactions()
+        public async Task GenerateFeedbackTransaction_MultipleApprenticeships_RemovesNewSuperceededFeedbackTransactions()
         {
             var currentDate = new DateTime(2000, 01, 01);
 
