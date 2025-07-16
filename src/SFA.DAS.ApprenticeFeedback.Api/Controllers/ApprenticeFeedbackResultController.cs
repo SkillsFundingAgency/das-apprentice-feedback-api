@@ -6,6 +6,7 @@ using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetail
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetailsAnnual;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetailsForAcademicYear;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRatingSummary;
+using SFA.DAS.ApprenticeFeedback.Domain.Constants;
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.Threading.Tasks;
@@ -60,7 +61,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         {
             if (string.IsNullOrWhiteSpace(timePeriod))
             {
-                timePeriod = "All";
+                timePeriod = ReviewDataPeriod.AggregatedData; ;
             }
             try
             {

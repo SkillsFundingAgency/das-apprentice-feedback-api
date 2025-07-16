@@ -25,7 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
             [Greedy] ApprenticeFeedbackResultController controller)
         {
             mediator.Setup(m => m.Send(It.IsAny<GetApprenticeFeedbackRatingSummaryQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(summaryResult);
-            var result = await controller.GetApprenticeFeedbackRatingSummary(It.IsAny<string>());
+            var result = await controller.GetApprenticeFeedbackRatingSummary("AY2024");
 
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(summaryResult.RatingSummaries);
         }
@@ -38,7 +38,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
         {
             mediator.Setup(m => m.Send(It.IsAny<GetApprenticeFeedbackRatingSummaryQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetApprenticeFeedbackRatingSummaryResult(new List<ProviderStarsSummary>()));
-            var result = await controller.GetApprenticeFeedbackRatingSummary(It.IsAny<string>());
+            var result = await controller.GetApprenticeFeedbackRatingSummary("AY2024");
 
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(new List<GetApprenticeFeedbackRatingSummaryResult.RatingSummary>());
         }
@@ -50,7 +50,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
         {
             mediator.Setup(m => m.Send(It.IsAny<GetApprenticeFeedbackRatingSummaryQuery>(), It.IsAny<CancellationToken>())).Throws(new Exception());
 
-            var result = await controller.GetApprenticeFeedbackRatingSummary(It.IsAny<string>());
+            var result = await controller.GetApprenticeFeedbackRatingSummary("AY2024");
 
             result.Should().BeOfType<BadRequestResult>();
         }
