@@ -26,6 +26,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 t.TimePeriod = ReviewDataPeriod.AggregatedData;
             });
 
+            query.TimePeriod = ReviewDataPeriod.AggregatedData;
+
             context.ProviderStarsSummary.AddRange(providerStarsSummaries);
             context.SaveChanges();
 
