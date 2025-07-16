@@ -2,6 +2,7 @@
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Api.Controllers;
@@ -24,7 +25,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
             [Greedy] ApprenticeFeedbackResultController controller)
         {
             mediator.Setup(m => m.Send(It.IsAny<GetApprenticeFeedbackRatingSummaryQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(summaryResult);
-            var result = await controller.GetApprenticeFeedbackRatingSummary();
+            var result = await controller.GetApprenticeFeedbackRatingSummary(It.IsAny<string>());
 
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(summaryResult.RatingSummaries);
         }
@@ -37,7 +38,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
         {
             mediator.Setup(m => m.Send(It.IsAny<GetApprenticeFeedbackRatingSummaryQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new GetApprenticeFeedbackRatingSummaryResult(new List<ProviderStarsSummary>()));
-            var result = await controller.GetApprenticeFeedbackRatingSummary();
+            var result = await controller.GetApprenticeFeedbackRatingSummary(It.IsAny<string>());
 
             result.Should().BeOfType<OkObjectResult>().Which.Value.Should().BeEquivalentTo(new List<GetApprenticeFeedbackRatingSummaryResult.RatingSummary>());
         }
@@ -49,9 +50,26 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.ApprenticeFeedbac
         {
             mediator.Setup(m => m.Send(It.IsAny<GetApprenticeFeedbackRatingSummaryQuery>(), It.IsAny<CancellationToken>())).Throws(new Exception());
 
-            var result = await controller.GetApprenticeFeedbackRatingSummary();
+            var result = await controller.GetApprenticeFeedbackRatingSummary(It.IsAny<string>());
 
             result.Should().BeOfType<BadRequestResult>();
+        }
+
+        [TestCase("All")]
+        [TestCase("")]
+        [TestCase("AY2024")]
+        public async Task GetApprenticeFeedbackRatingSummary_WithValidTimePeriod_ReturnsOk(string timePeriod)
+        {
+            var mediator = new Mock<IMediator>();
+            var logger = new Mock<ILogger<ApprenticeFeedbackResultController>>();
+            var controller = new ApprenticeFeedbackResultController(mediator.Object, logger.Object);
+
+            mediator.Setup(m => m.Send(It.IsAny<GetApprenticeFeedbackRatingSummaryQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetApprenticeFeedbackRatingSummaryResult(new List<ProviderStarsSummary>()));
+
+            var result = await controller.GetApprenticeFeedbackRatingSummary(timePeriod);
+
+            result.Should().BeOfType<OkObjectResult>();
         }
     }
 }

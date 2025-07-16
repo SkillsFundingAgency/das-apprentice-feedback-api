@@ -56,11 +56,15 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
         }
 
         [HttpGet("reviews")]
-        public async Task<IActionResult> GetApprenticeFeedbackRatingSummary()
+        public async Task<IActionResult> GetApprenticeFeedbackRatingSummary([RegularExpression("^(|All|AY\\d{4})$", ErrorMessage = "Time period should be empty, 'All', or in the format 'AYdddd'")] string timePeriod)
         {
+            if (string.IsNullOrWhiteSpace(timePeriod))
+            {
+                timePeriod = "All";
+            }
             try
             {
-                var result = await _mediator.Send(new GetApprenticeFeedbackRatingSummaryQuery());
+                var result = await _mediator.Send(new GetApprenticeFeedbackRatingSummaryQuery() { TimePeriod = timePeriod });
 
                 return Ok(result.RatingSummaries);
             }
