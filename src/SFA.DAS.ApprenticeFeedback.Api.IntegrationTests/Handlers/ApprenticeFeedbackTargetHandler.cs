@@ -109,13 +109,13 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
 
         public static void DeleteRecord(Guid id)
         {
-            var sql = $@"DELETE FROM ApprenticeFeedbackTarget WHERE Id = {id}";
+            var sql = $@"DELETE FROM FeedbackTransaction WHERE ApprenticeFeedbackTargetId = {id};DELETE FROM ApprenticeFeedbackTarget WHERE Id = {id}";
             DatabaseService.Execute(sql);
         }
 
         public static void DeleteAllRecords()
         {
-            var sql = $@"DELETE FROM ApprenticeFeedbackTarget";
+            var sql = $@"DELETE FROM FeedbackTransaction; DELETE FROM ApprenticeFeedbackTarget";
             DatabaseService.Execute(sql);
         }
     }

@@ -16,4 +16,4 @@ Post-Deployment Script Template
 :r .\SetPrimaryReasonForExistingExitSurveys.sql
 :r .\AddProviderExclusions.sql
 :r .\AddEngagementEmails.sql
-
+:r .\AddForeignKeyConstraintToFeedbackTransaction.sql
