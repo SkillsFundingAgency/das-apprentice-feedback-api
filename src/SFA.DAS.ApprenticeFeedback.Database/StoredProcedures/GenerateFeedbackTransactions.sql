@@ -57,7 +57,7 @@ SET NOCOUNT ON;
             CASE WHEN [StandardUId] LIKE 'FA%' THEN 'foundation' ELSE
                 CASE WHEN [StartDate] > EOMONTH(DATEADD(month,-2,@CurrentUtcDate)) THEN 'start' ELSE 'active' END +
                 CASE WHEN DATEDIFF(month,[StartDate],[EndDate]) <= 24 THEN 'short' ELSE 'long' END 
-            END [DurationType]
+            END [ProgrammeType]
             ,DATEDIFF(month,[StartDate],[EndDate]) PlannedDuration
             FROM [dbo].[ApprenticeFeedbackTarget] aft1
             WHERE 1=1
@@ -84,7 +84,7 @@ SET NOCOUNT ON;
             )
         ) aft
         CROSS JOIN [dbo].[EngagementEmails] ep1 
-        WHERE ep1.[ProgrammeType] = aft.[DurationType]
+        WHERE ep1.[ProgrammeType] = aft.[ProgrammeType]
         AND ( ep1.[MonthsBeforeEnd] IS NOT NULL -- this always includes the Start/Welcome email and PreEPA 
               OR DATEADD(month,[MonthsFromStart],[StartDate]) BETWEEN DATEADD(month,-1,DATEADD(day,1,EOMONTH(@CurrentUtcDate))) AND EOMONTH([EndDate])
             )
