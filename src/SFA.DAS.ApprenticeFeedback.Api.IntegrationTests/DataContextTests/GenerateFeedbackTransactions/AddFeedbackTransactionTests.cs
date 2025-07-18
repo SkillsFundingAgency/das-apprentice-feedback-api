@@ -110,28 +110,28 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             var currentDate = new DateTime(2000, 01, 01);
 
             var apprenticeshipOne = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6);
 
 
             var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 9, Guid.NewGuid(), 1002)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 1)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 1)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7);
 
             var apprenticeshipThree = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-3), 9, Guid.NewGuid(), 1003)
-                       .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
+                       .WithExpectedTemplateSendAfterCurrentDate("FoundationAppStart", 0)
                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7);
 
             var apprenticeshipFoundation = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 9, Guid.NewGuid(), 1004)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 1)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 1)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
@@ -189,7 +189,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             var currentDate = new DateTime(2000, 01, 01);
 
             var apprenticeship = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0, 0)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0, 0)
                         .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 0, 3)
                         .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppPreEpa", 0, 0, 6)
                         .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 0, 6);
@@ -339,7 +339,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             var currentDate = new DateTime(2000, 01, 01);
 
             var apprenticeship = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 9, Guid.NewGuid(), 1001)
-                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 1)
+                .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 1)
                 .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                 .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEpa", 0, 6)
                 .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
@@ -625,7 +625,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate, 9, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 1)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 1)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
@@ -634,7 +634,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 9, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 1)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 1)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
@@ -643,7 +643,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6))
@@ -651,14 +651,14 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 3, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppPreEPA", 0, 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3))
                     .SetArgDisplayNames("OneMonthFuture", "RunForThreeMonths");
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-1), 9, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppStart", 0)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
@@ -667,7 +667,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-2), 9, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppStart", 0)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
@@ -676,7 +676,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-3), 9, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
@@ -685,7 +685,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-4), 9, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
@@ -693,7 +693,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-5), 9, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
@@ -701,7 +701,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-6), 9, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
@@ -709,7 +709,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
                 yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-7), 9, Guid.NewGuid(), 1001)
-                        .WithExpectedTemplateSendAfterCurrentDate("FoundationStart", 0)
+                        .WithExpectedTemplateSendAfterCurrentDate("FoundationAppStart", 0)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppPreEPA", 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
                     .SetArgDisplayNames("SevenMonthsPast", "RunForSevenMonths");
