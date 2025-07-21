@@ -657,6 +657,105 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                     .SetArgDisplayNames("OneMonthFuture", "RunForThreeMonths");
 
                 yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(2), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("TwoMonthsInTheFuture", "RunForTwelveMonths");
+                
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(3), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("ThreeMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(4), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("FourMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(5), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("FiveMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(6), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("SixMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(7), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("SevenMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(8), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("EightMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(9), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("NineMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(10), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("TenMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(11), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("ElevenMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
+                    new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(12), 12, Guid.NewGuid(), 1001)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
+                        .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
+                        .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7))
+                    .SetArgDisplayNames("TwelveMonthsInTheFuture", "RunForTwelveMonths");
+
+                yield return new TestCaseData(
                     new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(-1), 12, Guid.NewGuid(), 1001)
                         .WithExpectedTemplateSendAfterCurrentDate("FoundationAppStart", 0)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("FoundationAppPreEPA", 0, 6)
