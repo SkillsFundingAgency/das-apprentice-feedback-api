@@ -1,6 +1,7 @@
 ﻿using NUnit.Framework;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using static SFA.DAS.ApprenticeFeedback.Domain.Models.Enums;
 
@@ -59,37 +60,34 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
 
             var apprenticeId = Guid.NewGuid();
 
+            // these existing ones will be removed for the superceeded apprenticeship
             var apprenticeshipOne = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
                         .WithExistingTemplateSendAfterMonthsAfterStart("AppStart", -2, 0)
                         .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthThree", -2, 3)
                         .WithExistingTemplateSendAfterMonthsBeforeEnd("AppPreEpa", -2, 6)
                         .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", -2, 6);
 
+            // these new ones will be generated 
             var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 9, Guid.NewGuid(), 1002)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
-                        .WithExistingTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("AppStart", 0, 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthThree", 0, 3)
                         .WithExpectedTemplateSendAfterMonthsBeforeEnd("AppPreEpa", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthSix", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9);
 
+
             using (var fixture = new GenerateFeedbackTransactionTestsFixture()
-                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
+                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate, createdOn: currentDate.AddMonths(-2))
                 .WithExistingFeedbackTransactions(apprenticeshipOne)
-                .WithExistingFeedbackTransactions(apprenticeshipTwo))
+                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate, createdOn: currentDate))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
 
-                await results.VerifyExpectedTemplates(apprenticeshipOne);
+                await results.VerifyNotExistingTemplates(apprenticeshipOne);
                 await results.VerifyExpectedTemplates(apprenticeshipTwo);
 
-                results.VerifyCount(0);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
+                results.VerifyCount(5);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, 0);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ExpectedTemplates.Count);
             }
         }
@@ -97,40 +95,34 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
         [Test]
         public async Task GenerateFeedbackTransaction_MultipleFoundationApprenticeships_RemovesOldSuperceededFeedbackTransactions()
         {
-
             var currentDate = new DateTime(2000, 01, 01);
 
             var apprenticeId = Guid.NewGuid();
 
-            var apprenticeshipOne = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 6, Guid.NewGuid(), 1001)
+            var apprenticeshipOne = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 12, Guid.NewGuid(), 1001)
                         .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppStart", -2, 0)
                         .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", -2, 3)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", -2, 6);
+                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", -2, 6)
+                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", -2, 7);
 
-            var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 7, Guid.NewGuid(), 1002)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
-                        .WithExistingTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7)
+            var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(2), 12, Guid.NewGuid(), 1002)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
-                        
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7);
 
             using (var fixture = new GenerateFeedbackTransactionTestsFixture()
-                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
+                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate, createdOn: currentDate.AddMonths(-2), standardUID: "FA1000")
                 .WithExistingFeedbackTransactions(apprenticeshipOne)
-                .WithExistingFeedbackTransactions(apprenticeshipTwo))
+                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate, createdOn: currentDate, standardUID: "FA1000"))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
 
-                await results.VerifyExpectedTemplates(apprenticeshipOne);
+                await results.VerifyNotExistingTemplates(apprenticeshipOne);
                 await results.VerifyExpectedTemplates(apprenticeshipTwo);
 
-                results.VerifyCount(0);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
+                results.VerifyCount(4);
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, 0);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ExpectedTemplates.Count);
             }
         }
@@ -145,23 +137,19 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
             var apprenticeshipTwo = new FeedbackTransactionTestData(currentDate, currentDate.AddMonths(1), 7, Guid.NewGuid(), 1002)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppStart", 0, 0)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthThree", 0, 3)
-                        
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSix", 0, 6)
                         .WithExpectedTemplateSendAfterMonthsAfterStart("FoundationAppMonthSeven", 0, 7);
 
             using (var fixture = new GenerateFeedbackTransactionTestsFixture()
-                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA")
-                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate, FeedbackTargetStatus.Unknown, false, false, null, "FA")
-                .WithExistingFeedbackTransactions(apprenticeshipOne)
-                .WithExistingFeedbackTransactions(apprenticeshipTwo))
+                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate, createdOn: currentDate.AddMonths(-2), standardUID: "FA")
+                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate, createdOn: currentDate, standardUID: "FA"))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
-
-                await results.VerifyExpectedTemplates(apprenticeshipOne);
-                await results.VerifyExpectedTemplates(apprenticeshipTwo);
-
                 results.VerifyCount(apprenticeshipTwo.ExpectedTemplates.Count);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
+
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, 0);
+                
+                await results.VerifyExpectedTemplates(apprenticeshipTwo);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ExpectedTemplates.Count);
             }
         }
@@ -182,18 +170,15 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                         .WithExpectedTemplateSendAfterMonthsAfterStart("AppMonthNine", 0, 9);
 
             using (var fixture = new GenerateFeedbackTransactionTestsFixture()
-                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate)
-                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate)
-                .WithExistingFeedbackTransactions(apprenticeshipOne)
-                .WithExistingFeedbackTransactions(apprenticeshipTwo))
+                .WithApprenticeFeedbackTarget(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipOne.ApprenticeshipId, apprenticeshipOne.StartDate, apprenticeshipOne.EndDate, createdOn: currentDate.AddMonths(-2))
+                .WithApprenticeFeedbackTarget(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeId, apprenticeshipTwo.ApprenticeshipId, apprenticeshipTwo.StartDate, apprenticeshipTwo.EndDate, createdOn: currentDate))
             {
                 var results = await fixture.GenerateFeedbackTransactions(currentDate);
-
-                await results.VerifyExpectedTemplates(apprenticeshipOne);
-                await results.VerifyExpectedTemplates(apprenticeshipTwo);
-
                 results.VerifyCount(apprenticeshipTwo.ExpectedTemplates.Count);
-                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, apprenticeshipOne.ExpectedTemplates.Count);
+
+                await results.VerifyFeedbackTransactionRowCount(apprenticeshipOne.ApprenticeFeedbackTargetId, 0);
+
+                await results.VerifyExpectedTemplates(apprenticeshipTwo);
                 await results.VerifyFeedbackTransactionRowCount(apprenticeshipTwo.ApprenticeFeedbackTargetId, apprenticeshipTwo.ExpectedTemplates.Count);
             }
         }

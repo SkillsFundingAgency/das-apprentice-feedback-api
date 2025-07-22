@@ -30,7 +30,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests
             string standardUID = "ST")
         {
             return WithApprenticeFeedbackTarget(id, Guid.NewGuid(), apprenticeshipId, startDate, endDate, feedbackTargetStatus,
-                withdrawn, isTransfer, dateTransferIdentified, standardUID);
+                null, withdrawn, isTransfer, dateTransferIdentified, standardUID);
         }
 
         public T WithApprenticeFeedbackTarget(Guid? id,
@@ -39,6 +39,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests
             DateTime? startDate,
             DateTime? endDate,
             FeedbackTargetStatus feedbackTargetStatus = FeedbackTargetStatus.Unknown,
+            DateTime? createdOn = null,
             bool withdrawn = false,
             bool isTransfer = false,
             DateTime? dateTransferIdentified = null,
@@ -46,7 +47,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests
         {
             var apprenticeFeedbackTarget = ApprenticeFeedbackTargetHandler.Create(id, apprenticeId, apprenticeshipId,
                 feedbackTargetStatus, startDate, endDate, 12345678, string.Empty, standardUID, 123, string.Empty,
-                FeedbackEligibilityStatus.Unknown, DateTime.UtcNow, DateTime.UtcNow, DateTime.UtcNow, withdrawn, isTransfer, dateTransferIdentified);
+                FeedbackEligibilityStatus.Unknown, DateTime.UtcNow, createdOn ?? DateTime.UtcNow, DateTime.UtcNow, withdrawn, isTransfer, dateTransferIdentified);
 
             _apprenticeFeedbackTargets.Add(apprenticeFeedbackTarget);
             ApprenticeFeedbackTargetHandler.InsertRecord(apprenticeFeedbackTarget);
