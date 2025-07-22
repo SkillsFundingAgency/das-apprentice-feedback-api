@@ -56,10 +56,9 @@ VALUES
 (53, 'activelong', 72, null, 'AppAnnual'),
 
 (54, 'foundation', null, 12, 'FoundationAppStart'),
-(55, 'foundation', null, 6, 'FoundationAppPreEPA'),
-(56, 'foundation', 3, null, 'FoundationAppMonthThree'),
-(57, 'foundation', 6, null, 'FoundationAppMonthSix'),
-(58, 'foundation', 7, null, 'FoundationAppMonthSeven')
+(55, 'foundation', 3, null, 'FoundationAppMonthThree'),
+(56, 'foundation', 6, null, 'FoundationAppMonthSix'),
+(57, 'foundation', 7, null, 'FoundationAppMonthSeven')
 
 MERGE [dbo].[EngagementEmails] TARGET
 USING #EngagementEmails SOURCE
