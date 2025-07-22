@@ -10,7 +10,9 @@
 	[SentDate] DATETIME,
 	[TemplateName] VARCHAR(100) NULL,
 	[IsSuppressed] BIT NOT NULL DEFAULT 0, 
-	[Variant] VARCHAR(100) NULL 
+	[Variant] VARCHAR(100) NULL,
+	CONSTRAINT FK_FeedbackTransaction_ApprenticeFeedbackTarget FOREIGN KEY (ApprenticeFeedbackTargetId)
+        REFERENCES ApprenticeFeedbackTarget(Id)
 )
 GO
 

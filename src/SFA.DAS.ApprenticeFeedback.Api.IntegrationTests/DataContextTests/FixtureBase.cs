@@ -108,8 +108,8 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests
 
         protected static void DeleteAllRecords()
         {
-            ApprenticeFeedbackTargetHandler.DeleteAllRecords();
             FeedbackTransactionHandler.DeleteAllRecords();
+            ApprenticeFeedbackTargetHandler.DeleteAllRecords();
         }
     }
 }
