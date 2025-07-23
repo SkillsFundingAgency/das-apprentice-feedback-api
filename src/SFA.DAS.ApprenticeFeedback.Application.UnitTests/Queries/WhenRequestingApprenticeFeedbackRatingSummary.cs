@@ -26,6 +26,36 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 t.TimePeriod = ReviewDataPeriod.AggregatedData;
             });
 
+            query.TimePeriod = ReviewDataPeriod.AggregatedData;
+
+            context.ProviderStarsSummary.AddRange(providerStarsSummaries);
+            context.SaveChanges();
+
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            result.RatingSummaries.Should().BeEquivalentTo(providerStarsSummaries.Select(s => new
+            {
+                s.Ukprn,
+                s.ReviewCount,
+                s.Stars
+            }));
+        }
+
+        [Test]
+        [TestCase("AY2022")]
+        [TestCase("AY2023")]
+        [TestCase("AY2024")]
+        public async Task ThenApprenticeFeedbackRatingSummaryIsReturned_ForDifferentAcademicYears(string academicYear)
+        {
+            var query = new GetApprenticeFeedbackRatingSummaryQuery { TimePeriod = academicYear };
+            var context = ApprenticeFeedbackDataContextBuilder.GetApprenticeFeedbackDataContext();
+            var handler = new GetApprenticeFeedbackRatingSummaryQueryHandler(context);
+
+            var providerStarsSummaries = new List<ProviderStarsSummary>
+            {
+                new ProviderStarsSummary { Ukprn = 12345, ReviewCount = 10, Stars = 4, TimePeriod = academicYear },
+                new ProviderStarsSummary { Ukprn = 67890, ReviewCount = 5, Stars = 5, TimePeriod = academicYear }
+            };
             context.ProviderStarsSummary.AddRange(providerStarsSummaries);
             context.SaveChanges();
 

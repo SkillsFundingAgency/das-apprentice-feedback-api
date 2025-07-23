@@ -20,7 +20,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackRa
         public async Task<GetApprenticeFeedbackRatingSummaryResult> Handle(GetApprenticeFeedbackRatingSummaryQuery request, CancellationToken cancellationToken)
         {
             var providerStarsSummaries = await _providerStarsSummaryContext.Entities
-                .Where(pss => pss.TimePeriod == ReviewDataPeriod.AggregatedData)
+                .Where(pss => pss.TimePeriod == request.TimePeriod)
                 .ToListAsync();
             return new GetApprenticeFeedbackRatingSummaryResult(providerStarsSummaries);
         }
