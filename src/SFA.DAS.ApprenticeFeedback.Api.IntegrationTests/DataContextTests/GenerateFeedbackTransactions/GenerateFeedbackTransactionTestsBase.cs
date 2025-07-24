@@ -160,6 +160,25 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.DataContextTests.Gener
                 }
             }
 
+            public async Task VerifyNotExistingTemplates(FeedbackTransactionTestData feedbackTransactionTestData)
+            {
+                foreach (var expectedTemplate in feedbackTransactionTestData.ExpectedTemplates)
+                {
+                    await VerifyFeedbackTransactionNotExists(
+                    FeedbackTransactionHandler.Create(
+                        null,
+                        feedbackTransactionTestData.ApprenticeFeedbackTargetId,
+                        null,
+                        null,
+                        null,
+                        expectedTemplate.CreatedOnAfterDate,
+                        expectedTemplate.SendAfterDate,
+                        expectedTemplate.SentDate,
+                        expectedTemplate.TemplateName,
+                        false));
+                }
+            }
+
             public GenerateFeedbackTransactionTestsFixture VerifyCount(int count)
             {
                 _count.Should().Be(count);
