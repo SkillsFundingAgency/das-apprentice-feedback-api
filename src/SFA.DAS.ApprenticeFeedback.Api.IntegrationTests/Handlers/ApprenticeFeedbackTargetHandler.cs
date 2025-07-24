@@ -109,7 +109,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.IntegrationTests.Handlers
 
         public static void DeleteRecord(Guid id)
         {
-            FeedbackTransactionHandler.DeleteRecord(id);
+            FeedbackTransactionHandler.DeleteRecordByApprenticeFeedbackTargetId(id);
 
             var deleteApprenticeFeedbackTargetsql = $@"DELETE FROM ApprenticeFeedbackTarget WHERE Id = {id}";
             DatabaseService.Execute(deleteApprenticeFeedbackTargetsql);
