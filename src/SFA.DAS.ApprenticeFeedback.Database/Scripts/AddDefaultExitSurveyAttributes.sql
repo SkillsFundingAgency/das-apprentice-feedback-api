@@ -1,5 +1,5 @@
 ﻿
-CREATE TABLE #ExitSurveyTempAttributes
+CREATE TABLE #TempAttributes
 (
 	[AttributeId] INT,
 	[AttributeName] NVARCHAR(150),
@@ -8,20 +8,20 @@ CREATE TABLE #ExitSurveyTempAttributes
 	[Ordering] INT
 )
 
-INSERT INTO #ExitSurveyTempAttributes VALUES 
--- Feedback Attributes (Organisation, Support, Communication) 
-(1,'Organising well-structured training','Organisation','Feedback',1),
-(2,'Communicating clearly with you','Communication','Feedback',1),
-(3,'Providing accessible training resources','Organisation','Feedback',2),
-(4,'Balancing online learning with classroom-based training to suit your apprenticeship','Organisation','Feedback',3),
-(5,'Taking into account your previous learning','Organisation','Feedback',4),
-(6,'Helping you learn new skills and develop existing ones','Support','Feedback',1),
-(7,'Giving you relevant training that helps you perform your job better','Organisation','Feedback',5),
-(8,'Providing Off The Job training that takes up at least 20% of your total apprenticeship time','Organisation','Feedback',6),
-(9,'Supporting you and your apprenticeship','Support','Feedback',2),
-(10,'Resolving any issues you have','Support','Feedback',3),
-(11,'Ensuring you understand the requirements of your end-point assessment','Communication','Feedback',2),
-(12,'Preparing you for success in your future career','Support','Feedback',4),
+INSERT INTO #TempAttributes VALUES 
+-- Feedback v1 Attributes (Organisation, Support, Communication) 
+(1,'Organising well-structured training','Organisation','Feedback_v1',1),
+(2,'Communicating clearly with you','Communication','Feedback_v1',1),
+(3,'Providing accessible training resources','Organisation','Feedback_v1',2),
+(4,'Balancing online learning with classroom-based training to suit your apprenticeship','Organisation','Feedback_v1',3),
+(5,'Taking into account your previous learning','Organisation','Feedback_v1',4),
+(6,'Helping you learn new skills and develop existing ones','Support','Feedback_v1',1),
+(7,'Giving you relevant training that helps you perform your job better','Organisation','Feedback_v1',5),
+(8,'Providing Off The Job training that takes up at least 20% of your total apprenticeship time','Organisation','Feedback_v1',6),
+(9,'Supporting you and your apprenticeship','Support','Feedback_v1',2),
+(10,'Resolving any issues you have','Support','Feedback_v1',3),
+(11,'Ensuring you understand the requirements of your end-point assessment','Communication','Feedback_v1',2),
+(12,'Preparing you for success in your future career','Support','Feedback_v1',4),
 
 -- Exit Survey v2
 -- ApprenticeshipStatus
@@ -188,15 +188,28 @@ INSERT INTO #ExitSurveyTempAttributes VALUES
 (197, 'Went into education (for example, started a college course)', 'PostApprenticeshipStatus', 'ExitSurvey_v3',3),
 (198, 'Became self-employed', 'PostApprenticeshipStatus', 'ExitSurvey_v3',4),
 (199, 'Not currently working or in education', 'PostApprenticeshipStatus', 'ExitSurvey_v3',5),
-(200, 'Something else', 'PostApprenticeshipStatus', 'ExitSurvey_v3',6);
+(200, 'Something else', 'PostApprenticeshipStatus', 'ExitSurvey_v3',6),
 
+-- Feedback v2 Attributes (Organisation, Support, Communication) 
+(201,'Organising well-structured training','Organisation','Feedback_v2',1),
+(202,'Communicating clearly with you','Communication','Feedback_v2',1),
+(203,'Providing accessible training resources','Organisation','Feedback_v2',2),
+(204,'Balancing online learning with classroom-based training to suit your apprenticeship','Organisation','Feedback_v2',3),
+(205,'Taking into account your previous learning','Organisation','Feedback_v2',4),
+(206,'Helping you learn new skills and develop existing ones','Support','Feedback_v2',1),
+(207,'Giving you relevant training that helps you perform your job better','Organisation','Feedback_v2',5),
+(208,'Providing Off the Job training in line with your training plan','Organisation','Feedback_v2',6),
+(209,'Supporting you and your apprenticeship','Support','Feedback_v2',2),
+(210,'Resolving any issues you have','Support','Feedback_v2',3),
+(211,'Ensuring you understand the requirements of your assessment','Communication','Feedback_v2',2),
+(212,'Preparing you for success in your future career','Support','Feedback_v2',4);
 GO
 
 
 SET IDENTITY_INSERT [dbo].[Attribute] ON;
 
 MERGE Attribute TARGET
-USING #ExitSurveyTempAttributes SOURCE
+USING #TempAttributes SOURCE
 ON TARGET.AttributeId=SOURCE.AttributeId
 WHEN MATCHED THEN
 UPDATE SET TARGET.AttributeName = SOURCE.AttributeName,
@@ -208,4 +221,4 @@ INSERT (AttributeId,AttributeName, Category, AttributeType, Ordering)
 VALUES (SOURCE.AttributeId,SOURCE.AttributeName, SOURCE.Category, SOURCE.AttributeType, SOURCE.Ordering);
 
 SET IDENTITY_INSERT [dbo].[Attribute] OFF;
-DROP TABLE #ExitSurveyTempAttributes
+DROP TABLE #TempAttributes
