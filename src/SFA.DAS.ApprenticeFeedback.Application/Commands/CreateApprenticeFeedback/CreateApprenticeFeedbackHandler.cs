@@ -55,7 +55,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
                 ProviderRating = request.OverallRating.ToString(),
                 ProviderAttributes = request.FeedbackAttributes.
                     Select(s => new Domain.Entities.ProviderAttribute { AttributeId = s.Id, AttributeValue = (int)s.Status }).ToList(),
-                AllowContact = request.AllowContact
+                AllowContact = request.AllowContact,
+                Ukprn = apprenticeFeedbackTarget.Ukprn
             };
 
             _apprenticeFeedbackResultContext.Add(feedback);

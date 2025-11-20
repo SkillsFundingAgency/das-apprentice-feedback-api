@@ -5,7 +5,8 @@
 	[StandardUId] NVARCHAR(12),
 	[DateTimeCompleted] DATETIME2, 
 	[ProviderRating] NVARCHAR(10), 
-    [AllowContact] BIT NULL DEFAULT 0
+    [AllowContact] BIT NULL DEFAULT 0,
+	[Ukprn] BIGINT NULL,
 )
 
 GO

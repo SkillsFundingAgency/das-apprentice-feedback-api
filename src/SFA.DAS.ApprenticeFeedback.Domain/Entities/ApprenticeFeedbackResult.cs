@@ -13,5 +13,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Entities
         public bool AllowContact { get; set; }
         public ICollection<ProviderAttribute> ProviderAttributes { get; set; }
         public ApprenticeFeedbackTarget ApprenticeFeedbackTarget { get; set; }
+        public long? Ukprn { get; set; }
     }
 }
