@@ -1,123 +1,102 @@
-﻿CREATE PROCEDURE [dbo].[GenerateProviderAttributesSummary]
+﻿-- NOTE only aggreagates for the current AY unless is reset, in which case will redo 5 years
+
+CREATE PROCEDURE [dbo].[GenerateProviderAttributesSummary]
 (
-    @recentFeedbackMonths INT, --The parameter is not being used. It should be removed
-    @minimumNumberOfReviews INT
+    @minimumNumberOfReviews int = 5,
+    @calcdate datetime = NULL,
+    @reset int = 0  -- set to 1 to do a full reset
 )
 AS
+
 BEGIN
-DECLARE @CurrentDate DATE = GETDATE();
-DECLARE @CurrentYear INT = YEAR(@CurrentDate);
-DECLARE @StartYear INT = YEAR(DATEADD(YEAR, -5, @CurrentDate));
-DECLARE @EndYear INT = YEAR(@CurrentDate);
-DECLARE @TimePeriods TABLE (ID INT IDENTITY(1,1), TimePeriod VARCHAR(10), StartDate DATETIME, EndDate DATETIME);
-DECLARE @AcademicStartYear INT;
-DECLARE @AcademicEndYear INT;
-DECLARE @TimePeriodTemp VARCHAR(10);
+    IF @calcdate IS NULL
+    -- Default is now, but can be overriden for testing / back dating
+        SET @calcdate = GETUTCDATE();
+        
+    -- Set limit to 5 years
+    DECLARE 
+    @limit5AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-55,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,-43,@calcdate)),2),
+    @limit1AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-7,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,5,@calcdate)),2),
+    @timelimit varchar(6),
+    @startdate date = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-7,@calcdate)))+'-Aug-01'),
+    @enddate date =   CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,5,@calcdate)))+'-Aug-01');
+    
+    SET @timelimit = @limit1AY;
+    IF @reset = 1
+    -- reset all 5 AYs
+    BEGIN
+        SET @startdate = DATEADD(year,-4,@startdate);
+        SET @timelimit = @limit5AY;
+    END;
 
-IF @CurrentDate <= DATEFROMPARTS(@CurrentYear, 7, 31)
-BEGIN
-    SET @EndYear = @CurrentYear;
-    SET @StartYear = @EndYear - 5;
-END
-ELSE
-BEGIN
-    SET @EndYear = @CurrentYear + 1;
-    SET @StartYear = @EndYear - 5;
-END
-
-WHILE @StartYear < @EndYear
-BEGIN
-
-    SET @AcademicStartYear = @StartYear;
-    SET @AcademicEndYear = @StartYear + 1;
-
-	    SET @TimePeriodTemp = CONCAT('AY', RIGHT(CAST(@AcademicStartYear AS VARCHAR), 2), RIGHT(CAST(@AcademicEndYear AS VARCHAR), 2));
-        IF NOT EXISTS (SELECT 1 FROM @TimePeriods WHERE TimePeriod = @TimePeriodTemp)
-        BEGIN
-            INSERT INTO @TimePeriods (TimePeriod, StartDate, EndDate) 
-	        VALUES (@TimePeriodTemp,DATETIMEFROMPARTS(@AcademicStartYear, 8, 1, 0, 0, 0, 0), DATETIMEFROMPARTS(@AcademicEndYear, 7, 31, 23, 59, 59, 997));
-        END
-
-       SET @StartYear += 1;
-END
-
-DECLARE @TimePeriod VARCHAR(10);
-DECLARE @StartDate DATETIME;
-DECLARE @EndDate DATETIME;
-DECLARE @RowNum INT = 1;
-DECLARE @TotalRows INT = (SELECT COUNT(*) FROM @TimePeriods);
-
-DELETE FROM [dbo].[ProviderAttributeSummary]
-WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods) AND TimePeriod != 'All';
-
-WHILE @RowNum <= @TotalRows
-BEGIN
-    SELECT @TimePeriod = TimePeriod, @StartDate = StartDate, @EndDate = EndDate
-    FROM @TimePeriods
-    WHERE ID = @RowNum;
-
-    ;WITH ResultsByAcYear
+    WITH LatestResults 
     AS (
-    SELECT ar1.ApprenticeFeedbackTargetId, pa1.AttributeId, pa1.AttributeValue, aft.Ukprn
-       FROM (
+        SELECT ar1.ApprenticeFeedbackTargetId, pa1.AttributeId, pa1.AttributeValue, ar1.Ukprn, TimePeriod
+        FROM (
+          -- get latest feedback for each feedback target
             SELECT * FROM (
-                SELECT ROW_NUMBER() OVER (PARTITION BY ApprenticeFeedbackTargetId ORDER BY DateTimeCompleted DESC) seq, *
-                FROM [dbo].[ApprenticeFeedbackResult] WHERE ((DateTimeCompleted BETWEEN @StartDate AND @EndDate))
-            ) ab1 WHERE seq = 1
-            ) ar1
-            JOIN [dbo].[ProviderAttribute] pa1 on pa1.ApprenticeFeedbackResultId = ar1.Id
-            JOIN [dbo].[ApprenticeFeedbackTarget] aft on ar1.ApprenticeFeedbackTargetId = aft.Id
-    WHERE FeedbackEligibility != 0 AND ((DateTimeCompleted BETWEEN @StartDate AND @EndDate))
+                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,ApprenticeFeedbackTargetId ORDER BY DateTimeCompleted DESC) seq, *
+                FROM (
+                    SELECT ar1.*
+                          ,'AY'+RIGHT(YEAR(DATEADD(month,-7,DateTimeCompleted)),2)+RIGHT(YEAR(DATEADD(month,5,DateTimeCompleted)),2) TimePeriod
+                    FROM [dbo].[ApprenticeFeedbackResult] ar1
+                    WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
+                    AND ar1.Ukprn IS NOT NULL
+                ) afr
+            ) ab1 
+            WHERE seq = 1 
+        ) ar1
+        JOIN [dbo].[ProviderAttribute] pa1 on pa1.ApprenticeFeedbackResultId = ar1.Id
     )
-    MERGE INTO [dbo].[ProviderAttributeSummary] pas
-    USING (
-    SELECT Ukprn, AttributeId
-    , SUM(AttributeValue) Agree
-    , SUM(CASE WHEN AttributeValue = 1 THEN 0 ELSE 1 END) Disagree
-    , GETUTCDATE() UpdatedOn
-    FROM (
-        SELECT *, COUNT(*) OVER (PARTITION BY Ukprn, AttributeId) ReviewCount
-        FROM ResultsByAcYear
-    ) ab1
-    WHERE ReviewCount >= @minimumNumberOfReviews
-    GROUP BY Ukprn, AttributeId
-    ) upd
-    ON pas.Ukprn = upd.Ukprn AND pas.AttributeId = upd.AttributeId AND pas.TimePeriod = @TimePeriod
-    WHEN MATCHED THEN
-        UPDATE SET pas.Agree = upd.Agree,
-                   pas.Disagree = upd.Disagree,
-                   pas.UpdatedOn = upd.UpdatedOn
-    WHEN NOT MATCHED BY TARGET THEN
-        INSERT (Ukprn, AttributeId, Agree, Disagree, UpdatedOn, TimePeriod)
-        VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, upd.UpdatedOn, @TimePeriod)
-     WHEN NOT MATCHED BY SOURCE AND pas.TimePeriod = @TimePeriod THEN
-        DELETE; 
+    -- Get the ratings for required AY results for each UKPRN
+    MERGE INTO [dbo].[ProviderAttributeSummary] pas 
+    USING (  
 
-    SET @RowNum += 1;
-END
-BEGIN
-    ;WITH AllResults AS (
-        SELECT Ukprn, AttributeId, 
-               SUM(Agree) AS Agree, 
-               SUM(Disagree) AS Disagree
-        FROM [dbo].[ProviderAttributeSummary]
-        WHERE TimePeriod <> 'All'
-        GROUP BY Ukprn, AttributeId
-    )
-    MERGE INTO [dbo].[ProviderAttributeSummary] pas
-    USING (
-        SELECT Ukprn, AttributeId, Agree, Disagree, GETUTCDATE() AS UpdatedOn
-        FROM AllResults
-    ) upd
-    ON pas.Ukprn = upd.Ukprn AND pas.AttributeId = upd.AttributeId AND pas.TimePeriod = 'All'
-    WHEN MATCHED THEN
-        UPDATE SET pas.Agree = upd.Agree,
+        -- Year-on-Year Results
+        SELECT TimePeriod, Ukprn, AttributeId
+              ,SUM(AttributeValue) Agree 
+              ,SUM(CASE WHEN AttributeValue = 1 THEN 0 ELSE 1 END) Disagree
+        FROM (
+            SELECT AttributeId, AttributeValue, Ukprn, TimePeriod, COUNT(*) OVER (PARTITION BY TimePeriod, Ukprn, AttributeId) ReviewCount
+            FROM LatestResults
+        ) ab1
+        WHERE ReviewCount >= @minimumNumberOfReviews
+        GROUP BY TimePeriod, Ukprn, AttributeId
+
+     ) upd
+    ON pas.Ukprn = upd.Ukprn AND pas.AttributeId = upd.AttributeId AND pas.TimePeriod = upd.TimePeriod
+    WHEN MATCHED THEN 
+        UPDATE SET pas.Agree = upd.Agree, 
                    pas.Disagree = upd.Disagree,
-                   pas.UpdatedOn = upd.UpdatedOn
-    WHEN NOT MATCHED BY TARGET THEN
-        INSERT (Ukprn, AttributeId, Agree, Disagree, UpdatedOn, TimePeriod)
-        VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, upd.UpdatedOn, 'All')
-	WHEN NOT MATCHED BY SOURCE AND pas.TimePeriod = 'All' THEN
+                   pas.UpdatedOn = @calcdate
+    WHEN NOT MATCHED BY TARGET THEN 
+        INSERT (Ukprn, AttributeId, Agree, Disagree, UpdatedOn, TimePeriod) 
+        VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, @calcdate, upd.TimePeriod)
+    WHEN NOT MATCHED BY SOURCE AND TimePeriod BETWEEN @limit1AY AND @timelimit THEN
         DELETE;
+
+    -- Get the ratings for all eligible 5 Year results for each UKPRN
+    MERGE INTO [dbo].[ProviderAttributeSummary] pas 
+    USING (  
+        -- All, adding each year's results
+        SELECT 'All' TimePeriod, Ukprn, AttributeId
+               ,SUM(Agree) Agree 
+               ,SUM(Disagree) Disagree 
+        FROM [dbo].[ProviderAttributeSummary] 
+        WHERE TimePeriod >= @limit5AY  -- will ignore 'All'
+        GROUP BY Ukprn, AttributeId
+     ) upd
+    ON pas.Ukprn = upd.Ukprn AND pas.AttributeId = upd.AttributeId AND pas.TimePeriod = upd.TimePeriod
+    WHEN MATCHED THEN 
+        UPDATE SET pas.Agree = upd.Agree, 
+                   pas.Disagree = upd.Disagree,
+                   pas.UpdatedOn = @calcdate
+    WHEN NOT MATCHED BY TARGET THEN 
+        INSERT (Ukprn, AttributeId, Agree, Disagree, UpdatedOn, TimePeriod) 
+        VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, @calcdate, upd.TimePeriod)
+    WHEN NOT MATCHED BY SOURCE AND TimePeriod = 'All' THEN
+        DELETE;
+    
+  
 END
-END
+GO

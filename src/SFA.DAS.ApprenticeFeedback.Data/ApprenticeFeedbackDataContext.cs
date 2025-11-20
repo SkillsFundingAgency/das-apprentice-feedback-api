@@ -187,12 +187,10 @@ namespace SFA.DAS.ApprenticeFeedback.Data
                 };
 
                 await Database.ExecuteSqlRawAsync(
-                    "EXEC [dbo].[GenerateProviderAttributesSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
-                    parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews );
+                    "EXEC [dbo].[GenerateProviderAttributesSummary] @minimumNumberOfReviews", parameterMinimumNumberOfReviews );
 
                 await Database.ExecuteSqlRawAsync(
-                    "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @recentFeedbackMonths, @minimumNumberOfReviews",
-                    parameterRecentFeedbackMonths, parameterMinimumNumberOfReviews);
+                    "EXEC [dbo].[GenerateProviderRatingAndStarsSummary] @minimumNumberOfReviews", parameterMinimumNumberOfReviews);
             }
             finally
             {
