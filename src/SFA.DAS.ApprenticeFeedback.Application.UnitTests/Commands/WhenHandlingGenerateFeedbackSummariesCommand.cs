@@ -21,13 +21,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
            )
         {
             //Arrange
-            //providerRatingSummaryContext.Setup(s => s.GenerateFeedbackSummaries(settings.ReportingMinNumberOfResponses, settings.ReportingFeedbackCutoffMonths));
+            //providerRatingSummaryContext.Setup(s => s.GenerateFeedbackSummaries(settings.ReportingMinNumberOfResponses));
 
             //Act
             var result = await handler.Handle(command, CancellationToken.None);
 
             result.Should().BeOfType<GenerateFeedbackSummariesCommandResponse>();
-            providerRatingSummaryContext.Verify(s => s.GenerateFeedbackSummaries(settings.ReportingMinNumberOfResponses, settings.ReportingFeedbackCutoffMonths), Times.Once);
+            providerRatingSummaryContext.Verify(s => s.GenerateFeedbackSummaries(settings.ReportingMinNumberOfResponses), Times.Once);
 
         }
     }

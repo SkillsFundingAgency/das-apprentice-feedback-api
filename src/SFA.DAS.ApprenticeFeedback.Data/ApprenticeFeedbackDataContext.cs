@@ -163,7 +163,7 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             }
         }
 
-        public async Task GenerateFeedbackSummaries(int minimumNumberOfResponses, int reportingFeedbackCutoffMonths)
+        public async Task GenerateFeedbackSummaries(int minimumNumberOfResponses)
         {
             var originalTimeout = Database.GetCommandTimeout();
 
@@ -171,13 +171,6 @@ namespace SFA.DAS.ApprenticeFeedback.Data
             {
                 // set command timeout to 20 minutes (1200 seconds)
                 Database.SetCommandTimeout(1200);
-
-                var parameterRecentFeedbackMonths = new SqlParameter
-                {
-                    ParameterName = "recentFeedbackMonths",
-                    SqlDbType = SqlDbType.Int,
-                    Value = reportingFeedbackCutoffMonths,
-                };
 
                 var parameterMinimumNumberOfReviews = new SqlParameter
                 {
