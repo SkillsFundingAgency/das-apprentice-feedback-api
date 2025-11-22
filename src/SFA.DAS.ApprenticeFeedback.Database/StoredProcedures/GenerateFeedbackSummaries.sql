@@ -94,7 +94,7 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN 
         INSERT (Ukprn, AttributeId, Agree, Disagree, UpdatedOn, TimePeriod) 
         VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, @calcdate, upd.TimePeriod)
-    WHEN NOT MATCHED BY SOURCE AND TimePeriod BETWEEN @startAY AND @endAY THEN
+    WHEN NOT MATCHED BY SOURCE AND pas.TimePeriod BETWEEN @startAY AND @endAY THEN
         DELETE;
 
     -- Get the ratings for all eligible 5 Year results for each UKPRN
@@ -116,7 +116,7 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN 
         INSERT (Ukprn, AttributeId, Agree, Disagree, UpdatedOn, TimePeriod) 
         VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, @calcdate, upd.TimePeriod)
-    WHEN NOT MATCHED BY SOURCE AND TimePeriod = 'All' THEN
+    WHEN NOT MATCHED BY SOURCE AND pas.TimePeriod = 'All' THEN
         DELETE;
     
 
@@ -166,7 +166,7 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN 
         INSERT (Ukprn, Rating, RatingCount, UpdatedOn, TimePeriod)
         VALUES (upd.Ukprn, upd.Rating, upd.RatingCount, @calcdate, upd.TimePeriod)
-    WHEN NOT MATCHED BY SOURCE AND TimePeriod BETWEEN @startAY AND @endAY THEN
+    WHEN NOT MATCHED BY SOURCE AND prs.TimePeriod BETWEEN @startAY AND @endAY THEN
         DELETE;
 
 -------------------------------------------------------------------------------
