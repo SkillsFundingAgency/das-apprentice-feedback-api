@@ -86,6 +86,7 @@
     <Build Include="StoredProcedures\TruncateFeedbackTargetVariant_Staging.sql" />
     <Build Include="StoredProcedures\ImportIntoFeedbackTargetVariant_FromFeedbackTargetVariant_Staging.sql" />
     <Build Include="StoredProcedures\GenerateFeedbackSummaries.sql" />
+    <Build Include="Functions\ConvertAY.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />

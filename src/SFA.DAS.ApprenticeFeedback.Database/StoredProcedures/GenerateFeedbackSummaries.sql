@@ -4,34 +4,47 @@
 CREATE PROCEDURE [dbo].[GenerateFeedbackSummaries]
 (
     @minimumNumberOfReviews int = 5,
-    @calcdate datetime = NULL,
+    @rundate datetime = NULL,
     @reset int = 0  -- set to 1 to do a full reset
  )
 AS
 BEGIN
+
 -------------------------------------------------------------------------------
 -- Set the date ranges to use
 -------------------------------------------------------------------------------
-
-    IF @calcdate IS NULL
-    -- Default is now, but can be overridden for testing / back dating
-        SET @calcdate = GETUTCDATE();
-        
-    -- Set limit to 5 years
     DECLARE 
-    @limit5AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-55,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,-43,@calcdate)),2),
-    @limit1AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-7,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,5,@calcdate)),2),
-    @timelimit varchar(6),
-    @startdate date = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-7,@calcdate)))+'-Aug-01'),
-    @enddate date =   CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,5,@calcdate)))+'-Aug-01');
+    @calcdate datetime,     -- date of calculation, normally NOW but can be back-dated 
+    @limit5AY varchar(6),   -- earliest AY for the 5 Year "All" calculations
+    @startAY varchar(6),    -- AY to start summarisation, normally current AY but can be earlier at AY boundary and for reset  
+    @endAY varchar(6),      -- AY to end summaristions, normally current AY but can differ for back-dated  
+    @startdate date,        -- Start date, e.g 2025-Aug-01 for the start of sumamrisation
+    @enddate date,          -- next day beyond the period of sumamrisation, e.g. 2026-Aug-01
+    @lastupdate datetime;   -- date for previous summarisation update, if any
     
-    SET @timelimit = @limit1AY;
+    -- Default is now, but can be overridden for testing / back dating
+    SET @calcdate = ISNULL(@rundate,GETUTCDATE());
+    SET @endAY = [dbo].[ConvertAY](@calcdate);
+
+    -- Set limit to 5 years from calc date for 'All'
+    SET @limit5AY = [dbo].[ConvertAY](DATEADD(YEAR,-4,@calcdate));
+
     IF @reset = 1
     -- reset all 5 AYs
+        SET @startdate = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-55,@calcdate)))+'-Aug-01');
+    ELSE
     BEGIN
-        SET @startdate = DATEADD(year,-4,@startdate);
-        SET @timelimit = @limit5AY;
+    -- complication if calcdate is in a new AY, but last update was in previous AY
+    -- in which case need to process current and previous AYs
+        SELECT @lastupdate = MAX(UpdatedOn) FROM [dbo].[ProviderAttributeSummary];
+        IF @lastupdate IS NOT NULL
+            SET @startdate = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-7,@lastupdate)))+'-Aug-01');
+        ELSE
+            SET @startdate = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-7,@calcdate)))+'-Aug-01');
     END;
+    SET @enddate = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,5,@calcdate)))+'-Aug-01');
+        
+    SET @startAY = [dbo].[ConvertAY](@startdate);
 
 -------------------------------------------------------------------------------
 -- Process ProviderAttributeSummary
@@ -47,7 +60,7 @@ BEGIN
                 SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,ApprenticeFeedbackTargetId ORDER BY DateTimeCompleted DESC) seq, Id, ApprenticeFeedbackTargetId, Ukprn, TimePeriod 
                 FROM (
                     SELECT ar1.Id, ApprenticeFeedbackTargetId, Ukprn, DateTimeCompleted
-                          ,'AY'+RIGHT(YEAR(DATEADD(month,-7,DateTimeCompleted)),2)+RIGHT(YEAR(DATEADD(month,5,DateTimeCompleted)),2) TimePeriod
+                          ,[dbo].[ConvertAY](DateTimeCompleted) TimePeriod
                     FROM [dbo].[ApprenticeFeedbackResult] ar1
                     WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
                     AND ar1.Ukprn IS NOT NULL
@@ -81,7 +94,7 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN 
         INSERT (Ukprn, AttributeId, Agree, Disagree, UpdatedOn, TimePeriod) 
         VALUES (upd.Ukprn, upd.AttributeId, upd.Agree, upd.Disagree, @calcdate, upd.TimePeriod)
-    WHEN NOT MATCHED BY SOURCE AND TimePeriod BETWEEN @limit1AY AND @timelimit THEN
+    WHEN NOT MATCHED BY SOURCE AND TimePeriod BETWEEN @startAY AND @endAY THEN
         DELETE;
 
     -- Get the ratings for all eligible 5 Year results for each UKPRN
@@ -121,7 +134,7 @@ BEGIN
                 SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,ApprenticeFeedbackTargetId ORDER BY DateTimeCompleted DESC) seq, ApprenticeFeedbackTargetId, Ukprn, ProviderRating, TimePeriod
                 FROM (
                     SELECT ApprenticeFeedbackTargetId, Ukprn, ProviderRating, DateTimeCompleted
-                          ,'AY'+RIGHT(YEAR(DATEADD(month,-7,DateTimeCompleted)),2)+RIGHT(YEAR(DATEADD(month,5,DateTimeCompleted)),2) TimePeriod
+                          ,[dbo].[ConvertAY](DateTimeCompleted) TimePeriod
                     FROM [dbo].[ApprenticeFeedbackResult] ar1
                     WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
                     AND ar1.Ukprn IS NOT NULL
@@ -153,7 +166,7 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN 
         INSERT (Ukprn, Rating, RatingCount, UpdatedOn, TimePeriod)
         VALUES (upd.Ukprn, upd.Rating, upd.RatingCount, @calcdate, upd.TimePeriod)
-    WHEN NOT MATCHED BY SOURCE AND TimePeriod BETWEEN @limit1AY AND @timelimit THEN
+    WHEN NOT MATCHED BY SOURCE AND TimePeriod BETWEEN @startAY AND @endAY THEN
         DELETE;
 
 -------------------------------------------------------------------------------
