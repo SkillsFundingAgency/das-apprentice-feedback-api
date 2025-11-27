@@ -20,7 +20,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
            GenerateFeedbackSummariesCommandHandler handler
            )
         {
-            //Arrange
             //providerRatingSummaryContext.Setup(s => s.GenerateFeedbackSummaries(settings.ReportingMinNumberOfResponses));
 
             //Act
