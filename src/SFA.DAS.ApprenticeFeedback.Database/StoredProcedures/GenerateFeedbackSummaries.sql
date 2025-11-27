@@ -4,8 +4,8 @@
 CREATE PROCEDURE [dbo].[GenerateFeedbackSummaries]
 (
     @minimumNumberOfReviews int = 5,
-    @rundate datetime = NULL,
-    @reset int = 0  -- set to 1 to do a full reset
+    @reset int = 0,            -- set to 1 to do a full reset of the past 5 years
+    @rundate datetime = NULL   -- set this for TESTING only
  )
 AS
 BEGIN
