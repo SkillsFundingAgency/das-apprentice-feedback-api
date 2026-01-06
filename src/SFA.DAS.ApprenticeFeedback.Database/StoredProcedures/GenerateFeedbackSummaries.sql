@@ -54,7 +54,7 @@ BEGIN
     AS (
         SELECT ar1.ApprenticeFeedbackTargetId, pa1.AttributeId, pa1.AttributeValue, ar1.Ukprn, ar1.TimePeriod
               ,COUNT(*) OVER (PARTITION BY ar1.TimePeriod, ar1.Ukprn) CountForProvider
-              ,COUNT(*) OVER (PARTITION BY ar1.TimePeriod, ar1.Ukprn, ar1.Id) CountForAttributies
+              ,COUNT(*) OVER (PARTITION BY ar1.TimePeriod, ar1.Ukprn, ar1.Id) CountForAttributes
         FROM (
           -- get latest feedback for each feedback target
             SELECT Id, ApprenticeFeedbackTargetId, Ukprn, TimePeriod   
@@ -82,7 +82,7 @@ BEGIN
               ,SUM(CASE WHEN AttributeValue = 1 THEN 0 ELSE 1 END) Disagree
         FROM (
             SELECT AttributeId, AttributeValue, Ukprn, TimePeriod, 
-                   CountForProvider/CountForAttributies ReviewCount
+                   CountForProvider/CountForAttributes ReviewCount
             FROM LatestResults
         ) ab1
         WHERE ReviewCount >= @minimumNumberOfReviews
