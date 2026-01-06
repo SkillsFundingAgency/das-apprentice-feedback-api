@@ -14,7 +14,6 @@ BEGIN
 -- Set the date ranges to use
 -------------------------------------------------------------------------------
     DECLARE 
-    @attributes int = 12,   -- the number of attributes asked per feeback questionnaire
     @calcdate datetime,     -- date of calculation, normally NOW but can be back-dated 
     @limit5AY varchar(6),   -- earliest AY for the 5 Year "All" calculations
     @startAY varchar(6),    -- AY to start summarisation, normally current AY but can be earlier at AY boundary and for reset  
@@ -54,6 +53,8 @@ BEGIN
     WITH LatestResults 
     AS (
         SELECT ar1.ApprenticeFeedbackTargetId, pa1.AttributeId, pa1.AttributeValue, ar1.Ukprn, ar1.TimePeriod
+              ,COUNT(*) OVER (PARTITION BY ar1.TimePeriod, ar1.Ukprn) CountForProvider
+              ,COUNT(*) OVER (PARTITION BY ar1.TimePeriod, ar1.Ukprn, ar1.Id) CountForAttributies
         FROM (
           -- get latest feedback for each feedback target
             SELECT Id, ApprenticeFeedbackTargetId, Ukprn, TimePeriod   
@@ -80,7 +81,8 @@ BEGIN
               ,SUM(AttributeValue) Agree 
               ,SUM(CASE WHEN AttributeValue = 1 THEN 0 ELSE 1 END) Disagree
         FROM (
-            SELECT AttributeId, AttributeValue, Ukprn, TimePeriod, COUNT(*) OVER (PARTITION BY TimePeriod, Ukprn)/@attributes ReviewCount
+            SELECT AttributeId, AttributeValue, Ukprn, TimePeriod, 
+                   CountForProvider/CountForAttributies ReviewCount
             FROM LatestResults
         ) ab1
         WHERE ReviewCount >= @minimumNumberOfReviews
