@@ -65,5 +65,77 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 s.Attribute.Category
             }));
         }
+        [Test, AutoMoqData]
+        public async Task ThenDuplicateQuestionTextIsMergeAndAgreeDisagreeSummed(
+            GetApprenticeFeedbackDetailsQuery query,
+            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
+            GetApprenticeFeedbackDetailsQueryHandler handler,
+            ProviderStarsSummary providerStarsSummary)
+        {
+            query.Ukprn = 10004351;
+            var attributeV1 = new Attribute
+            {
+                AttributeId = 11,
+                AttributeName = "Organising well-structured training",
+                Category = "Organisation",
+                AttributeType = "Feedback_v1",
+                Ordering = 1
+            };
+            var attributeV2 = new Attribute
+            {
+                AttributeId = 211,
+                AttributeName = "Organising well-structured training",
+                Category = "Organisation",
+                AttributeType = "Feedback_v2",
+                Ordering = 1
+            };
+
+            var summaryV1 = new ProviderAttributeSummary
+            {
+                Ukprn = query.Ukprn,
+                TimePeriod = ReviewDataPeriod.AggregatedData,
+                AttributeId = attributeV1.AttributeId,
+                Attribute = attributeV1,
+                Agree = 99,
+                Disagree = 1
+            };
+            var summaryV2 = new ProviderAttributeSummary
+            {
+                Ukprn = query.Ukprn,
+                TimePeriod = ReviewDataPeriod.AggregatedData,
+                AttributeId = attributeV2.AttributeId,
+                Attribute = attributeV2,
+                Agree = 1,
+                Disagree = 0
+            };
+            providerStarsSummary.Ukprn =query.Ukprn;
+            providerStarsSummary.TimePeriod = ReviewDataPeriod.AggregatedData;
+
+
+            context.Attributes.AddRange(attributeV1, attributeV2);
+            context.ProviderAttributeSummary.AddRange(summaryV1, summaryV2);
+            context.ProviderStarsSummary.Add(providerStarsSummary);
+            context.SaveChanges();
+
+            //Act
+            var result = await handler.Handle(query, CancellationToken.None);
+
+
+            //Assert: should be merged into ONE item with summed counts
+            result.Ukprn.Should().Be(query.Ukprn);
+
+            result.ProviderAttribute.Should().BeEquivalentTo(new[]
+            {
+                new{
+                Agree = 100,
+                Disagree = 1,
+                Name = "Organising well-structured training",
+                Category = "Organisation"}
+
+            });
+
+
+
+        }
     }
 }
