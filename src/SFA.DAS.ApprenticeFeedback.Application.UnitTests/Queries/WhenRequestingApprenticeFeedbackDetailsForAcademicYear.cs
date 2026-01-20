@@ -1,11 +1,9 @@
 ﻿using AutoFixture.NUnit3;
 using FluentAssertions;
 using Moq;
-using NServiceBus.Features;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetailsForAcademicYear;
 using SFA.DAS.ApprenticeFeedback.Data;
-using SFA.DAS.ApprenticeFeedback.Domain.Constants;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Collections.Generic;
@@ -140,4 +138,5 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         }
 
     }
+
 }

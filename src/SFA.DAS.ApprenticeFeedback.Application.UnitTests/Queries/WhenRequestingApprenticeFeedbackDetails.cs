@@ -111,7 +111,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             providerStarsSummary.Ukprn =query.Ukprn;
             providerStarsSummary.TimePeriod = ReviewDataPeriod.AggregatedData;
 
-
             context.Attributes.AddRange(attributeV1, attributeV2);
             context.ProviderAttributeSummary.AddRange(summaryV1, summaryV2);
             context.ProviderStarsSummary.Add(providerStarsSummary);
@@ -134,8 +133,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
             });
 
-
-
         }
     }
+    
 }

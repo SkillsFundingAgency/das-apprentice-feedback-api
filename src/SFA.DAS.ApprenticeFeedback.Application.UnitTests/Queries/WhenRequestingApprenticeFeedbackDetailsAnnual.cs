@@ -4,12 +4,10 @@ using Moq;
 using NUnit.Framework;
 using SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDetailsAnnual;
 using SFA.DAS.ApprenticeFeedback.Data;
-using SFA.DAS.ApprenticeFeedback.Domain.Constants;
 using SFA.DAS.ApprenticeFeedback.Domain.Entities;
 using SFA.DAS.ApprenticeFeedback.Domain.Interfaces;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -51,8 +49,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         public async Task ThenDuplicateQuestionTextIsMergedPerTimeAndAgreeDisagreeAreSummed(
             GetApprenticeFeedbackDetailsAnnualQuery query,
             [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
-           GetApprenticeFeedbackDetailsAnnualQueryHandler handler
-            )
+           GetApprenticeFeedbackDetailsAnnualQueryHandler handler)
            
         {
 
@@ -68,6 +65,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 ReviewCount = 100,
                 Stars = 4
             };
+
             const string question = "Organising well-structured training";
             const string category = "Organisation";
 
@@ -120,15 +118,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
             // Assert
             result.AnnualApprenticeFeedbackDetails.Should().HaveCount(1);
-
-
             var item = result.AnnualApprenticeFeedbackDetails.Single();
-            item.TimePeriod.Should().Be(timePeriod);
 
+            item.TimePeriod.Should().Be(timePeriod);
             var attrs = item.ProviderAttribute.ToList();
             attrs.Should().HaveCount(1);
-
-
             attrs[0].Name.Should().Be(question);
             attrs[0].Category.Should().Be(category);
             attrs[0].Agree.Should().Be(100);
