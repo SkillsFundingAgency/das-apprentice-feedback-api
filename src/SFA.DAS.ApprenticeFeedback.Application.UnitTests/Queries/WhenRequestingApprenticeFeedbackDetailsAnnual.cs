@@ -49,15 +49,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
         public async Task ThenDuplicateQuestionTextIsMergedPerTimeAndAgreeDisagreeAreSummed(
             GetApprenticeFeedbackDetailsAnnualQuery query,
             [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
-           GetApprenticeFeedbackDetailsAnnualQueryHandler handler)
-           
+           GetApprenticeFeedbackDetailsAnnualQueryHandler handler)           
         {
-
-            //Arrange
-            query.Ukprn = 10004351;
-
-            //One time period under test
+            query.Ukprn = 10004351;            
             const string timePeriod = "AY2425";
+
             var providerStarsSummary = new ProviderStarsSummary
             {
                 Ukprn = query.Ukprn,
@@ -68,8 +64,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
 
             const string question = "Organising well-structured training";
             const string category = "Organisation";
-
-            //two attributes (v1/v2) with same text+category , different ids
+            
             var attributeV1 = new Attribute
             {
                 AttributeId = 11,
@@ -78,6 +73,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 AttributeType = "Feedback_v1",
                 Ordering = 1
             };
+
             var attributeV2 = new Attribute
             {
                 AttributeId = 211,
@@ -96,6 +92,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 Agree = 99,
                 Disagree = 1
             };
+
             var summaryV2 = new ProviderAttributeSummary
             {
                 Ukprn = query.Ukprn,
@@ -106,17 +103,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 Disagree = 0
             };
 
-
             context.Attributes.AddRange(attributeV1, attributeV2);
             context.ProviderAttributeSummary.AddRange(summaryV1, summaryV2);
             context.ProviderStarsSummary.AddRange(providerStarsSummary);
             context.SaveChanges();
 
-            //Act
-
             var result = await handler.Handle(query, CancellationToken.None);
 
-            // Assert
             result.AnnualApprenticeFeedbackDetails.Should().HaveCount(1);
             var item = result.AnnualApprenticeFeedbackDetails.Single();
 
@@ -129,5 +122,4 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             attrs[0].Disagree.Should().Be(1);
         }
     }
-
 }

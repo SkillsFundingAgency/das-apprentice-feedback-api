@@ -51,20 +51,18 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             result.ProviderAttribute.Should().HaveCount(attributesResponse.Count());
             result.TimePeriod.Should().Be(starsResponse.TimePeriod);
         }
+
         [Test, AutoMoqData]
-        public async Task DuplicateQuestionTextIsMergedWithinAcademicYearAndAgreeDisagreeAresummed_ForAY2425(
+        public async Task DuplicateQuestionTextIsMergedWithinAcademicYearAndAgreeDisagreeAreSummed_ForAY2425(
            GetApprenticeFeedbackDetailsForAcademicYearQuery query,
            [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
            GetApprenticeFeedbackDetailsForAcademicYearQueryHandler handler)
-        {
-            //arrange
-
+        {            
             const long ukprn = 10004351;
-            const string ay2425 = "AY2425";           
+            const string ay2425 = "AY2425";       
 
             query.Ukprn = ukprn;
             query.AcademicYear = ay2425;
-
 
             var attributeV1 = new Attribute
             {
@@ -74,6 +72,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 AttributeType = "Feedback_v1",
                 Ordering = 1
             };
+
             var attributeV2 = new Attribute
             {
                 AttributeId = 211,
@@ -92,6 +91,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 Agree = 99,
                 Disagree = 1
             };
+
             var summaryV2 = new ProviderAttributeSummary
             {
                 Ukprn = query.Ukprn,
@@ -101,15 +101,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 Agree = 1,
                 Disagree = 0
             };
-
-            //  starts summary for the same time period
+           
             var providerStarsSummary = new ProviderStarsSummary
             {
                 Ukprn = ukprn,
                 TimePeriod = ay2425,
                 ReviewCount = 100,
                 Stars = 4
-
             };
 
             context.Attributes.AddRange(attributeV1, attributeV2);
@@ -117,11 +115,8 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             context.ProviderStarsSummary.AddRange(providerStarsSummary);
             context.SaveChanges();
 
-            //Act
-
             var result = await handler.Handle(query,CancellationToken.None);
 
-            //assert
             result.Ukprn.Should().Be(ukprn);
             result.TimePeriod.Should().Be(ay2425);
             result.ReviewCount.Should().Be(100);
@@ -134,9 +129,6 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             attrs[0].Category.Should().Be("Organisation");
             attrs[0].Agree.Should().Be(100);
             attrs[0].Disagree.Should().Be(1);
-
         }
-
     }
-
 }

@@ -65,14 +65,16 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 s.Attribute.Category
             }));
         }
+
         [Test, AutoMoqData]
-        public async Task ThenDuplicateQuestionTextIsMergeAndAgreeDisagreeSummed(
+        public async Task ThenDuplicateQuestionTextIsMergedAndAgreeDisagreeSummed(
             GetApprenticeFeedbackDetailsQuery query,
             [Frozen(Matching.ImplementedInterfaces)] ApprenticeFeedbackDataContext context,
             GetApprenticeFeedbackDetailsQueryHandler handler,
             ProviderStarsSummary providerStarsSummary)
         {
             query.Ukprn = 10004351;
+
             var attributeV1 = new Attribute
             {
                 AttributeId = 11,
@@ -81,6 +83,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 AttributeType = "Feedback_v1",
                 Ordering = 1
             };
+
             var attributeV2 = new Attribute
             {
                 AttributeId = 211,
@@ -99,6 +102,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 Agree = 99,
                 Disagree = 1
             };
+
             var summaryV2 = new ProviderAttributeSummary
             {
                 Ukprn = query.Ukprn,
@@ -108,6 +112,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 Agree = 1,
                 Disagree = 0
             };
+
             providerStarsSummary.Ukprn =query.Ukprn;
             providerStarsSummary.TimePeriod = ReviewDataPeriod.AggregatedData;
 
@@ -116,11 +121,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
             context.ProviderStarsSummary.Add(providerStarsSummary);
             context.SaveChanges();
 
-            //Act
             var result = await handler.Handle(query, CancellationToken.None);
-
-
-            //Assert: should be merged into ONE item with summed counts
             result.Ukprn.Should().Be(query.Ukprn);
 
             result.ProviderAttribute.Should().BeEquivalentTo(new[]
@@ -130,10 +131,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Queries
                 Disagree = 1,
                 Name = "Organising well-structured training",
                 Category = "Organisation"}
-
             });
-
         }
-    }
-    
+    }    
 }
