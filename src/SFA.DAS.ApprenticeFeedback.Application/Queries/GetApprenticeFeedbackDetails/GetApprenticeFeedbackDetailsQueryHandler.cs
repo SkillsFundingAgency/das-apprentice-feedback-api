@@ -39,12 +39,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Queries.GetApprenticeFeedbackDe
                 Ukprn = request.Ukprn,
                 ReviewCount = providerStarsSummaries?.ReviewCount ?? 0,
                 Stars = providerStarsSummaries?.Stars ?? 0,
-                ProviderAttribute = providerAttributeSummaries.Select(s => new AttributeResult
+                ProviderAttribute = providerAttributeSummaries
+                .GroupBy(x => new {x.Attribute.Category,x.Attribute.AttributeName})                
+                .Select(s => new AttributeResult
                 {
-                    Agree = s.Agree,
-                    Disagree = s.Disagree,
-                    Name = s.Attribute.AttributeName,
-                    Category = s.Attribute.Category
+                    Agree = s.Sum(y => y.Agree),
+                    Disagree = s.Sum(y => y.Disagree),
+                    Name = s.Key.AttributeName,
+                    Category = s.Key.Category
                 })
             };
         }
