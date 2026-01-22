@@ -72,8 +72,6 @@
     <Build Include="Tables\ProviderStarsSummary.sql" />
     <Build Include="Tables\ProviderAttributeSummary.sql" />
     <Build Include="Tables\ProviderRatingSummary.sql" />
-    <Build Include="StoredProcedures\GenerateProviderAttributesSummary.sql" />
-    <Build Include="StoredProcedures\GenerateProviderRatingAndStarsSummary.sql" />
     <Build Include="StoredProcedures\GenerateFeedbackTransactions.sql" />
     <Build Include="Tables\ApprenticeExitSurvey.sql" />
     <Build Include="Tables\ExitSurveyAttribute.sql" />
@@ -87,6 +85,8 @@
     <Build Include="Tables\FeedbackTargetVariant_Staging.sql" />
     <Build Include="StoredProcedures\TruncateFeedbackTargetVariant_Staging.sql" />
     <Build Include="StoredProcedures\ImportIntoFeedbackTargetVariant_FromFeedbackTargetVariant_Staging.sql" />
+    <Build Include="StoredProcedures\GenerateFeedbackSummaries.sql" />
+    <Build Include="Functions\ConvertAY.sql" />
   </ItemGroup>
   <ItemGroup>
     <PreDeploy Include="Scripts\Script.PreDeployment1.sql" />
@@ -100,6 +100,7 @@
     <None Include="Scripts\AddEngagementEmails.sql" />
     <None Include="Scripts\AddFeedbackTargetStatus.sql" />
     <None Include="Scripts\AddFeedbackEligibilityStatus.sql" />
+    <None Include="Scripts\P2-2849_backfill_Ukprn_for_ApprenticeFeedbackResult.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Scripts\Script.PostDeployment1.sql" />

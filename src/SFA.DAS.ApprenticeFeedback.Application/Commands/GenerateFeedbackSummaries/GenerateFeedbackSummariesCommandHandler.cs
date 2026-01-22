@@ -28,7 +28,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackSummar
         {
             _logger.LogDebug($"Begin Generation of Feedback Summaries in Handler: {DateTime.UtcNow}");
 
-            await _providerRatingSummaryContext.GenerateFeedbackSummaries(_appSettings.ReportingMinNumberOfResponses, _appSettings.ReportingFeedbackCutoffMonths);
+            await _providerRatingSummaryContext.GenerateFeedbackSummaries(_appSettings.ReportingMinNumberOfResponses);
 
             _logger.LogDebug($"Successfully Generated Feedback Summaries in Handler: {DateTime.UtcNow}");
             return new GenerateFeedbackSummariesCommandResponse();

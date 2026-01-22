@@ -17,3 +17,5 @@ Post-Deployment Script Template
 :r .\AddProviderExclusions.sql
 :r .\AddEngagementEmails.sql
 
+-- Patch for ApprenticeFeedbackResult
+:r .\P2-2849_backfill_Ukprn_for_ApprenticeFeedbackResult.sql

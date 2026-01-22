@@ -11,6 +11,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateApprenticeFeedba
         public OverallRating OverallRating { get; set; }
         public List<FeedbackAttribute> FeedbackAttributes { get; set; }
         public bool AllowContact { get; set; }
+        public long? Ukprn { get; set; }
     }
 
     public enum OverallRating

@@ -4,6 +4,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
 {
     public interface IProviderRatingSummaryContext : IEntityContext<Domain.Entities.ProviderRatingSummary>
     {
-        Task GenerateFeedbackSummaries(int minimumNumberOfResponses, int reportingFeedbackCutoffMonths);
+        Task GenerateFeedbackSummaries(int minimumNumberOfResponses);
     }
 }
