@@ -16,7 +16,7 @@ This repository represents the Apprentice Feedback API code base. Apprentice Fee
 
 In order to run this solution locally you will need the following:
 
-* [.NET Core SDK >= 3.1](https://www.microsoft.com/net/download/)
+* [.NET 10 SDK](https://dotnet.microsoft.com/download)
 * (VS Code Only) [C# Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode.csharp)
 * [SQL Server Express LocalDB](https://docs.microsoft.com/en-us/sql/database-engine/configure-windows/sql-server-express-localdb)
 * [Azurite](https://docs.microsoft.com/en-us/azure/storage/common/storage-use-azurite) (previously known as Azure Storage Emulator)
