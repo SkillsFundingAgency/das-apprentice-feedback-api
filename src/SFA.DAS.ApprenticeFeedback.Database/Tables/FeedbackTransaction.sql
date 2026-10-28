@@ -16,15 +16,14 @@
 )
 GO
 
-CREATE NONCLUSTERED INDEX [IX_FeedbackTransaction_ApprenticeFeedbackTarget]
-ON [dbo].[FeedbackTransaction] ( [ApprenticeFeedbackTargetId] )
-INCLUDE ( [SentDate], [TemplateName] );
-
+CREATE NONCLUSTERED INDEX [IX_FeedbackTransaction_ApprenticeFeedbackTarget] 
+ON [dbo].[FeedbackTransaction] ( [ApprenticeFeedbackTargetId] ) 
+INCLUDE ([CreatedOn], [EmailAddress], [FirstName], [IsSuppressed], [SendAfter], 
+         [SentDate], [TemplateId], [TemplateName], [Variant]);
 GO
 
 CREATE NONCLUSTERED INDEX [IX_FeedbackTransaction_CreatedOn]
 ON [dbo].[FeedbackTransaction] ( [CreatedOn] )
 INCLUDE ( [ApprenticeFeedbackTargetId], [SentDate], [SendAfter], [TemplateName] );
-
 GO
 
