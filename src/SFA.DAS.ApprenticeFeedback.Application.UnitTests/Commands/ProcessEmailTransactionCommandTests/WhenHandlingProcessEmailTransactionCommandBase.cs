@@ -1,4 +1,4 @@
-﻿using AutoFixture.NUnit3;
+﻿using AutoFixture.NUnit4;
 using Microsoft.EntityFrameworkCore;
 using Moq;
 using NServiceBus;
