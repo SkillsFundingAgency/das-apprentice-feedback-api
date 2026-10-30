@@ -37,6 +37,9 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
         public async Task<ApprenticeFeedbackTarget> FindById(Guid apprenticeFeedbackTargetId)
             => await Entities.SingleOrDefaultAsync(aft => aft.Id == apprenticeFeedbackTargetId);
 
+        public async Task<ApprenticeFeedbackTarget> FindByApprenticeshipId(long apprenticeshipId)
+            => await Entities.FirstOrDefaultAsync(aft => aft.ApprenticeshipId == apprenticeshipId);
+
         public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
     }
 }

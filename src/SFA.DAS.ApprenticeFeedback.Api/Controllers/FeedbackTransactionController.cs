@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.ApprenticeFeedback.Api.TaskQueue;
+using SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTransaction;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.GenerateFeedbackTransactions;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.ProcessEmailTransaction;
 using SFA.DAS.ApprenticeFeedback.Application.Commands.TrackEmailTransactionClick;
@@ -66,6 +67,27 @@ namespace SFA.DAS.ApprenticeFeedback.Api.Controllers
             catch (Exception e)
             {
                 var msg = "Error attempting to get feedback transactions to email";
+                _log.LogError(e, msg);
+                return StatusCode(StatusCodes.Status500InternalServerError, $"{msg}: {e.Message}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateFeedbackTransaction([FromBody] CreateFeedbackTransactionCommand command)
+        {
+            try
+            {
+                var result = await _mediator.Send(command);
+                if (result.NotFound)
+                {
+                    return NotFound();
+                }
+
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                var msg = "Error attempting to create feedback transaction";
                 _log.LogError(e, msg);
                 return StatusCode(StatusCodes.Status500InternalServerError, $"{msg}: {e.Message}");
             }
