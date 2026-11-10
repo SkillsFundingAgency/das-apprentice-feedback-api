@@ -66,13 +66,13 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
                 new NotificationTemplate { TemplateName = command.TemplateName, TemplateId = templateId }
             };
             feedbackTransactionContext
-                .Setup(x => x.HasUnsentTransaction(apprenticeFeedbackTargetId, templateId))
+                .Setup(x => x.HasUnsentTransaction(apprenticeFeedbackTargetId, command.TemplateName))
                 .ReturnsAsync(true);
 
             var response = await handler.Handle(command, CancellationToken.None);
 
             response.NotFound.Should().BeFalse();
-            feedbackTransactionContext.Verify(x => x.AddFeedbackTransaction(It.IsAny<Guid>(), It.IsAny<Guid>(), It.IsAny<DateTime>()), Times.Never);
+            feedbackTransactionContext.Verify(x => x.AddFeedbackTransaction(It.IsAny<Guid>(), It.IsAny<string>(), It.IsAny<DateTime>()), Times.Never);
         }
 
         [Test, AutoMoqData]
@@ -96,14 +96,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
                 new NotificationTemplate { TemplateName = command.TemplateName, TemplateId = templateId }
             };
             feedbackTransactionContext
-                .Setup(x => x.HasUnsentTransaction(apprenticeFeedbackTargetId, templateId))
+                .Setup(x => x.HasUnsentTransaction(apprenticeFeedbackTargetId, command.TemplateName))
                 .ReturnsAsync(false);
             dateTimeHelper.Setup(x => x.Now).Returns(now);
 
             var response = await handler.Handle(command, CancellationToken.None);
 
             response.NotFound.Should().BeFalse();
-            feedbackTransactionContext.Verify(x => x.AddFeedbackTransaction(apprenticeFeedbackTargetId, templateId, now), Times.Once);
+            feedbackTransactionContext.Verify(x => x.AddFeedbackTransaction(apprenticeFeedbackTargetId, command.TemplateName, now), Times.Once);
         }
 
         [Test, AutoMoqData]
@@ -129,14 +129,14 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             // HasUnsentTransaction returns false for the "sent-only" case.
             feedbackTransactionContext
-                .Setup(x => x.HasUnsentTransaction(apprenticeFeedbackTargetId, templateId))
+                .Setup(x => x.HasUnsentTransaction(apprenticeFeedbackTargetId, command.TemplateName))
                 .ReturnsAsync(false);
             dateTimeHelper.Setup(x => x.Now).Returns(now);
 
             var response = await handler.Handle(command, CancellationToken.None);
 
             response.NotFound.Should().BeFalse();
-            feedbackTransactionContext.Verify(x => x.AddFeedbackTransaction(apprenticeFeedbackTargetId, templateId, now), Times.Once);
+            feedbackTransactionContext.Verify(x => x.AddFeedbackTransaction(apprenticeFeedbackTargetId, command.TemplateName, now), Times.Once);
         }
     }
 }

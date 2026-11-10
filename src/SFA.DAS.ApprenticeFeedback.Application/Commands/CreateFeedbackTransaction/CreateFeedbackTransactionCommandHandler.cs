@@ -53,15 +53,15 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateFeedbackTransact
                     return new CreateFeedbackTransactionResponse { NotFound = true };
                 }
 
-                var hasUnsentTransaction = await _feedbackTransactionContext.HasUnsentTransaction(apprenticeFeedbackTarget.Id, template.TemplateId);
+                var hasUnsentTransaction = await _feedbackTransactionContext.HasUnsentTransaction(apprenticeFeedbackTarget.Id, template.TemplateName);
                 if (!hasUnsentTransaction)
                 {
-                    await _feedbackTransactionContext.AddFeedbackTransaction(apprenticeFeedbackTarget.Id, template.TemplateId, _dateTimeHelper.Now);
-                    _logger.LogDebug("Created feedback transaction for ApprenticeshipId: {ApprenticeshipId}, TemplateId: {TemplateId}", request.ApprenticeshipId, template.TemplateId);
+                    await _feedbackTransactionContext.AddFeedbackTransaction(apprenticeFeedbackTarget.Id, template.TemplateName, _dateTimeHelper.Now);
+                    _logger.LogDebug("Created feedback transaction for ApprenticeshipId: {ApprenticeshipId}, TemplateName: {TemplateName}", request.ApprenticeshipId, template.TemplateName);
                 }
                 else
                 {
-                    _logger.LogDebug("Skipped feedback transaction creation as unsent transaction already exists for ApprenticeshipId: {ApprenticeshipId}, TemplateId: {TemplateId}", request.ApprenticeshipId, template.TemplateId);
+                    _logger.LogDebug("Skipped feedback transaction creation as unsent transaction already exists for ApprenticeshipId: {ApprenticeshipId}, TemplateName: {TemplateName}", request.ApprenticeshipId, template.TemplateName);
                 }
 
                 return new CreateFeedbackTransactionResponse();
