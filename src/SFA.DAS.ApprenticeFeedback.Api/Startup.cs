@@ -55,6 +55,14 @@ namespace SFA.DAS.ApprenticeFeedback.Api
             });
 
             services.Configure<ApplicationSettings>(Configuration.GetSection("ApplicationSettings"));
+            services.PostConfigure<ApplicationSettings>(s =>
+            {
+                if (string.IsNullOrEmpty(s.NameOfOutcomeTemplate) || s.NotificationTemplates == null) return;
+                foreach (var template in s.NotificationTemplates)
+                {
+                    template.TemplateName = template.TemplateName?.Replace("$(NameOfOutcomeTemplate)", s.NameOfOutcomeTemplate);
+                }
+            });
             services.AddSingleton(s => s.GetRequiredService<IOptions<ApplicationSettings>>().Value);
 
             services.Configure<ApplicationUrls>(Configuration.GetSection("ApplicationUrls"));
