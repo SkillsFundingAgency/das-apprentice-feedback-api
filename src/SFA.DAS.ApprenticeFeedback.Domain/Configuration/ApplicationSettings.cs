@@ -44,5 +44,10 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
         public int FeedbackTargetVariantBatchSize { get; set; }
 
         public List<NotificationTemplate> NotificationTemplates { get; set; }
+
+        /// <summary>
+        /// Name of the NotificationTemplates entry used when an outcome is recorded
+        /// </summary>
+        public string ApprenticeshipOutcomeTemplateName { get; set; }
     }
 }

@@ -21,5 +21,20 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Interfaces
         public async Task<IEnumerable<FeedbackTransaction>> FindByApprenticeFeedbackTargetId(Guid apprenticeFeedbackTargetId)
             => await Entities.Where(s => s.ApprenticeFeedbackTargetId == apprenticeFeedbackTargetId).ToListAsync();
 
+        public async Task<bool> HasUnsentTransaction(Guid apprenticeFeedbackTargetId, string templateName)
+            => await Entities.AnyAsync(t => t.ApprenticeFeedbackTargetId == apprenticeFeedbackTargetId && t.TemplateName == templateName && t.SentDate == null);
+
+        public async Task AddFeedbackTransaction(Guid apprenticeFeedbackTargetId, string templateName, DateTime createdOn)
+        {
+            Entities.Add(new FeedbackTransaction
+            {
+                ApprenticeFeedbackTargetId = apprenticeFeedbackTargetId,
+                TemplateName = templateName,
+                CreatedOn = createdOn
+            });
+
+            await SaveChangesAsync();
+        }
+
     }
 }
