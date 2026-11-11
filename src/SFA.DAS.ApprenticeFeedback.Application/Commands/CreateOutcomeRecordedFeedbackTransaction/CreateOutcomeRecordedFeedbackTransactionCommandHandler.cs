@@ -38,11 +38,11 @@ namespace SFA.DAS.ApprenticeFeedback.Application.Commands.CreateOutcomeRecordedF
 
             try
             {
-                var templateName = _appSettings.NameOfOutcomeTemplate;
+                var templateName = _appSettings.ApprenticeshipOutcomeTemplateName;
                 if (string.IsNullOrWhiteSpace(templateName))
                 {
-                    _logger.LogError("NameOfOutcomeTemplate is not configured");
-                    throw new InvalidOperationException("NameOfOutcomeTemplate is not configured");
+                    _logger.LogError("ApprenticeshipOutcomeTemplateName is not configured");
+                    throw new InvalidOperationException("ApprenticeshipOutcomeTemplateName is not configured");
                 }
 
                 var apprenticeFeedbackTarget = await _apprenticeFeedbackTargetContext.FindByApprenticeshipId(request.ApprenticeshipId);

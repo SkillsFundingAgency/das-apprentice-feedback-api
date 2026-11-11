@@ -55,7 +55,7 @@ namespace SFA.DAS.ApprenticeFeedback.Api.UnitTests.Controllers.FeedbackTransacti
         {
             _mediator
                 .Setup(s => s.Send(It.IsAny<CreateOutcomeRecordedFeedbackTransactionCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new InvalidOperationException("NameOfOutcomeTemplate is not configured"));
+                .ThrowsAsync(new InvalidOperationException("ApprenticeshipOutcomeTemplateName is not configured"));
 
             var result = await _sut.CreateOutcomeRecordedFeedbackTransaction(new CreateOutcomeRecordedFeedbackTransactionCommand { ApprenticeshipId = 1 });
 

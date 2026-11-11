@@ -35,7 +35,7 @@ namespace SFA.DAS.ApprenticeFeedback.Application.UnitTests.Commands
 
             var settings = new ApplicationSettings
             {
-                NameOfOutcomeTemplate = outcomeTemplate,
+                ApprenticeshipOutcomeTemplateName = outcomeTemplate,
                 NotificationTemplates = new List<NotificationTemplate>(templates)
             };
             return new CreateOutcomeRecordedFeedbackTransactionCommandHandler(

@@ -48,6 +48,6 @@ namespace SFA.DAS.ApprenticeFeedback.Domain.Configuration
         /// <summary>
         /// Name of the NotificationTemplates entry used when an outcome is recorded
         /// </summary>
-        public string NameOfOutcomeTemplate { get; set; }
+        public string ApprenticeshipOutcomeTemplateName { get; set; }
     }
 }
